@@ -15,14 +15,14 @@
 <meta property="og:site_name" content="Lizhi&#39;s Blog">
 <meta property="og:description" content="本文从三个方面进行展开：第一部分，介绍seq2seq在整个RNN体系中的情况。第二部分，介绍seq2seq结构的基本原理。第三部分，介绍seq2seq的缺点，和由此引出的Attention机制。  第一部分 概览 RNNs：Recurrent neural network 翻译成 循环神经网络Bidirectional RNNs: 双向RNNsDeep Bidirectional RNNs:深度">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="http://yoursite.com/2018/12/08/认识seq2seq模型/(learnSeq2seq/RNN.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/08/认识seq2seq模型/(/learnSeq2seq/RNN.png">
 <meta property="og:image" content="https://github.com/shuqingjinse/blogPicture/blob/master/learnSeq2seq/RNN.png">
 <meta property="og:image" content="http://yoursite.com/learnSeq2seq/RNN.png">
-<meta property="og:updated_time" content="2018-12-08T15:44:36.041Z">
+<meta property="og:updated_time" content="2018-12-08T15:46:48.380Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="认识seq2seq模型">
 <meta name="twitter:description" content="本文从三个方面进行展开：第一部分，介绍seq2seq在整个RNN体系中的情况。第二部分，介绍seq2seq结构的基本原理。第三部分，介绍seq2seq的缺点，和由此引出的Attention机制。  第一部分 概览 RNNs：Recurrent neural network 翻译成 循环神经网络Bidirectional RNNs: 双向RNNsDeep Bidirectional RNNs:深度">
-<meta name="twitter:image" content="http://yoursite.com/2018/12/08/认识seq2seq模型/(learnSeq2seq/RNN.png">
+<meta name="twitter:image" content="http://yoursite.com/2018/12/08/认识seq2seq模型/(/learnSeq2seq/RNN.png">
   
     <link rel="alternate" href="/atom.xml" title="Lizhi&#39;s Blog" type="application/atom+xml">
   
@@ -98,7 +98,7 @@
         <hr>
 <p>本文从三个方面进行展开：<br>第一部分，介绍seq2seq在整个RNN体系中的情况。<br>第二部分，介绍seq2seq结构的基本原理。<br>第三部分，介绍seq2seq的缺点，和由此引出的Attention机制。</p>
 <hr>
-<h1 id="第一部分-概览"><a href="#第一部分-概览" class="headerlink" title="第一部分 概览"></a>第一部分 概览</h1><p><img src="(learnSeq2seq/RNN.png" alt="RNN"></p>
+<h1 id="第一部分-概览"><a href="#第一部分-概览" class="headerlink" title="第一部分 概览"></a>第一部分 概览</h1><p><img src="(/learnSeq2seq/RNN.png" alt=""></p>
 <p><strong>RNNs</strong>：Recurrent neural network 翻译成 循环神经网络<br><strong>Bidirectional RNNs</strong>: 双向RNNs<br>Deep Bidirectional RNNs:深度双向RNNs<br>LSTM：Long short term memory<br>GRU：Gated Recurrent Unit</p>
 <h2 id="解释："><a href="#解释：" class="headerlink" title="解释："></a>解释：</h2><p>传统的神经网络很难解决基于先前事件推断后续事件的问题。<br>RNNs是包含循环的网络，允许信息的持久化，解决了以上问题。</p>
 <p><img src="https://github.com/shuqingjinse/blogPicture/blob/master/learnSeq2seq/RNN.png" alt="Image"><br><img src="/learnSeq2seq/RNN.png" alt="Image"><br>[img]<br>裸RNNs无法利用当前词语的下文辅助分类决策，解决方法是使用一些更复杂的RNN变种，如Bidirectional RNNs，Deep Bidirectional RNNs，使每个时刻不但接受上个时刻的特征向量，还接受来自下层的特征表示。<br>RNNs存在的问题：在相关信息和当前预测位置之间的间隔相当长时，训练RNN变得相当困难。<br>LSTM，作为一种特殊的RNN，可以学习长期依赖信息，避免了RNNs存在的问题。<br>GRU是LSTM的简化版。</p>

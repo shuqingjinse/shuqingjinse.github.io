@@ -1,0 +1,20 @@
+title: Straight 的知识库
+description: 记录 AI、软件工程与日常思考
+author: shuqingjinse
+url: "https://shuqingjinse.github.io"
+baseurl: ""
+lang: zh-CN
+timezone: Asia/Shanghai
+markdown: kramdown
+highlighter: rouge
+permalink: /:categories/:year/:month/:day/:title/
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-paginate
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post

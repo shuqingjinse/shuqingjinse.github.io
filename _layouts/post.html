@@ -1,0 +1,4 @@
+---
+layout: default
+---
+<article class="article"><header class="article-header"><p class="post-meta">{{ page.date | date: "%Y-%m-%d" }}{% if page.categories %} · {{ page.categories | join: " / " }}{% endif %}</p><h1>{{ page.title }}</h1>{% if page.description %}<p class="article-lead">{{ page.description }}</p>{% endif %}</header><div class="prose">{{ content }}</div></article>

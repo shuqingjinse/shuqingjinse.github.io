@@ -1,0 +1,7 @@
+---
+layout: default
+---
+<section class="hero"><p class="eyebrow">KNOWLEDGE NOTES</p><h1>记录问题，沉淀答案。</h1><p class="intro">这里是 Straight 的个人知识库，主要记录人工智能、软件工程、工具实践与阅读思考。</p></section>
+<section class="post-list" aria-label="文章列表">
+{% for post in paginator.posts %}<article class="post-card"><p class="post-meta">{{ post.date | date: "%Y-%m-%d" }}{% if post.categories %} · {{ post.categories | join: " / " }}{% endif %}</p><h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2><p>{{ post.excerpt | strip_html | truncate: 180 }}</p><a class="read-more" href="{{ post.url | relative_url }}">阅读全文 →</a></article>{% else %}<p class="empty">还没有文章。在 <code>_posts/</code> 中创建第一篇 Markdown 笔记吧。</p>{% endfor %}
+</section>

@@ -1,4 +1,50 @@
 ---
 layout: default
 ---
-<article class="article"><header class="article-header"><p class="post-meta">{{ page.date | date: "%Y-%m-%d" }}{% if page.categories %} · {{ page.categories | join: " / " }}{% endif %}</p><h1>{{ page.title }}</h1>{% if page.description %}<p class="article-lead">{{ page.description }}</p>{% endif %}</header><div class="prose">{{ content }}</div></article>
+<article class="article article-with-toc">
+  <aside class="toc toc-side" aria-label="目录">
+    <p class="toc-title">目录</p>
+    <div class="toc-list"></div>
+  </aside>
+  <div class="article-main">
+    <header class="article-header"><p class="post-meta">{{ page.date | date: "%Y-%m-%d" }}{% if page.categories %} · {{ page.categories | join: " / " }}{% endif %}</p><h1>{{ page.title }}</h1>{% if page.description %}<p class="article-lead">{{ page.description }}</p>{% endif %}</header>
+    <details class="toc toc-inline">
+      <summary>目录</summary>
+      <div class="toc-list"></div>
+    </details>
+    <div class="prose">{{ content }}</div>
+  </div>
+</article>
+<script>
+(function () {
+  var prose = document.querySelector('.prose');
+  var tocs = document.querySelectorAll('.toc');
+  if (!prose || !tocs.length) return;
+  var main = prose.closest('main');
+  if (main) main.classList.add('shell-wide');
+  var heads = Array.prototype.slice.call(prose.querySelectorAll('h1,h2,h3'));
+  if (heads.length < 2) { for (var i = 0; i < tocs.length; i++) tocs[i].style.display = 'none'; return; }
+  var html = '';
+  heads.forEach(function (h, i) {
+    if (!h.id) h.id = 'sec-' + (i + 1);
+    html += '<a class="toc-link toc-' + h.tagName.toLowerCase() + '" href="#' + h.id + '">' + h.textContent + '</a>';
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.toc-list'), function (box) { box.innerHTML = html; });
+  Array.prototype.forEach.call(document.querySelectorAll('.toc-link'), function (a) {
+    a.addEventListener('click', function () { var d = a.closest('details'); if (d) d.open = false; });
+  });
+  var sideLinks = Array.prototype.slice.call(document.querySelectorAll('.toc-side .toc-link'));
+  if (!sideLinks.length) return;
+  var cur = -1;
+  function spy() {
+    var now = 0;
+    heads.forEach(function (h, i) { if (h.getBoundingClientRect().top <= 140) now = i; });
+    if (now !== cur) {
+      cur = now;
+      sideLinks.forEach(function (a, i) { a.classList.toggle('on', i === cur); });
+    }
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+})();
+</script>

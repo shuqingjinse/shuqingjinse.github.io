@@ -20,10 +20,12 @@ layout: default
   var prose = document.querySelector('.prose');
   var tocs = document.querySelectorAll('.toc');
   if (!prose || !tocs.length) return;
-  var main = prose.closest('main');
-  if (main) main.classList.add('shell-wide');
   var heads = Array.prototype.slice.call(prose.querySelectorAll('h1,h2,h3'));
   if (heads.length < 2) { for (var i = 0; i < tocs.length; i++) tocs[i].style.display = 'none'; return; }
+  var art = prose.closest('.article-with-toc');
+  if (art) art.classList.add('toc-on');
+  var main = prose.closest('main');
+  if (main) main.classList.add('shell-wide');
   var html = '';
   heads.forEach(function (h, i) {
     if (!h.id) h.id = 'sec-' + (i + 1);

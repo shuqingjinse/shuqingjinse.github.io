@@ -213,7 +213,7 @@ user:      <tool_response>...</tool_response>
 
 源码路径： RL/verl/trainer/ppo/info_gain_advantage.py
 
-![截图](/assets/images/dr-venus-igpo.png)
+![截图](/assets/images/dr-venus-igpo.jpg)
 
 **IGPO 的轮级信息增益定义为模型在相邻两轮中，对 Ground Truth 答案的长度归一化对数概率的变化量、记做IG_t，t为轮次turn；用信息论的角度看，等价于熵的减少量，如果某一轮交互后，模型对正确答案的置信度上升，信息增益为正，说明这一轮减少了不确定性，即“这一轮让我变得多确定”。**
 

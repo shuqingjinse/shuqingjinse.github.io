@@ -2,7 +2,7 @@
 layout: post
 title: "DR-Venus-4B 调研：怎么训练一个 Agent 小模型"
 description: "从 SFT 数据清洗、IGPO 长轨迹强化学习到在线推理，拆解 DR-Venus-4B 的训练流程。"
-categories: [AI]
+categories: [最新调研]
 tags: [Agent, 强化学习, GRPO, IGPO, 模型训练]
 ---
 

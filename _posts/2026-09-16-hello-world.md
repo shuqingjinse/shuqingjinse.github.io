@@ -2,7 +2,7 @@
 layout: post
 title: "你好，世界"
 description: "个人知识库正式开始。"
-categories: [随笔]
+categories: [个人杂谈]
 tags: [博客, Markdown]
 ---
 这是我的个人知识博客。以后会在这里记录学习过程、实践经验和值得复盘的问题。

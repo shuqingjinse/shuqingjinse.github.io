@@ -4,6 +4,7 @@ title: "LLM 基础（01）：Attention 篇"
 description: "从缩放点积注意力出发，理解 Q、K、V、方差与 softmax 梯度饱和。"
 categories: [LLM基础]
 tags: [LLM, Attention, Transformer, 深度学习]
+permalink: /AI/2026/09/30/llm-attention/
 ---
 
 ## 缩放点积注意力

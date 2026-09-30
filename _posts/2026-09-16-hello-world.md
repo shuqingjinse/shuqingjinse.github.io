@@ -4,6 +4,7 @@ title: "你好，世界"
 description: "个人知识库正式开始。"
 categories: [个人杂谈]
 tags: [博客, Markdown]
+permalink: /随笔/2026/09/16/hello-world/
 ---
 这是我的个人知识博客。以后会在这里记录学习过程、实践经验和值得复盘的问题。
 

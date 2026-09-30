@@ -4,6 +4,7 @@ title: "把 PPO 讲透：LLM 训练中逐 token 的计算过程"
 description: "从一条 prompt 进入 policy 开始，到每个 token 拿到属于自己的梯度为止。逐 token 讲解 reward、GAE、PPO-clip、三项损失，含可交互的算例实验室。"
 categories: [LLM基础]
 tags: [RLHF, PPO, GAE, 强化学习, 技术文章]
+permalink: /AI/2026/09/29/ppo-explained/
 ---
 
 PPO 是 LLM 对齐最常用也最难懂的强化学习算法之一。这篇文章把它彻底讲透：从一条 prompt 进入 policy 开始，到每个 token 拿到属于自己的梯度为止——reward 怎么从 1 个标量摊成 T 个、GAE 怎么做逐 token 信用分配、clip 怎么当刹车、value loss 和熵惩罚怎么配。全部配手绘 SVG 图，最后还有一个可编辑的交互实验室，改一个数字就全链路实时重算。

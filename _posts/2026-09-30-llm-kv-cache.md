@@ -7,7 +7,7 @@ tags: [LLM, KV Cache, Attention, 推理优化, GQA, MLA]
 permalink: /AI/2026/09/30/llm-kv-cache/
 ---
 
-## KV Cache 介绍
+# KV Cache 介绍
 
 KV Cache 是 LLM 内部的一种缓存机制，用于保存早期 Token 已完成的计算工作，从而使模型在生成每个新 Token 时无需重复进行相同的计算。
 
@@ -73,7 +73,7 @@ KV Cache 提高了生成速度，但也带来了权衡（Trade-off）：它需�
 - **Q4：KV Cache 解决了 LLM 的显存/内存问题吗？**
   - 答：没有。KV Cache 节省的是计算时间，但会消耗额外显存，并且缓存会随着序列变长而增大。在多用户并发服务时，Paged Attention 才是专门解决 KV Cache 内存管理问题的技术。
 
-## KV Cache 压缩
+# KV Cache 压缩
 
 KV Cache 压缩是一组旨在减少模型生成回复时用于记录上下文的内存技术，让模型能够在消耗更少内存的情况下处理更长的文本。
 

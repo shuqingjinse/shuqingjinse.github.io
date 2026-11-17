@@ -1,0 +1,181 @@
+---
+layout: default
+title: "CS2680 第 5 讲 · 智能体设计（二）"
+permalink: /course-notes/cs2680-lecture-05/
+---
+<section class="note-page">
+<a class="back-link" href="/course-notes/">← 返回课程笔记</a>
+<div class="note-cover"><p class="kicker">CS2680 课程学习讲义</p><h1>CS2680 第 5 讲 · 智能体设计（二）</h1><p class="sub">多智能体系统 · 中文学习笔记</p></div>
+<div class="prose">
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>课程</td><td>CS2680 Modern AI Systems: Agents and System Optimizations（现代 AI 系统：智能体与系统优化）</td></tr><tr class="alt"><td>主题</td><td>智能体设计（二）：多智能体架构、协调（任务分解）、通信与智能体记忆</td></tr><tr><td>授课教师</td><td>Juncheng Yang（杨俊成），哈佛 SEAS 助理教授</td></tr><tr class="alt"><td>课件来源</td><td>https://cs2680.seas.harvard.edu/slides/5_agent_design_2.pdf（共 46 页）</td></tr><tr><td>笔记说明</td><td>按主题提炼整理，非逐页直译；每节标注原始课件 PDF 页码，便于对照复核。</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">本讲主线</span> 本讲回答「何时以及为什么要跨智能体拆分工作」，并给出分析任何架构的三个问题——控制图（谁协调）、通信图（怎么通信）、任务图（怎么分解）。在此基础上逐一讲评八种多智能体架构及其优缺点，深入任务分解的粒度权衡与六类常见失败，最后讨论通信作为一个真正的分布式系统难题，以及 MCP（智能体—能力）与 A2A（智能体—智能体）两种协议的分工。</div>
+<h2 class="sec-h1"><span class="sec-num">1</span> 后勤与今日计划</h2>
+<ul class=""><li><strong>工具与作业：</strong>Claude Code Premium 席位；作业 1 相关（Canvas、repo url、mini product）；作业 2 已开放，约两周后截止；预提案（pre-proposal）。</li><li><strong>答疑：</strong>下周四 3:30–5pm，SEC 4.308。</li></ul>
+<p class="src">【来源：原始课件 第 2 页】</p>
+<h3 class="sec-h2">1.1  今日计划</h3>
+<ul class=""><li>多智能体设计：架构、协调（任务分解）、通信、智能体记忆</li></ul>
+<p class="i">多智能体并不是新概念——它有数十年的研究历史，本讲不展开。</p>
+<p class="src">【来源：原始课件 第 3、5 页】</p>
+<h2 class="sec-h1"><span class="sec-num">2</span> 为什么要拆分工作到多个智能体</h2>
+<div class="table-wrap"><table><thead><tr><th>动因</th><th>含义</th></tr></thead><tbody><tr><td>specialization 专业化</td><td>不同的模型、提示与工具</td></tr><tr class="alt"><td>isolation 隔离</td><td>给不同智能体不同权限</td></tr><tr><td>parallelism 并行</td><td>独立的子任务并发执行</td></tr><tr class="alt"><td>context management 上下文管理</td><td>不要把整条轨迹交给每个智能体</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 6 页】</p>
+<h3 class="sec-h2">2.1  每个架构背后的三个问题 / 三张图</h3>
+<div class="table-wrap"><table><thead><tr><th>图</th><th>问题</th><th>具体内容</th></tr></thead><tbody><tr><td>Control graph 控制图</td><td>谁协调？</td><td>单个主管、层级，或无人协调；运行时是否会变化（handoff）</td></tr><tr class="alt"><td>Communication graph 通信图</td><td>如何通信？</td><td>直接消息、广播，或共享工作区</td></tr><tr><td>Task graph 任务图</td><td>工作如何分解？</td><td>由规划者预先分解、通过竞价，或从局部规则涌现</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 7 页】</p>
+<h2 class="sec-h1"><span class="sec-num">3</span> 八种多智能体架构</h2>
+<p class="">概览：① 主管—工人；② 层级；③ 流水线 / DAG；④ 黑板；⑤ 委员会；⑥ 市场；⑦ 集群；⑧ 动态拓扑。</p>
+<p class="src">【来源：原始课件 第 8 页】</p>
+<h3 class="sec-h2">3.1  主管—工人（Supervisor–worker）</h3>
+<p class="">一个智能体负责规划、委派与整合；工人只看到自己的子任务。示例：supervisor 下接 Researcher、Coder、Reviewer。最适合子任务独立、可并行的场景。</p>
+<div class="callout"><span class="callout-label">弱点</span> 主管成为瓶颈：它要重读每个结果，上下文增长最快。任务=主管预先分解；控制=单一主管；通信=星形，经由主管。</div>
+<p class="src">【来源：原始课件 第 9 页】</p>
+<h3 class="sec-h2">3.2  层级智能体（Hierarchical）</h3>
+<p class="">把「主管—工人」递归应用：主管管理子主管。适合本身就分层分解的任务——存储、查询引擎、测试。示例（功能构建）：Feature manager → Backend lead / Frontend lead → API / Database / UI / E2E tests。</p>
+<div class="callout"><span class="callout-label">挑战</span> 在哪里分解，以及多少上下文跨越每个边界？任务=每层再分解；控制=嵌套主管；通信=树形，仅父子之间。</div>
+<p class="src">【来源：原始课件 第 10 页】</p>
+<h3 class="sec-h2">3.3  流水线 / DAG（Pipeline / DAG）</h3>
+<p class="">固定阶段，每个边界有类型化契约（typed contract）。示例（发票处理）：OCR → 提取字段 → 匹配 PO → 审批 → 记入账本。是最容易调试的拓扑——错误能定位到某一阶段。</p>
+<div class="callout"><span class="callout-label">弱点</span> 没有回头的路：第四阶段不能要求第一阶段提供更好的来源。「一条重试边胜过再加一个智能体。」任务=设计时固定阶段；控制=顺序本身；通信=阶段到阶段。</div>
+<p class="src">【来源：原始课件 第 11 页】</p>
+<h3 class="sec-h2">3.4  黑板与共享记忆（Blackboard）</h3>
+<p class="">智能体通过共享状态而非直接消息协调；工作区可以是数据库、向量库、文件系统、Git 仓库或任务图。示例：多个智能体共享一个 Git 仓库（task list、commits、history）。</p>
+<p class="">优点：智能体可以加入或离开而无需重新接线；共享状态持久且可检查。挑战：一致性、并发控制、来源追溯（provenance）、版本管理、垃圾回收。任务=从共享状态涌现；控制=无中心；通信=经由工作区的间接通信。</p>
+<p class="src">【来源：原始课件 第 12 页】</p>
+<h3 class="sec-h2">3.5  委员会 / 辩论（Committee / debate）</h3>
+<p class="">智能体提出并讨论，然后由裁判或投票解决分歧。示例（作文评分）：Judge + Grader A + Grader B。能提高判断密集型任务的准确率。</p>
+<div class="callout"><span class="callout-label">失败模式</span> 「没有独立性的共识」——相同的模型与上下文，同样的盲点（agreement without independence）。任务=同一任务并行重复；控制=裁判决定；通信=先同伴后裁判。</div>
+<p class="src">【来源：原始课件 第 13 页】</p>
+<h3 class="sec-h2">3.6  市场与拍卖（Market / auction）</h3>
+<p class="">智能体基于能力、成本与延迟对公布的任务出价。示例（GPU 作业路由）：A100 $0.20/ETA 3s、T4 $0.05/ETA 10s、H100 $0.40/ETA 1s ——「5 秒内最低价中标」，作业给 A100。工作落到最便宜且有能力的智能体，无需中央规划者。</p>
+<div class="callout"><span class="callout-label">弱点</span> 出价是自报的，智能体可以通过夸大能力而中标。任务=公布后按出价认领；控制=拍卖方清算；通信=广播、出价回传。</div>
+<p class="src">【来源：原始课件 第 14 页】</p>
+<h3 class="sec-h2">3.7  集群（Swarm）</h3>
+<p class="">没有永久协调者，智能体直接协商、交换发现。示例：仓库机器人协商谁拣哪个订单。需要发现、寻址、同步、终止、信任等协议。</p>
+<div class="callout"><span class="callout-label">弱点</span> 没有协调者瓶颈或单点故障；同伴进出工作继续。但通信复杂度 O(n²)，冲突解决困难，产品中很少使用。任务=局部协商；控制=无永久协调者；通信=全互联 O(n²)。</div>
+<p class="src">【来源：原始课件 第 15 页】</p>
+<h3 class="sec-h2">3.8  动态拓扑（Dynamic topology）</h3>
+<p class="">任务运行中可以添加、移除或重连智能体。示例：客服机器人在工单升级时才加入计费与日志智能体。容量随难度扩展，简单工单保持便宜。</p>
+<div class="callout"><span class="callout-label">弱点</span> 每次运行形态都不同，失败难以复现。任务=工作变难时再分解；控制=随智能体加入而转移；通信=运行时动态。</div>
+<p class="src">【来源：原始课件 第 16 页】</p>
+<h3 class="sec-h2">3.9  真实系统是混合体</h3>
+<p class="">示例：Planner agent（主管）→ 动态任务 DAG，其下 Coder、Researcher、Tester、Reviewer 通过共享 Git（shared memory）协作，必要时重新规划（re-plan）。它结合了层级、共享记忆、流水线三种模式。</p>
+<p class="src">【来源：原始课件 第 17 页】</p>
+<h3 class="sec-h2">3.10  八种架构总览</h3>
+<div class="table-wrap"><table><thead><tr><th>类别</th><th>架构</th><th>核心思想</th><th>最适合</th><th>弱点</th></tr></thead><tbody><tr><td>集中式</td><td>主管—工人</td><td>一个规划者，多个工人</td><td>可分离的子任务</td><td>规划者瓶颈</td></tr><tr class="alt"><td>集中式</td><td>层级</td><td>主管的主管</td><td>递归分解</td><td>错误放大</td></tr><tr><td>集中式</td><td>流水线 / DAG</td><td>每阶段喂给下一阶段</td><td>清晰的有序阶段</td><td>错误传播</td></tr><tr class="alt"><td>集中式</td><td>市场 / 拍卖</td><td>智能体为任务出价</td><td>动态分配</td><td>错误出价</td></tr><tr><td>去中心化</td><td>黑板</td><td>共享工作区</td><td>单一共享工件</td><td>陈旧状态</td></tr><tr class="alt"><td>去中心化</td><td>委员会 / 辩论</td><td>先回答再调和</td><td>判断类决策</td><td>群体思维</td></tr><tr><td>去中心化</td><td>集群</td><td>直接对话，无控制器</td><td>局部协商</td><td>O(n²) 消息</td></tr><tr class="alt"><td>混合</td><td>动态拓扑</td><td>随工作推进重连</td><td>结构未知</td><td>难以调试</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 18 页】</p>
+<h2 class="sec-h1"><span class="sec-num">4</span> 协调：任务分解</h2>
+<p class="">复杂任务 → 子任务 1 / 2 / 3 → 合并结果。</p>
+<p class="src">【来源：原始课件 第 19 页】</p>
+<h3 class="sec-h2">4.1  分解的六个维度</h3>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>说明</th></tr></thead><tbody><tr><td>Data 数据</td><td>每个智能体处理一部分文档或记录</td></tr><tr class="alt"><td>Expertise 专长</td><td>安全、性能、正确性、法律分析</td></tr><tr><td>Stage 阶段</td><td>规划、实现、测试、审查</td></tr><tr class="alt"><td>Hypothesis 假设</td><td>智能体调查相互竞争的解释</td></tr><tr><td>Tool 工具</td><td>网页、数据库、代码执行或内部文档</td></tr><tr class="alt"><td>Authority 权限</td><td>智能体在不同的管理域中行动</td></tr></tbody></table></div>
+<p class="">示例：一个 200 文件的 PR，先按数据（文件）分解，再按专长（安全、性能）分解。</p>
+<p class="src">【来源：原始课件 第 20 页】</p>
+<h3 class="sec-h2">4.2  创建子任务时要考虑的要素</h3>
+<ul class=""><li>目标（Objective）、输入与相关上下文、边界与排除项、可用工具与权限、预期输出 schema、完成测试、预算与截止时间、依赖关系。</li></ul>
+<div class="table-wrap"><table><thead><tr><th></th><th>示例</th></tr></thead><tbody><tr><td>较差的子任务</td><td>「研究存储系统」</td></tr><tr class="alt"><td>更好的子任务</td><td>「找出 2026 年发表的存储相关论文；返回标题、日期、系统贡献、评测规模与一手来源 URL；排除数据库查询优化」</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 21 页】</p>
+<h3 class="sec-h2">4.3  粒度权衡</h3>
+<p class="">任务太大 → 并行度低，工作仍是顺序的；任务太小 → 调度与通信开销占主导。公式：T_multi ≈ T_planning + T_critical path + T_communication + T_merge。只有当省下的顺序工作超过规划、通信与整合成本时，并行化才有帮助。</p>
+<p class="">示例：把 20 个单行查找批量成 4 个子任务，使开销低于收益。</p>
+<p class="src">【来源：原始课件 第 22 页】</p>
+<h3 class="sec-h2">4.4  静态 vs 动态分解</h3>
+<div class="table-wrap"><table><thead><tr><th>类型</th><th>说明</th><th>示例</th></tr></thead><tbody><tr><td>Static 静态</td><td>执行前已知；可预测、易评估</td><td>摘要每个上传的 PDF</td></tr><tr class="alt"><td>Dynamic 动态</td><td>智能体根据发现创建新任务</td><td>死链触发一个查找任务</td></tr><tr><td>Recursive 递归</td><td>工人本身也可以委派</td><td>审查智能体为每个子领域派生一个子智能体</td></tr><tr class="alt"><td>Opportunistic 机会式</td><td>空闲智能体认领新出现的任务</td><td>空闲智能体拾起下一份未标注文档</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">必须有护栏</span> 分解需要派生限制、预算、深度限制与终止条件——否则委派会递归式爆炸（delegation explodes recursively）。</div>
+<p class="src">【来源：原始课件 第 23 页】</p>
+<h3 class="sec-h2">4.5  六种常见的分解失败</h3>
+<div class="table-wrap"><table><thead><tr><th>失败</th><th>描述</th></tr></thead><tbody><tr><td>01 Overlap 重叠</td><td>两个智能体摘要同一篇论文</td></tr><tr class="alt"><td>02 Gap 缺口</td><td>「2020–2023」加「2025–2026」跳过了 2024</td></tr><tr><td>03 Hidden dependency 隐藏依赖</td><td>定价需要尺寸，但尺寸只在运行时才发现</td></tr><tr class="alt"><td>04 Unmergeable outputs 无法合并</td><td>一个返回自由文本，另一个返回 JSON</td></tr><tr><td>05 Lost global context 丢失全局上下文</td><td>每一节都没问题，但整篇报告自相矛盾</td></tr><tr class="alt"><td>06 Straggler 落后者</td><td>六个智能体 20 秒完成，一个耗时 4 分钟</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 24–25 页】</p>
+<h2 class="sec-h1"><span class="sec-num">5</span> 通信</h2>
+<h3 class="sec-h2">5.1  多智能体通信的四个维度</h3>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>问题</th><th>选项</th></tr></thead><tbody><tr><td>Topology 拓扑</td><td>谁能和谁说话？</td><td>主管—工人、点对点；由架构决定</td></tr><tr class="alt"><td>Medium 媒介</td><td>信息如何交换？</td><td>消息、共享记忆、文件、数据库</td></tr><tr><td>Format &amp; Semantics 格式与语义</td><td>消息如何构造、如何表达信息？</td><td>delegate、report、ask、handoff、cancel</td></tr><tr class="alt"><td>Channel 通道</td><td>信息如何传递？</td><td>p2p、广播、pub–sub、共享状态、请求—响应</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 27 页】</p>
+<h3 class="sec-h2">5.2  通信媒介</h3>
+<div class="table-wrap"><table><thead><tr><th>媒介</th><th>说明</th></tr></thead><tbody><tr><td>消息传递 Message passing</td><td>智能体通过队列或总线发送显式消息，如 coder 把结果发到 orchestrator 的收件箱</td></tr><tr class="alt"><td>共享记忆 Shared memory</td><td>一个进程内状态对象，所有智能体读写，如随工作完成更新的共享任务清单</td></tr><tr><td>文件与工件（含 DB）</td><td>工作产品通过文件存储交接，如 researcher 写 notes.md，writer 打开它</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 28 页】</p>
+<h3 class="sec-h2">5.3  通信通道</h3>
+<ul class=""><li>直接点对点消息——规划者把任务规格交给 coder；</li><li>广播——编排者告诉所有智能体构建失败；</li><li>发布—订阅——智能体订阅「新工单」主题并响应；</li><li>共享黑板——智能体读写同一份发现暂存区；</li><li>请求—响应——智能体查询检索智能体并等待文档；</li><li>工件传递——一个智能体写 report.md，下一个读取。</li></ul>
+<p class="src">【来源：原始课件 第 29 页】</p>
+<h3 class="sec-h2">5.4  消息格式与语义</h3>
+<p class="">自然语言灵活但有歧义；结构化消息易校验但表达力弱。实用设计是两者结合：自然语言承载内容，结构化协议承载协调。</p>
+<p class="">一个带语义的消息示例：{task_id, type: result, status: complete, claim, confidence, evidence[], artifact, requires_response}。运行时已知的操作：DELEGATE、QUERY、REPORT、HANDOFF、UPDATE、CANCEL、ACK、ERROR、COMPLETE。</p>
+<div class="callout"><span class="callout-label">关键原则</span> 把控制与内容分离；按字段路由，而不是按散文路由（Route on the fields, not the prose）。这样运行时无需问 LLM「这条消息是什么意思」就能路由、重试与停止。</div>
+<p class="src">【来源：原始课件 第 30–31 页】</p>
+<h3 class="sec-h2">5.5  通信设计空间与经验法则</h3>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>选项</th><th>经验法则</th></tr></thead><tbody><tr><td>拓扑</td><td>主管—工人、点对点、mesh</td><td>镜像任务的依赖关系</td></tr><tr class="alt"><td>媒介</td><td>消息、共享记忆、文件</td><td>每条链路用一种媒介</td></tr><tr><td>通道</td><td>p2p、广播、pub–sub、请求—响应</td><td>仅当所有人都必须知道时才广播</td></tr><tr class="alt"><td>格式</td><td>自然语言 + 控制字段</td><td>按字段路由，不按散文</td></tr></tbody></table></div>
+<p class="">每个选择都在延迟、上下文或可靠性之间取舍。</p>
+<p class="src">【来源：原始课件 第 32 页】</p>
+<h2 class="sec-h1"><span class="sec-num">6</span> 通信是一个艰难的分布式系统问题</h2>
+<p class="">示例：Agent A 告诉 Agent B「购买 8 个 GPU 实例」，网络超时无回应——B 到底执行了吗？重试还是放弃？至多一次还是至少一次？这里能做到恰好一次吗？用 task_id 做幂等键、补偿/回滚路径——以及，重复购买谁付钱？</p>
+<p class="src">【来源：原始课件 第 33 页】</p>
+<h3 class="sec-h2">6.1  分布式系统固有的难题</h3>
+<div class="table-wrap"><table><thead><tr><th>难题</th><th>说明</th></tr></thead><tbody><tr><td>部分失败 Partial failure</td><td>你无法区分一个慢的智能体和一个死掉的智能体</td></tr><tr class="alt"><td>并发与非确定性</td><td>多台机器同时修改状态</td></tr><tr><td>复制状态的一致性</td><td>一致性、可用性、分区、延迟之间的取舍</td></tr><tr class="alt"><td>没有全局时钟</td><td>不同机器上的时钟不一致</td></tr><tr><td>不可靠网络</td><td>包延迟、丢失、重排、重复……</td></tr><tr class="alt"><td>调试与可观测性</td><td>大量请求、带时钟漂移的分布式日志</td></tr></tbody></table></div>
+<p class="">多智能体系统继承了这些常见的分布式系统问题。</p>
+<p class="src">【来源：原始课件 第 34 页】</p>
+<h3 class="sec-h2">6.2  多智能体运行时的额外挑战</h3>
+<ul class=""><li><strong>调度：</strong>谁接下来运行、运行多久。</li><li><strong>状态管理：</strong>检查点、记忆、来源追溯与版本管理。</li><li><strong>资源分配：</strong>模型、CPU 及其他共享资源。</li></ul>
+<p class="">请求流没有预定路径——系统无法预知谁需要运行、运行多久、每个智能体消耗多少资源。</p>
+<p class="src">【来源：原始课件 第 35 页】</p>
+<h3 class="sec-h2">6.3  黑盒 LLM 带来的更多挑战</h3>
+<div class="table-wrap"><table><thead><tr><th>类别</th><th>问题</th></tr></thead><tbody><tr><td>上下文</td><td>信息丢失（摘要丢掉工人知道的细节）、上下文污染（重要的被埋没）、陈旧信息（X=5 后 B 仍按 X=3 行动）、信念冲突（A 说安全，B 说有漏洞）</td></tr><tr class="alt"><td>协调与通信</td><td>可观测性与失败诊断（为什么失败？）、所有权丢失（都以为对方负责）、通信循环（A 问 B，B 问 C，C 问 A）</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 36 页】</p>
+<h2 class="sec-h1"><span class="sec-num">7</span> A2A：智能体对智能体协议</h2>
+<p class="">A2A 让智能体之间能发现能力、发送消息/创建任务、获取进度更新、返回工件。示例：「分析 X 公司是否应把推理栈迁移到 GPU Y」——Research Agent 通过 Agent Card 发现同伴，Finance Agent 估算 GPU 成本，Search Agent 找基准数据，Coding Agent 跑基准。</p>
+<p class="src">【来源：原始课件 第 37 页】</p>
+<h3 class="sec-h2">7.1  A2A Agent Card</h3>
+<p class="">每个 A2A 服务器发布一张机器可读的卡片（GET /.well-known/agent-card.json）：name、description、skills、supportedInterfaces、capabilities（如 streaming）、securitySchemes。调用者由此得知：身份、能力、端点、能力特性（streaming/push）、认证方式。</p>
+<p class="src">【来源：原始课件 第 38 页】</p>
+<h3 class="sec-h2">7.2  A2A 的三个核心抽象</h3>
+<div class="table-wrap"><table><thead><tr><th>抽象</th><th>说明</th><th>示例</th></tr></thead><tbody><tr><td>Message 消息</td><td>客户端与智能体之间的一轮交互</td><td>「订一张去波士顿的机票」</td></tr><tr class="alt"><td>Task 任务</td><td>带 ID 与生命周期的有状态工作单元</td><td>task-42: working → completed</td></tr><tr><td>Artifact 工件</td><td>任务产生的输出</td><td>行程 PDF 与预订数据</td></tr></tbody></table></div>
+<p class="">消息启动任务，任务以工件返回其结果；后续追问加入同一任务：「哪天？」→「10 月 3 日」。</p>
+<p class="src">【来源：原始课件 第 39 页】</p>
+<h3 class="sec-h2">7.3  A2A 任务生命周期与长任务跟踪</h3>
+<p class="">状态：Submitted、Working、Input required、Auth required、Completed、Failed、Rejected、Canceled。任务可以暂停等待输入或认证，然后恢复。示例：「订机票」→ Input required「哪天？」→「10 月 3 日」→ Working。</p>
+<div class="table-wrap"><table><thead><tr><th>跟踪方式</th><th>说明</th><th>适用</th></tr></thead><tbody><tr><td>Polling 轮询</td><td>客户端反复检查直到完成</td><td>短作业</td></tr><tr class="alt"><td>Streaming 流式</td><td>流式传输实时更新</td><td>交互式输出</td></tr><tr><td>Push notification 推送</td><td>完成时触发 webhook</td><td>数小时级作业</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">边界</span> A2A 标准化的是通信，而不是编排：委派、拆分与停止仍由外壳负责。</div>
+<p class="src">【来源：原始课件 第 40–41 页】</p>
+<h3 class="sec-h2">7.4  MCP 与 A2A 对比</h3>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>MCP</th><th>A2A</th></tr></thead><tbody><tr><td>主要抽象</td><td>能力 / 工具</td><td>智能体 / 任务</td></tr><tr class="alt"><td>关系</td><td>智能体 → 服务</td><td>智能体 → 智能体</td></tr><tr><td>发现</td><td>tools、resources、prompts</td><td>智能体能力（Agent Card）</td></tr><tr class="alt"><td>工作单元</td><td>一次工具调用</td><td>长时运行任务</td></tr><tr><td>内部状态</td><td>能力接口</td><td>理想上不透明</td></tr><tr class="alt"><td>类比</td><td>设备 / API 接口</td><td>服务到服务 RPC</td></tr></tbody></table></div>
+<p class="">「一个 A2A 远端智能体本身可以调用二十个 MCP 服务器。」MCP 标准化的是 tools、resources、prompts，一个客户端对接多个服务器，且由宿主（而非模型）决定暴露什么。</p>
+<p class="src">【来源：原始课件 第 42–43 页】</p>
+<h2 class="sec-h1"><span class="sec-num">8</span> 多智能体设计原则</h2>
+<ul class=""><li><strong>真的需要多智能体吗？</strong>单个智能体往往足够，多个智能体通常只增加开销与复杂性。</li><li><strong>确定拓扑：</strong>反映任务依赖，最小化通信。</li><li><strong>识别信息丢失点：</strong>把聚合节点视为细节会丢失的地方。</li><li><strong>识别故障 containment 边界：</strong>确保系统不会停摆。</li></ul>
+<div class="callout"><span class="callout-label">警告</span> 密集 mesh 很少是最佳默认。更多通信可能只增加上下文压力，而不增加有用信息。</div>
+<p class="src">【来源：原始课件 第 44 页】</p>
+<h2 class="sec-h1"><span class="sec-num">9</span> 结语与附录</h2>
+<h3 class="sec-h2">9.1  下节课预告</h3>
+<ul class=""><li>智能体设计（三）：智能体记忆、智能体可靠性、智能体评估</li></ul>
+<p class="src">【来源：原始课件 第 45 页】</p>
+<h3 class="sec-h2">9.2  附录：核心术语对照表</h3>
+<div class="table-wrap"><table><thead><tr><th>英文</th><th>中文</th><th>说明</th></tr></thead><tbody><tr><td>Control / Communication / Task graph</td><td>控制图/通信图/任务图</td><td>分析任何多智能体架构的三个问题</td></tr><tr class="alt"><td>Supervisor–worker</td><td>主管—工人</td><td>一个规划者委派，工人只看自己的子任务</td></tr><tr><td>Pipeline / DAG</td><td>流水线 / 有向无环图</td><td>固定阶段、类型化契约，最易调试</td></tr><tr class="alt"><td>Blackboard</td><td>黑板</td><td>通过共享工作区间接协调</td></tr><tr><td>Committee / debate</td><td>委员会 / 辩论</td><td>多方提议后由裁判或投票裁决</td></tr><tr class="alt"><td>Market / auction</td><td>市场 / 拍卖</td><td>按能力、成本、延迟竞价分配任务</td></tr><tr><td>Swarm</td><td>集群</td><td>无永久协调者，点对点协商，O(n²) 通信</td></tr><tr class="alt"><td>Dynamic topology</td><td>动态拓扑</td><td>运行时增删或重连智能体</td></tr><tr><td>Task decomposition</td><td>任务分解</td><td>按数据/专长/阶段/假设/工具/权限拆分</td></tr><tr class="alt"><td>Straggler</td><td>落后者</td><td>一个慢子任务拖垮整体</td></tr><tr><td>A2A</td><td>智能体对智能体协议</td><td>发现能力、消息、有状态任务与工件</td></tr><tr class="alt"><td>Agent Card</td><td>智能体卡片</td><td>机器可读的能力与端点描述</td></tr><tr><td>MCP vs A2A</td><td>能力接口 vs 智能体协作</td><td>MCP=智能体到服务；A2A=智能体到智能体</td></tr></tbody></table></div>
+<p class="i">— 本讲义由原始课件（cs2680.seas.harvard.edu/slides/5_agent_design_2.pdf，46 页）翻译整理；页码标注对应课件 PDF 页码，供对照复核。—</p>
+</div>
+</section>
+<style>
+:root{--bg:#f7f8fa;--text:#17202a;--muted:#697586;--line:#e4e8ee;--accent:#1769aa;--code:#f1f4f7}
+.note-page{max-width:860px;margin:0 auto;padding:0 0 40px}
+.back-link{display:inline-block;margin:26px 0 8px;font-size:14px;color:var(--accent)}
+.note-cover{padding:28px 0 30px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.note-cover .kicker{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:2px}
+.note-cover h1{font-size:clamp(28px,5vw,40px);line-height:1.3;margin:10px 0 6px}
+.note-cover .sub{color:var(--muted);font-size:17px}
+.note-page p{margin:0 0 12px}
+.note-page .b{font-weight:700}
+.note-page .i{font-style:italic;color:var(--muted)}
+.note-page h2.sec-h1{font-size:23px;line-height:1.35;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);color:#1b2a4a}
+.note-page .sec-num{color:#b01e3c;margin-right:6px}
+.note-page h3.sec-h2{font-size:18px;margin:24px 0 10px;color:#2e5c8a}
+.note-page ul{margin:0 0 14px;padding-left:24px}
+.note-page li{margin:5px 0;line-height:1.75}
+.note-page ul.sub{padding-left:44px;list-style:circle}
+.note-page .src{font-size:12.5px;color:var(--muted);font-style:italic;margin:4px 0 12px}
+.note-page .callout{border-left:4px solid #c8a24a;background:#fbf3e4;color:#4a3f22;padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;line-height:1.75}
+.note-page .callout-label{font-weight:700;color:#a8801f}
+.table-wrap{overflow-x:auto;margin:16px 0}
+.note-page table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}
+.note-page th,.note-page td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;line-height:1.6}
+.note-page thead th{background:#1b2a4a;color:#fff;font-weight:600;white-space:nowrap}
+.note-page tbody tr.alt{background:#f2f5f9}
+.note-page tbody tr.hl{background:#f7e9ec}
+.note-page tbody tr.hl td{font-weight:600;color:#b01e3c}
+@media(max-width:700px){.note-page h2.sec-h1{font-size:20px}.note-page p{font-size:15px}}
+</style>

@@ -1,0 +1,139 @@
+---
+layout: default
+title: "CS2680 第 6 讲 · 智能体设计（三）"
+permalink: /course-notes/cs2680-lecture-06/
+---
+<section class="note-page">
+<a class="back-link" href="/course-notes/">← 返回课程笔记</a>
+<div class="note-cover"><p class="kicker">CS2680 课程学习讲义</p><h1>CS2680 第 6 讲 · 智能体设计（三）</h1><p class="sub">智能体记忆与可靠性 · 中文学习笔记</p></div>
+<div class="prose">
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>课程</td><td>CS2680 Modern AI Systems: Agents and System Optimizations（现代 AI 系统：智能体与系统优化）</td></tr><tr class="alt"><td>主题</td><td>智能体设计（三）：智能体记忆（memory）与可靠性（reliability）</td></tr><tr><td>授课教师</td><td>Juncheng Yang（杨俊成），哈佛 SEAS 助理教授</td></tr><tr class="alt"><td>课件来源</td><td>https://cs2680.seas.harvard.edu/slides/6_agent_design_3.pdf（共 31 页）</td></tr><tr><td>笔记说明</td><td>按主题提炼整理，非逐页直译；每节标注原始课件 PDF 页码，便于对照复核。</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">本讲主线</span> 本讲分两大主题。记忆部分用七个设计问题串起「什么值得记、记成什么、存在哪里、何时用、如何检索、如何泛化、如何遗忘」，强调遗忘与时间有效性是一等操作，并给出评估方法与失败模式。可靠性部分从「错误会复合」的量化事实出发——每步 95% 成功率，50 步运行无错概率仅 1/13——逐层剖析任务规格、外壳、模型、工具、环境五类失效，最后给出「面向失败的设计」：把完成条件写成测试、约束每一次运行、要求证据、让工具响亮地失败、固定并隔离环境。</div>
+<h2 class="sec-h1"><span class="sec-num">1</span> 后勤与今日计划</h2>
+<ul class=""><li><strong>答疑：</strong>本周四 3:30pm，SEC 4.308。</li><li><strong>期末项目：</strong>海报展示 12 月 7 日 9am–1pm；时间不便者请本周联系老师。</li><li><strong>AI 生成的参考材料：</strong>cs2680.com/notes/agent-evaluation；阅读材料里的 notes 由教师精选、并经教师与助教审校。</li></ul>
+<p class="src">【来源：原始课件 第 2 页】</p>
+<h3 class="sec-h2">1.1  今日计划</h3>
+<ul class=""><li>多智能体设计（承接上讲）</li><li>智能体记忆（Agent memory）</li><li>智能体可靠性（Agent reliability）</li></ul>
+<p class="src">【来源：原始课件 第 3 页】</p>
+<h2 class="sec-h1"><span class="sec-num">2</span> 智能体记忆：概念与设计问题</h2>
+<h3 class="sec-h2">2.1  上下文窗口之外的持久状态</h3>
+<p class="">智能体记忆 = 上下文窗口之外的持久状态。两类状态：上下文窗口是临时工作状态（temporary working state）；记忆存储是跨交互的持久状态（persistent state across interactions）。用户 → 智能体外壳（含 LLM 与记忆存储）。</p>
+<p class="src">【来源：原始课件 第 5 页】</p>
+<h3 class="sec-h2">2.2  记忆设计的七个问题</h3>
+<div class="table-wrap"><table><thead><tr><th>问题</th><th>决策点</th></tr></thead><tbody><tr><td>谁拥有记忆？</td><td>归属 ownership</td></tr><tr class="alt"><td>值得保留吗？</td><td>WRITE OR SKIP —— 决定 write</td></tr><tr><td>应变成什么形式？</td><td>ENCODE / ORGANIZE —— 格式 format</td></tr><tr class="alt"><td>这个任务需要它吗？</td><td>RETRIEVE —— 任务 task</td></tr><tr><td>能得出什么更一般的教训？</td><td>REFLECT / GENERALIZE —— 教训 lesson</td></tr><tr class="alt"><td>它还有效吗？</td><td>KEEP / UPDATE / DELETE —— 状态 status</td></tr><tr><td>它应该放在哪里？</td><td>STORE —— 后端 backend</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 6 页】</p>
+<h2 class="sec-h1"><span class="sec-num">3</span> 记忆设计的逐项展开</h2>
+<h3 class="sec-h2">3.1  决定：什么时候某件事应成为记忆</h3>
+<p class="">把每次交互都写下来会同时提高召回率与噪声。可选策略：显式用户请求、确定性规则（启发式）、小型分类器、定期 LLM 审阅——在「高召回（写每次交互）」到「高精度（选择性写入）」之间取舍。</p>
+<p class="src">【来源：原始课件 第 7 页】</p>
+<h3 class="sec-h2">3.2  如何组织记忆</h3>
+<div class="table-wrap"><table><thead><tr><th>组织方式</th><th>示例</th><th>特点</th></tr></thead><tbody><tr><td>原始事件 / 情节 Raw episodes</td><td>「我们把服务从 vLLM 迁到了 SGLang」</td><td>高保真；大而冗余</td></tr><tr class="alt"><td>非结构化摘要</td><td>「Uses SGLang for model serving」</td><td>紧凑；可能丢上下文</td></tr><tr><td>结构化状态</td><td>{&quot;serving_engine&quot;:&quot;SGLang&quot;}</td><td>可查询；schema 形成约束</td></tr><tr class="alt"><td>知识图谱</td><td>Project → USES → SGLang</td><td>关联实体，刻画随时间的变化</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 8 页】</p>
+<h3 class="sec-h2">3.3  如何存储记忆</h3>
+<div class="table-wrap"><table><thead><tr><th>后端</th><th>示例</th><th>特点</th></tr></thead><tbody><tr><td>纯文件</td><td>CLAUDE.md、scratchpad</td><td>易于检查、diff 与搜索</td></tr><tr class="alt"><td>键值 / 关系数据库</td><td>Redis、SQLite、Postgres JSONB</td><td>精确查找、过滤与事务</td></tr><tr><td>向量库</td><td>pgvector、Chroma、Pinecone</td><td>精确或近似相似度搜索</td></tr><tr class="alt"><td>图数据库</td><td>Neo4j、FalkorDB（Graphiti）</td><td>关系查询与多跳遍历</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 9 页】</p>
+<h3 class="sec-h2">3.4  何时使用记忆</h3>
+<div class="table-wrap"><table><thead><tr><th>模式</th><th>机制</th><th>优点 / 缺点</th></tr></thead><tbody><tr><td>Automatic 自动</td><td>每一轮：search → LLM → add</td><td>+ 可预测、简单；– 增加延迟与无关上下文</td></tr><tr class="alt"><td>Runtime-controlled 运行时控制</td><td>if memory_needed: search(); if memorable: add()</td><td>+ 选择性、高效；– 需要规则或分类器</td></tr><tr><td>Model-controlled 模型控制</td><td>search_memory() / add_memory() / update_memory() / forget_memory()</td><td>+ 按需驱动，由 LLM 决定；– 可能漏掉有用的读或写</td></tr></tbody></table></div>
+<p class="">许多系统采用混合方式；读策略与写策略可以不同。</p>
+<p class="src">【来源：原始课件 第 10 页】</p>
+<h3 class="sec-h2">3.5  如何检索记忆</h3>
+<p class="">语义相关性只是检索信号之一。基础流水线：Query → Vector search → Top-k memories → Prompt（语义匹配）。此外还要考虑：</p>
+<div class="table-wrap"><table><thead><tr><th>信号</th><th>说明</th></tr></thead><tbody><tr><td>Semantic match 语义匹配</td><td>含义与查询匹配</td></tr><tr class="alt"><td>Scope 范围</td><td>同一用户、项目、实体或任务</td></tr><tr><td>Importance 重要性</td><td>漏掉或包含它的代价</td></tr><tr class="alt"><td>Validity 有效性</td><td>在此任务、此时刻为真</td></tr><tr><td>Provenance 来源</td><td>来源、置信度与证据</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 11 页】</p>
+<h3 class="sec-h2">3.6  如何从观察中泛化</h3>
+<p class="">示例：用户先后问了 vLLM、SGLang、TRT-LLM、LLM scheduling → 经反思（reflection）得到假设「用户频繁关注 LLM 推理系统」，置信度：中等。何时进行整合（consolidation）？① 积累足够新证据后（如每 N 个事件或上下文填满）；② 事实冲突或重复时；③ 尽可能放在后台任务中。</p>
+<p class="src">【来源：原始课件 第 12 页】</p>
+<h3 class="sec-h2">3.7  遗忘是一等操作</h3>
+<ul class=""><li><strong>生命周期控制：</strong>标记无效（mark invalid）、永久擦除（erase permanently）、TTL 到期、建立分层并从活跃记忆中淘汰。</li><li><strong>为什么要遗忘：</strong>陈旧信息、错误或冲突信息、隐私与安全、存储与检索成本。</li></ul>
+<p class="src">【来源：原始课件 第 13 页】</p>
+<h3 class="sec-h2">3.8  记忆需要有效时间与来源追溯</h3>
+<p class="">示例：2026 年 4 月「项目用 vLLM 服务模型」（superseded 被取代）；2026 年 6 月「项目用 SGLang 服务模型」（current 当前）。有效时间（valid time）指哪个事实在何时适用；来源追溯（provenance）指事实从何而来。知识图谱边 Project → SERVES_WITH → SGLang，标注 source: Episode 28。</p>
+<p class="src">【来源：原始课件 第 14 页】</p>
+<h3 class="sec-h2">3.9  谁拥有记忆</h3>
+<div class="table-wrap"><table><thead><tr><th>模式</th><th>说明</th></tr></thead><tbody><tr><td>Agent-owned 智能体自有</td><td>外壳中的文件：CLAUDE.md、agent scratchpad、任务笔记；外壳把记忆持久化到磁盘</td></tr><tr class="alt"><td>Dedicated memory system 专用记忆系统</td><td>智能体调用的服务：Mem0、Graphiti、supermemory；记忆是一种 API，跨智能体与会话共享</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 15 页】</p>
+<h3 class="sec-h2">3.10  三种专用记忆系统</h3>
+<div class="table-wrap"><table><thead><tr><th>系统</th><th>类型</th><th>输入 / 检索</th></tr></thead><tbody><tr><td>Mem0</td><td>以事实为中心（fact-centric）</td><td>输入：按用户/智能体/运行划分的消息；检索：带过滤的向量搜索，可选图记忆。如「Uses SGLang for model serving」</td></tr><tr class="alt"><td>Graphiti</td><td>时序知识图谱</td><td>输入：产生实体与时间感知事实的情节；检索：混合语义、关键词与图搜索。如 uses → SGLang，valid Apr 2026 → present</td></tr><tr><td>supermemory</td><td>画像 / 记忆 / 文档</td><td>维护用户画像、记忆与文档；输入：链接到来源与时间的对话；检索：画像、记忆与文档搜索</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 16 页】</p>
+<h3 class="sec-h2">3.11  智能体记忆设计清单</h3>
+<div class="table-wrap"><table><thead><tr><th>阶段</th><th>要问的问题</th></tr></thead><tbody><tr><td>Observe 观察</td><td>（原始材料的获取）</td></tr><tr class="alt"><td>Select 选择</td><td>这值得记住吗？</td></tr><tr><td>Encode / organize 编码组织</td><td>什么表示能保留所需含义？</td></tr><tr class="alt"><td>Store 存储</td><td>应该放在哪里？文件还是数据库？</td></tr><tr><td>Retrieve 检索</td><td>什么对当前任务有用？</td></tr><tr class="alt"><td>Reflect / consolidate 反思整合</td><td>这是更新还是与旧记忆矛盾？</td></tr><tr><td>Forget 遗忘</td><td>信息何时变得陈旧或无关？</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">要点</span> 每一阶段都是一个策略决定（Each stage is a policy decision）。</div>
+<p class="src">【来源：原始课件 第 17 页】</p>
+<h3 class="sec-h2">3.12  记忆的失败模式</h3>
+<div class="table-wrap"><table><thead><tr><th>失败</th><th>描述</th></tr></thead><tbody><tr><td>Retrieval miss 检索遗漏</td><td>相关记忆存在但没被找到</td></tr><tr class="alt"><td>Context pollution 上下文污染</td><td>太多无关记忆进入上下文</td></tr><tr><td>Memory hallucination 记忆幻觉</td><td>推断被当作事实存下来：「在哈佛学习」变成「哈佛访问学生」</td></tr><tr class="alt"><td>Staleness 陈旧</td><td>旧事实覆盖了新信息</td></tr><tr><td>Isolation failure 隔离失败</td><td>记忆跨越了用户边界</td></tr><tr class="alt"><td>Overgeneralization 过度泛化</td><td>一个事件变成持久偏好</td></tr><tr><td>Persistent prompt injection 持久提示注入</td><td>不可信内容后来作为指令返回</td></tr><tr class="alt"><td>Unbounded growth 无界增长</td><td>规模随生命周期增长，检索成本与质量下降</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 18 页】</p>
+<h3 class="sec-h2">3.13  如何评估智能体记忆</h3>
+<div class="table-wrap"><table><thead><tr><th>层面</th><th>指标</th></tr></thead><tbody><tr><td>Writes and update 写入与更新</td><td>精确率、召回率、陈旧记忆率</td></tr><tr class="alt"><td>Retrieval 检索</td><td>精确率、召回率</td></tr><tr><td>System 系统</td><td>延迟、token 开销、存储增长</td></tr><tr class="alt"><td>Governance 治理</td><td>删除合规性与范围隔离</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 19 页】</p>
+<h3 class="sec-h2">3.14  记忆评测基准</h3>
+<div class="table-wrap"><table><thead><tr><th>基准</th><th>规模</th></tr></thead><tbody><tr><td>LoCoMo（ACL 2024）</td><td>1,540 个问题，10 段长对话</td></tr><tr class="alt"><td>LongMemEval（ICLR 2025）</td><td>500 个问题，5 种记忆能力</td></tr><tr><td>BEAM（ICLR 2026）</td><td>2,000 个问题，最高 10M tokens</td></tr></tbody></table></div>
+<p class="">主要测试智能体能否回忆并推理用户—助手历史，覆盖召回、时序推理、更新、偏好与弃答（abstention）。另有 LoCoMo-Refined。</p>
+<p class="src">【来源：原始课件 第 20 页】</p>
+<h3 class="sec-h2">3.15  智能体记忆栈</h3>
+<div class="table-wrap"><table><thead><tr><th>形态</th><th>层级</th></tr></thead><tbody><tr><td>独立记忆层 Separate memory layer</td><td>智能体运行时（Claude Code / Letta / Codex）+ 记忆管理（Mem0 / Letta built-in / 自定义）+ 存储（向量、SQL、图、对象存储）</td></tr><tr class="alt"><td>记忆在外壳内 Memory inside the harness</td><td>智能体运行时 + 运行时内的记忆管理 + Markdown 文件存储</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 21 页】</p>
+<h2 class="sec-h1"><span class="sec-num">4</span> 智能体可靠性</h2>
+<h3 class="sec-h2">4.1  为什么可靠性是个问题：错误会复合</h3>
+<p class="">运行只有在每一步都成功时才成功；错误传播让真实运行比理论估计更糟。假设每步独立成功率 95%，运行无错的概率随步数衰减：1 步 95%、5 步 77%、10 步 60%、20 步 36%、50 步 8%（约 1/13）。</p>
+<div class="callout"><span class="callout-label">关键</span> 50 步的运行只有约 1/13 能无错完成——长轨迹智能体的可靠性是首位问题。</div>
+<p class="src">【来源：原始课件 第 22 页】</p>
+<h3 class="sec-h2">4.2  故障从哪里来：五层</h3>
+<div class="table-wrap"><table><thead><tr><th>故障来源</th><th>核心问题</th><th>类型</th></tr></thead><tbody><tr><td>User / task spec 用户/任务规格</td><td>目标是否明确无歧义？</td><td>specification failure 规格失败</td></tr><tr class="alt"><td>Agent harness 智能体外壳</td><td>上下文、循环、调度</td><td>harness failure 外壳失败</td></tr><tr><td>LLM</td><td>推理与规划</td><td>model failure 模型失败</td></tr><tr class="alt"><td>Tool layer 工具层</td><td>shell、浏览器、API</td><td>tool failure 工具失败</td></tr><tr><td>Environment 环境</td><td>仓库、OS、网页、服务</td><td>environment failure 环境失败</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 24 页】</p>
+<h3 class="sec-h2">4.3  任务规格失败</h3>
+<div class="table-wrap"><table><thead><tr><th>失败</th><th>规格说</th><th>智能体做了</th><th>修复</th></tr></thead><tbody><tr><td>目标含糊</td><td>「修复登录 bug」</td><td>修了三个中的一个</td><td>指明文件、症状与复现</td></tr><tr class="alt"><td>代理目标</td><td>「让测试通过」</td><td>删掉了失败的测试</td><td>禁止改测试；审查 diff</td></tr><tr><td>未言明的约束</td><td>「加速搜索」</td><td>破坏了公开 API</td><td>声明什么不能变</td></tr><tr class="alt"><td>没有完成定义</td><td>「清理解析器」</td><td>无限重构停不下来</td><td>给退出测试与停止规则</td></tr><tr><td>目标冲突</td><td>「最小 diff，覆盖所有边界」</td><td>悄悄丢弃边界情况</td><td>显式排出目标优先级</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 25 页】</p>
+<h3 class="sec-h2">4.4  外壳失败</h3>
+<div class="table-wrap"><table><thead><tr><th>失败</th><th>外壳做了</th><th>影响</th><th>修复</th></tr></thead><tbody><tr><td>上下文截断错误</td><td>裁掉最旧的轮次</td><td>忘了「保留 API」规则</td><td>把关键规则固定在窗口之外</td></tr><tr class="alt"><td>记忆错误</td><td>把陈旧笔记当事实</td><td>编辑了已移动的文件</td><td>给记忆标日期；使用前复查</td></tr><tr><td>状态损坏错误</td><td>保留了半应用的编辑</td><td>后续步骤建立在损坏文件上</td><td>检查点；回滚失败步骤</td></tr><tr class="alt"><td>控制循环错误</td><td>没设步数或成本预算</td><td>200 步无进展</td><td>限制步数、成本与时间</td></tr><tr><td>阻塞式 fan-out</td><td>等待每个子智能体</td><td>一个慢子进程拖垮运行</td><td>设置超时；使用部分结果</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 26 页】</p>
+<h3 class="sec-h2">4.5  模型失败</h3>
+<div class="table-wrap"><table><thead><tr><th>失败</th><th>模型推理 / 智能体行为</th><th>修复</th></tr></thead><tbody><tr><td>幻觉</td><td>「requests.fetch() 存在」→ 调用不存在的函数</td><td>对照真实文档检查调用</td></tr><tr class="alt"><td>违反指令</td><td>「速度比 API 重要」→ 改了要求保留的签名</td><td>重述约束；检查 diff</td></tr><tr><td>错误推理</td><td>「超时意味着网络断了」→ 给死锁加重试</td><td>修复前先验证假设</td></tr><tr class="alt"><td>推理—行动不匹配</td><td>「我只碰 parser.py」→ 重写了另外三个文件</td><td>把每个动作与计划比对</td></tr><tr><td>未经验证的成功</td><td>「测试现在应该过了」→ 宣称完成但没运行</td><td>要求测试输出作为证据</td></tr><tr class="alt"><td>长时程退化</td><td>「配置还需修」→ 撤销了第 12 步自己的修复</td><td>重读状态；拆成短任务</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 27 页】</p>
+<h3 class="sec-h2">4.6  工具失败</h3>
+<div class="table-wrap"><table><thead><tr><th>失败</th><th>工具返回 / 智能体行为</th><th>修复</th></tr></thead><tbody><tr><td>输出截断</td><td>日志前 100 行 → 漏掉第 4000 行的错误</td><td>错误优先返回；允许分页</td></tr><tr class="alt"><td>静默失败</td><td>exit 0、空结果 → 以为没有匹配</td><td>区分「空」与「失败」</td></tr><tr><td>schema 含糊</td><td>没有时区的日期 → 任务排错 8 小时</td><td>使用类型化、明确的 schema</td></tr><tr class="alt"><td>不稳定调用</td><td>第一次尝试超时 → 宣称服务宕机</td><td>先带退避重试再下判断</td></tr><tr><td>误导性错误</td><td>拼写错误却报「Permission denied」→ 用 sudo 重试</td><td>返回精确、可行动的错误</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 28 页】</p>
+<h3 class="sec-h2">4.7  环境失败</h3>
+<div class="table-wrap"><table><thead><tr><th>失败</th><th>环境状况 / 智能体行为</th><th>修复</th></tr></thead><tbody><tr><td>陈旧状态</td><td>昨天缓存的构建 → 在旧代码上通过测试</td><td>从干净缓存全新构建</td></tr><tr class="alt"><td>版本不匹配</td><td>Python 3.8 而非 3.12 → 交付崩溃代码</td><td>在 lockfile 中固定版本</td></tr><tr><td>随机失败</td><td>任务成功依赖环境 → 因闰年失败</td><td>重跑失败；隔离不稳定项（quarantine flakes）</td></tr><tr class="alt"><td>网页改版</td><td>结账页重新设计 → 点错按钮</td><td>行动前重新读取页面</td></tr><tr><td>速率限制</td><td>50 次调用后 HTTP 429 → 迁移中途停止</td><td>限流；对长任务设检查点</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 29 页】</p>
+<h3 class="sec-h2">4.8  面向失败的设计</h3>
+<div class="table-wrap"><table><thead><tr><th>层面</th><th>策略</th><th>具体做法</th></tr></thead><tbody><tr><td>任务规格</td><td>把「完成」写成测试</td><td>预先写验收测试；列出什么不能变</td></tr><tr class="alt"><td>智能体外壳</td><td>约束每一次运行</td><td>步数、成本、时间上限；检查点与回滚</td></tr><tr><td>模型</td><td>要求证据</td><td>每个主张都要证明；验证；使用更强的模型</td></tr><tr class="alt"><td>工具</td><td>响亮地失败（fail loudly）</td><td>类型化 schema；错误与空结果分开</td></tr><tr><td>环境</td><td>固定并隔离</td><td>全新、固定版本的沙箱；判断前先重试不稳定项</td></tr></tbody></table></div>
+<p class="i">「我们对大规模智能体尚无充分理解，形式化的最佳实践也很少。」</p>
+<p class="src">【来源：原始课件 第 30 页】</p>
+<h2 class="sec-h1"><span class="sec-num">5</span> 结语与附录</h2>
+<h3 class="sec-h2">5.1  下节课预告</h3>
+<ul class=""><li>智能体评估（Agent evaluation）</li><li>高性价比智能体（Cost-effective agent）</li><li>案例研究（Case studies）</li></ul>
+<p class="src">【来源：原始课件 第 31 页】</p>
+<h3 class="sec-h2">5.2  附录：核心术语对照表</h3>
+<div class="table-wrap"><table><thead><tr><th>英文</th><th>中文</th><th>说明</th></tr></thead><tbody><tr><td>Agent memory</td><td>智能体记忆</td><td>上下文窗口之外的持久状态</td></tr><tr class="alt"><td>Write or skip</td><td>写入或跳过</td><td>决定什么值得成为记忆</td></tr><tr><td>Encode / organize</td><td>编码 / 组织</td><td>原始情节、摘要、结构化状态、知识图谱</td></tr><tr class="alt"><td>Provenance</td><td>来源追溯</td><td>事实从何而来、置信度与证据</td></tr><tr><td>Valid time</td><td>有效时间</td><td>哪个事实在何时适用</td></tr><tr class="alt"><td>Reflection / consolidation</td><td>反思 / 整合</td><td>从观察中提炼更一般的假设</td></tr><tr><td>Forgetting / TTL</td><td>遗忘 / 生存时间</td><td>标记无效、擦除、到期、分层淘汰</td></tr><tr class="alt"><td>Mem0 / Graphiti / supermemory</td><td>专用记忆系统</td><td>事实中心 / 时序知识图谱 / 画像+记忆+文档</td></tr><tr><td>Error compounding</td><td>错误复合</td><td>每步高成功率也会在长轨迹中累积成低成功率</td></tr><tr class="alt"><td>Specification failure</td><td>规格失败</td><td>目标含糊、代理目标、未言明约束等</td></tr><tr><td>Harness failure</td><td>外壳失败</td><td>上下文截断、记忆错误、控制循环、阻塞 fan-out</td></tr><tr class="alt"><td>Fail loudly</td><td>响亮地失败</td><td>工具应返回精确、可行动的错误，而非静默失败</td></tr><tr><td>Quarantine flakes</td><td>隔离不稳定项</td><td>重跑失败项并把反复失败的环境隔离</td></tr></tbody></table></div>
+<p class="i">— 本讲义由原始课件（cs2680.seas.harvard.edu/slides/6_agent_design_3.pdf，31 页）翻译整理；页码标注对应课件 PDF 页码，供对照复核。—</p>
+</div>
+</section>
+<style>
+:root{--bg:#f7f8fa;--text:#17202a;--muted:#697586;--line:#e4e8ee;--accent:#1769aa;--code:#f1f4f7}
+.note-page{max-width:860px;margin:0 auto;padding:0 0 40px}
+.back-link{display:inline-block;margin:26px 0 8px;font-size:14px;color:var(--accent)}
+.note-cover{padding:28px 0 30px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.note-cover .kicker{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:2px}
+.note-cover h1{font-size:clamp(28px,5vw,40px);line-height:1.3;margin:10px 0 6px}
+.note-cover .sub{color:var(--muted);font-size:17px}
+.note-page p{margin:0 0 12px}
+.note-page .b{font-weight:700}
+.note-page .i{font-style:italic;color:var(--muted)}
+.note-page h2.sec-h1{font-size:23px;line-height:1.35;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);color:#1b2a4a}
+.note-page .sec-num{color:#b01e3c;margin-right:6px}
+.note-page h3.sec-h2{font-size:18px;margin:24px 0 10px;color:#2e5c8a}
+.note-page ul{margin:0 0 14px;padding-left:24px}
+.note-page li{margin:5px 0;line-height:1.75}
+.note-page ul.sub{padding-left:44px;list-style:circle}
+.note-page .src{font-size:12.5px;color:var(--muted);font-style:italic;margin:4px 0 12px}
+.note-page .callout{border-left:4px solid #c8a24a;background:#fbf3e4;color:#4a3f22;padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;line-height:1.75}
+.note-page .callout-label{font-weight:700;color:#a8801f}
+.table-wrap{overflow-x:auto;margin:16px 0}
+.note-page table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}
+.note-page th,.note-page td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;line-height:1.6}
+.note-page thead th{background:#1b2a4a;color:#fff;font-weight:600;white-space:nowrap}
+.note-page tbody tr.alt{background:#f2f5f9}
+.note-page tbody tr.hl{background:#f7e9ec}
+.note-page tbody tr.hl td{font-weight:600;color:#b01e3c}
+@media(max-width:700px){.note-page h2.sec-h1{font-size:20px}.note-page p{font-size:15px}}
+</style>

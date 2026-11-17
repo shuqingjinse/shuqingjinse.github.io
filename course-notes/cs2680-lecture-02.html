@@ -1,0 +1,227 @@
+---
+layout: default
+title: "CS2680 第 2 讲 · 从用户视角看智能体（一）"
+permalink: /course-notes/cs2680-lecture-02/
+---
+<section class="note-page">
+<a class="back-link" href="/course-notes/">← 返回课程笔记</a>
+<div class="note-cover"><p class="kicker">CS2680 课程学习讲义</p><h1>CS2680 第 2 讲 · 从用户视角看智能体（一）</h1><p class="sub">Claude Code 如何工作 · 中文学习笔记</p></div>
+<div class="prose"><div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>课程</td><td>CS2680 Modern AI Systems: Agents and System Optimizations（现代 AI 系统：智能体与系统优化）</td></tr><tr class="alt"><td>主题</td><td>从用户视角看智能体（一）：Claude Code 的工作原理；记忆机制；工具 / Skills / Hooks / Plugins</td></tr><tr><td>授课教师</td><td>Juncheng Yang（杨俊成），哈佛 SEAS 助理教授</td></tr><tr class="alt"><td>课件来源</td><td>https://cs2680.seas.harvard.edu/slides/2_agent_use_1.pdf（共 53 页）</td></tr><tr><td>笔记说明</td><td>按主题提炼整理，非逐页直译；每节标注原始课件 PDF 页码，便于对照复核。</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">本讲主线</span> 把 Claude Code 当成一个具体案例，讲清楚「在对话框里敲下一句 prompt 之后到底发生了什么」：一个由「收集上下文 → 生成动作 → 执行工具」构成的智能体循环（agentic loop），加上跨会话的记忆（memory），以及四种扩展机制（Skill / MCP / Hook / Plugin）。核心认知：一次用户输入 ≠ 一次模型请求，而是多轮推理与工具执行的交替链。</div>
+<h2 class="sec-h1"><span class="sec-num">1</span> 课程安排更新与后勤补充</h2>
+<h3 class="sec-h2">1.1  课表调整</h3>
+<div class="table-wrap"><table><thead><tr><th>调整方向</th><th>具体内容</th></tr></thead><tbody><tr><td>LLM 背景后移</td><td>暂时把 LLM 当成一个「魔法推理盒」（magic reasoning box）；学智能体不需要懂它的内部机制。</td></tr><tr class="alt"><td>多智能体、少 GPU</td><td>多数同学对智能体更感兴趣：增加两节智能体设计的课；减少 GPU 相关课程，避免与其他课程过度重叠。</td></tr><tr><td>评分与活动变化</td><td>取消强制论文展示，分数转入课堂参与与项目；作业 1 分享改为加分项；若干论文讨论为加分（待定 TBA）。</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 2 页】</p>
+<h3 class="sec-h2">1.2  后勤补充</h3>
+<ul class=""><li><strong>参与分：</strong>课上提问或回答计入参与分，每次最多 1 分，课后找助教登记（Hands up = score）。</li><li><strong>新助教：</strong>Advaith Ravishankar。</li><li><strong>阅读材料标记：</strong>OPTIONAL = 额外阅读，非必需；ADVANCED = 可略读或自行深入。</li></ul>
+<p class="src">【来源：原始课件 第 3 页】</p>
+<h2 class="sec-h1"><span class="sec-num">2</span> 今日计划</h2>
+<ul class=""><li>Claude Code 如何工作</li><li>Claude Code：从无状态的 LLM 到智能体</li><li>记忆（Memory）</li><li>工具、Skills、Hooks、Plugins</li></ul>
+<p class="src">【来源：原始课件 第 4 页】</p>
+<h2 class="sec-h1"><span class="sec-num">3</span> Claude Code 如何工作：智能体循环</h2>
+<h3 class="sec-h2">3.1  起点问题</h3>
+<p class="">「当你在 Claude Code 里敲下一句 prompt 时，会发生什么？」——本讲围绕这个问题展开。（课堂互动：举手加分）</p>
+<p class="src">【来源：原始课件 第 5 页】</p>
+<h3 class="sec-h2">3.2  智能体循环（The Agentic Loop）三步</h3>
+<div class="table-wrap"><table><thead><tr><th>步骤</th><th>名称</th><th>内容</th><th>承担方（颜色对应原图）</th></tr></thead><tbody><tr><td>1</td><td>收集上下文 Gather context</td><td>prompt、文件、工具返回的结果</td><td>harness（外壳）</td></tr><tr class="alt"><td>2</td><td>生成动作 Generate action</td><td>决定运行一个工具：bash、read、edit 等</td><td>model（模型）</td></tr><tr><td>3</td><td>执行工具 Run tool</td><td>测试、输出、重新读取状态</td><td>your machine（你的机器）</td></tr></tbody></table></div>
+<p class="b">循环往复：每一步都以上一步返回的内容为条件（every step conditioned on what the last one returned）。</p>
+<div class="callout"><span class="callout-label">关键结论</span> 一次用户 prompt = 多次模型调用 + 多次工具执行，而不是一次单独的请求。（One user prompt = many model calls and many tool executions, not a single request.）</div>
+<p class="src">【来源：原始课件 第 6 页】</p>
+<h3 class="sec-h2">3.3  键入之前：上下文已经不小</h3>
+<p class="">在你敲下第一个字符之前，上下文（context）就已经有 10k+ tokens。初始上下文构成：</p>
+<div class="table-wrap"><table><thead><tr><th>类别</th><th>内容</th></tr></thead><tbody><tr><td>SYSTEM 系统</td><td>Claude Code 的指令</td></tr><tr class="alt"><td>PROJECT 项目</td><td>环境信息（environment）</td></tr><tr><td>MEMORY 记忆</td><td>持久化的项目 / 用户笔记 / CLAUDE.md</td></tr><tr class="alt"><td>TOOLS 工具</td><td>Read、Edit、Bash、Glob、Grep、Web、Agent</td></tr><tr><td>SKILLS / MCP</td><td>仅加载名称与描述（names and descriptions）</td></tr><tr class="alt"><td>USER 用户</td><td>「修复这个失败的 auth 测试」等具体指令</td></tr></tbody></table></div>
+<p class="i">注意：Skill 和 MCP 条目一开始只有名字——只有当 Claude 真正要用它们时，完整文本才加载进上下文。</p>
+<p class="src">【来源：原始课件 第 7 页】</p>
+<h3 class="sec-h2">3.4  它不会把你的整个仓库发过去</h3>
+<p class="">仓库仍然留在磁盘上，Claude 按需（on demand）拉取其中的片段：</p>
+<div class="table-wrap"><table><thead><tr><th>步骤</th><th>动作</th></tr></thead><tbody><tr><td>1</td><td>你的仓库：磁盘上成千上万个文件</td></tr><tr class="alt"><td>2</td><td>Claude 自问：「我需要什么？」</td></tr><tr><td>3</td><td>调用 Grep(&quot;authentication&quot;)</td></tr><tr class="alt"><td>4</td><td>只返回少量匹配行</td></tr><tr><td>5</td><td>这一小片（slice）才进入上下文</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 8 页】</p>
+<h3 class="sec-h2">3.5  模型提议，外壳执行</h3>
+<div class="table-wrap"><table><thead><tr><th>角色</th><th>职责</th></tr></thead><tbody><tr><td>Claude 模型</td><td>发出一个动作请求，例如 Bash(&quot;pytest&quot;)</td></tr><tr class="alt"><td>Claude Code 外壳（harness）</td><td>解析请求、检查权限、真正执行</td></tr><tr><td>你的机器</td><td>pytest 实际运行，产生 stdout / stderr</td></tr><tr class="alt"><td>回到模型</td><td>执行结果作为 tool_result 重新进入模型上下文</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 9 页】</p>
+<h3 class="sec-h2">3.6  一次用户输入触发多次模型推理</h3>
+<p class="">一个用户轮次会展开成「推理」与「工具执行」交替的链条：</p>
+<div class="table-wrap"><table><thead><tr><th>符号序列</th><th>含义</th></tr></thead><tbody><tr><td>U (prompt)</td><td>用户输入</td></tr><tr class="alt"><td>M₁ (inference) → T₁ (tool)</td><td>第一次推理 → 第一个工具调用</td></tr><tr><td>M₂ (inference) → T₂ (tool)</td><td>第二次推理 → 第二个工具调用</td></tr><tr class="alt"><td>… → Mₙ (inference) → A (answer)</td><td>反复迭代，直到给出最终答案</td></tr></tbody></table></div>
+<p class="">实战示例（修复会话相关 bug）：pytest → 读 session.py → grep create_session → 编辑 session.py → pytest → 全部通过。每一次请求都以上一次的推理与工具结果为条件。</p>
+<p class="src">【来源：原始课件 第 10 页】</p>
+<h3 class="sec-h2">3.7  权限层：介于意图与执行之间</h3>
+<p class="">工具请求只是一个「提议」，需要你或另一个模型批准。以 Claude 请求 Bash(&quot;rm -rf build/&quot;) 为例：</p>
+<div class="table-wrap"><table><thead><tr><th>权限模式</th><th>行为</th></tr></thead><tbody><tr><td>Manual 手动</td><td>每次询问，由你确认（ask — you confirm first）</td></tr><tr class="alt"><td>Accept Edits</td><td>接受编辑类操作</td></tr><tr><td>Bypass permission</td><td>绕过权限检查（allowed — 命令直接运行）</td></tr><tr class="alt"><td>Auto 自动</td><td>由一个小模型检查后决定（denied — 什么都不会发生）</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 11 页】</p>
+<h3 class="sec-h2">3.8  上下文增长，然后被压缩</h3>
+<ul class=""><li>每一步都会增加 token：模型回复、文件内容、命令输出。</li><li>典型上下文大小：1M tokens（Sonnet / Opus / Fable、GPT 5.6）；今年早些时候 256K 还很常见。</li><li>上下文不是免费的：prefix-cache 的读取占了成本的大头。</li></ul>
+<div class="table-wrap"><table><thead><tr><th>阶段</th><th>说明</th></tr></thead><tbody><tr><td>Request 1 → N</td><td>上下文逐轮增长（bar 逐步变高）</td></tr><tr class="hl"><td>COMPACTION 压缩</td><td>总结旧轨迹，重新注入 CLAUDE.md 与 memory</td></tr><tr><td>Request N+1</td><td>压缩后的上下文重新开始增长</td></tr></tbody></table></div>
+<p class="b">上下文管理是外壳（harness）设计的重要组成部分（下周讨论）。</p>
+<p class="src">【来源：原始课件 第 12 页】</p>
+<h3 class="sec-h2">3.9  本部分小结：智能体循环</h3>
+<div class="table-wrap"><table><thead><tr><th>环节</th><th>要点</th></tr></thead><tbody><tr><td>Prompt + context</td><td>提示词与上下文一起进入模型</td></tr><tr class="alt"><td>Model proposes</td><td>模型提出动作</td></tr><tr><td>Harness executes</td><td>外壳解析并执行</td></tr><tr class="alt"><td>Result folds into context</td><td>结果折叠回上下文</td></tr><tr><td>loop</td><td>循环重复直到任务完成</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 13 页】</p>
+<h2 class="sec-h1"><span class="sec-num">4</span> 记忆（Memory）：从指令到惯例</h2>
+<h3 class="sec-h2">4.1  记忆让智能体成为可能</h3>
+<p class="">智能体 = LLM（推理与规划）+ Memory（记忆）+ Tool / Action（工具 / 动作）+ Observation（观察）+ Environment（环境）。LLM 本身是无状态的（stateless），真正让它成为智能体的是工具与记忆。</p>
+<p class="src">【来源：原始课件 第 14–15、27 页】</p>
+<h3 class="sec-h2">4.2  上下文是一种记忆</h3>
+<div class="table-wrap"><table><thead><tr><th>类型</th><th>含义</th></tr></thead><tbody><tr><td>Context：工作记忆（Working Memory）</td><td>模型当前能看到的内容——随会话结束而消失（dies with the session）</td></tr><tr class="alt"><td>Persistent Memory：持久记忆</td><td>跨会话存活、下次启动时重新加载的内容</td></tr></tbody></table></div>
+<ul class=""><li>智能体在两次运行之间是无状态的——每个会话都从零开始。</li><li>实践中的「记忆」就是会话启动时加载的文件（files loaded at session startup）。</li><li>金句：每一次创建记忆，都是一个关于「什么东西要被永久重新读取」的决定。</li></ul>
+<p class="src">【来源：原始课件 第 16 页】</p>
+<h3 class="sec-h2">4.3  为什么智能体需要记忆</h3>
+<p class="">「记忆是指令变成惯例（instruction becomes convention）的方式。」</p>
+<div class="table-wrap"><table><thead><tr><th>要解决的问题</th><th>表现</th></tr></thead><tbody><tr><td>重复指令 Repeated instructions</td><td>每个会话都要重新解释同一套设置</td></tr><tr class="alt"><td>丢失的决策 / 假设</td><td>上下文压缩后，「为什么这么做」消失了</td></tr><tr><td>重复发现 Repeated discovery</td><td>智能体反复读同样的文件来重新了解代码布局</td></tr><tr class="alt"><td>行为不一致</td><td>不同会话做出不同的选择</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 17 页】</p>
+<h3 class="sec-h2">4.4  两套承载知识的系统</h3>
+<p class="">两者都会在每次会话开始时加载进上下文：</p>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>CLAUDE.md 文件</th><th>Auto memory（自动记忆）</th></tr></thead><tbody><tr><td>谁写</td><td>你（You）</td><td>Claude</td></tr><tr class="alt"><td>内容</td><td>指令与规则（instructions and rules）</td><td>学到的经验与模式（learnings and patterns）</td></tr><tr><td>范围</td><td>项目 / 用户 / 组织</td><td>每个仓库，跨 worktree 共享</td></tr><tr class="alt"><td>加载到</td><td>每次会话</td><td>每次会话（前 200 行 / 25KB）</td></tr><tr><td>用途</td><td>标准、工作流、架构</td><td>你的偏好、纠正意见、项目背景</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 18–19 页】</p>
+<h3 class="sec-h2">4.5  CLAUDE.md 放在哪里（加载顺序）</h3>
+<p class="">文件按范围从大到小加载，最靠近的规则最后被读取（范围最小、优先级最高）：</p>
+<div class="table-wrap"><table><thead><tr><th>顺序</th><th>层级</th><th>路径与说明</th></tr></thead><tbody><tr><td>1</td><td>Managed policy 管理策略</td><td>…/ClaudeCode/CLAUDE.md · 组织级，不可排除</td></tr><tr class="alt"><td>2</td><td>User instructions 用户指令</td><td>~/.claude/CLAUDE.md · 你的偏好，适用于所有项目</td></tr><tr><td>3</td><td>Project instructions 项目指令</td><td>./CLAUDE.md 或 ./.claude/CLAUDE.md · 通过源码控制团队共享</td></tr><tr class="alt"><td>4</td><td>Local instructions 本地指令</td><td>./CLAUDE.local.md · 个人使用，被 gitignore 忽略</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 20 页】</p>
+<h3 class="sec-h2">4.6  CLAUDE.md 该写什么</h3>
+<div class="callout"><span class="callout-label">原则</span> 「上下文是租来的，记忆是买下的（Context is rented, memory is owned）」——要审慎决定买下什么。</div>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>建议 / 内容</th></tr></thead><tbody><tr><td>Size 大小</td><td>每个文件 200 行以内</td></tr><tr class="alt"><td>Structure 结构</td><td>使用 Markdown 标题与列表</td></tr><tr><td>Specificity 具体性</td><td>写具体规则，而不是含糊的约定</td></tr><tr class="alt"><td>Consistency 一致性</td><td>不要有互相矛盾或过时的规则</td></tr><tr><td>✔ 应该包含</td><td>命令（如何跑测试、构建、linter）；硬性约束（永不提交到 main、永不改生成文件）；智能体难以廉价推断的事实（布局、归属、坑点）</td></tr><tr class="alt"><td>✘ 不该包含</td><td>模型已懂的语言/框架知识；linter 或 formatter 已强制的风格；长篇散文、变更日志、任何秘密信息</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 21 页】</p>
+<h3 class="sec-h2">4.7  太长就拆到 .claude/rules/</h3>
+<ul class=""><li><strong>一个文件一个主题：</strong>每个规则文件只覆盖一个关注点，保持短而具体。</li><li><strong>加 paths: frontmatter：</strong>只有 Claude 触碰到匹配文件时才加载（不写 paths: 则每次会话都加载）。</li><li><strong>示例目录：</strong>.claude/rules/ 下放 testing.md、api-style.md、db-migrations.md。</li><li><strong>要点：</strong>限定范围的规则让上下文窗口保持小；只加载与当前工作匹配的规则；CLAUDE.md 保持精简，细节放在 rules 里。</li></ul>
+<p class="src">【来源：原始课件 第 22 页】</p>
+<h3 class="sec-h2">4.8  Auto Memory：Claude 自己的笔记</h3>
+<div class="table-wrap"><table><thead><tr><th>类型字段</th><th>记录内容</th></tr></thead><tbody><tr><td>user 用户</td><td>你的角色、专业领域和工作偏好</td></tr><tr class="alt"><td>feedback 反馈</td><td>你给出的纠正、你确认过的做法</td></tr><tr><td>project 项目</td><td>正在进行的工作、代码里没有的决策</td></tr><tr class="alt"><td>reference 参考</td><td>存在于项目外部的信息</td></tr></tbody></table></div>
+<p class="">存储结构：~/.claude/projects/&lt;project&gt;/memory/ 下有 MEMORY.md、user_role.md、feedback_testing.md 等。</p>
+<ul class=""><li>每个文件用一个 type 字段打标签；</li><li>MEMORY.md 是索引——每次会话加载前 200 行（25KB）；</li><li>机器本地存储；worktree 共享同一目录；</li><li>默认开启，可用 /memory 关闭。</li></ul>
+<p class="src">【来源：原始课件 第 23 页】</p>
+<h3 class="sec-h2">4.9  检索使用索引</h3>
+<p class="">索引始终加载；主题文件只在相关时才读取。流程：</p>
+<div class="table-wrap"><table><thead><tr><th>步骤</th><th>动作</th></tr></thead><tbody><tr><td>1</td><td>会话开始（Session starts）</td></tr><tr class="alt"><td>2</td><td>加载 MEMORY.md 索引</td></tr><tr><td>3</td><td>识别相关主题</td></tr><tr class="alt"><td>4</td><td>按需读取主题文件</td></tr><tr><td>5</td><td>把记忆应用到任务</td></tr></tbody></table></div>
+<p class="i">索引让上下文窗口保持小——只读取任务真正需要的那个主题文件。</p>
+<p class="src">【来源：原始课件 第 24 页】</p>
+<h3 class="sec-h2">4.10  查看与控制记忆的四个命令</h3>
+<div class="table-wrap"><table><thead><tr><th>命令</th><th>作用</th></tr></thead><tbody><tr><td>/memory</td><td>浏览、编辑、删除或禁用记忆</td></tr><tr class="alt"><td>/context</td><td>查看加载了哪些指令文件</td></tr><tr><td>/init</td><td>生成一份起始 CLAUDE.md</td></tr><tr class="alt"><td>/doctor</td><td>识别可能不该放进 CLAUDE.md 的内容</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 25 页】</p>
+<h3 class="sec-h2">4.11  记忆的成本</h3>
+<div class="table-wrap"><table><thead><tr><th>要点</th><th>说明</th></tr></thead><tbody><tr><td>每个永久 token 都是「租金」</td><td>在每次会话开始时支付</td></tr><tr class="alt"><td>与任务竞争同一窗口</td><td>记忆和任务共用有限的上下文空间</td></tr><tr><td>过时记忆比没有更糟</td><td>它会主动误导（actively misleads）</td></tr><tr class="alt"><td>像对待代码一样对待记忆</td><td>审阅、裁剪、纳入版本控制</td></tr><tr><td>根本原因</td><td>上下文大小有限，且你为发给 Anthropic 的每个 token 付费</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 26 页】</p>
+<h2 class="sec-h1"><span class="sec-num">5</span> 成为可行动的智能体：核心工具</h2>
+<div class="table-wrap"><table><thead><tr><th>工具</th><th>作用</th></tr></thead><tbody><tr><td>Read</td><td>打开文件、检查状态——使用最多的工具</td></tr><tr class="alt"><td>Search</td><td>grep 与 glob——不用全读就能找到目标</td></tr><tr><td>Fetch</td><td>拉取网页或文档——会把不可信文本带进上下文</td></tr><tr class="alt"><td>Edit / Write</td><td>修改文件——第一个「有后果」的工具</td></tr><tr><td>Shell</td><td>构建、测试、git——除非沙箱隔离，否则等于整台机器</td></tr><tr class="alt"><td>Delegate</td><td>派生子智能体——返回一个摘要的工具</td></tr></tbody></table></div>
+<ul class=""><li>用哪些工具由模型自己决定，你不需要做太多干预。</li><li>在作业 2 中，你将亲手实现这些工具。</li></ul>
+<p class="src">【来源：原始课件 第 28 页】</p>
+<h2 class="sec-h1"><span class="sec-num">6</span> 扩展智能体：Skills、MCP、Hooks 与 Plugins</h2>
+<h3 class="sec-h2">6.1  四种机制，四个不同的问题（不可互换）</h3>
+<div class="table-wrap"><table><thead><tr><th>机制</th><th>解决的问题</th><th>一句话定位</th></tr></thead><tbody><tr><td>Skill 技能</td><td>智能体应该如何执行一项任务</td><td>决定「怎么做」（how）</td></tr><tr class="alt"><td>MCP</td><td>它能访问哪些外部数据与动作</td><td>向外连接（reaches outside）</td></tr><tr><td>Hook 钩子</td><td>生命周期事件发生时自动做什么</td><td>执行强制约束（enforces）</td></tr><tr class="alt"><td>Plugin 插件</td><td>扩展如何打包与分发</td><td>负责分发（distributes）</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">四层结构</span> 一个 skill 决定怎么做，MCP 向外触达，hook 负责强制，plugin 负责打包分发。</div>
+<p class="src">【来源：原始课件 第 29–30 页】</p>
+<h3 class="sec-h2">6.2  各机制在智能体循环中的挂载点</h3>
+<div class="table-wrap"><table><thead><tr><th>循环环节</th><th>挂载的扩展</th></tr></thead><tbody><tr><td>User request 用户请求</td><td>—</td></tr><tr class="alt"><td>Model reasoning 模型推理</td><td>Skill 提供知识与流程</td></tr><tr><td>Tool selection 工具选择</td><td>MCP 提供外部工具</td></tr><tr class="alt"><td>Tool execution 工具执行</td><td>Hook 可在循环任意阶段检查、阻断或响应</td></tr><tr><td>整体打包</td><td>Plugin 把 skills、MCP servers 和 hooks 打包成一个可安装单元</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 31 页】</p>
+<h3 class="sec-h2">6.3  示例：一次发布工作流</h3>
+<p class="">任务：准备发布、验证、发布到 GitHub、通知团队。</p>
+<div class="table-wrap"><table><thead><tr><th>任务环节</th><th>对应机制</th></tr></thead><tbody><tr><td>遵循发布流程（Follow the release procedure）</td><td>Skill</td></tr><tr class="alt"><td>创建 GitHub release</td><td>MCP</td></tr><tr><td>测试失败时阻止发布</td><td>Hook</td></tr><tr class="alt"><td>分享整套配置</td><td>Plugin</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 32 页】</p>
+<h3 class="sec-h2">6.4  Skill：可复用的流程</h3>
+<p class="">技能 = 任务需要时智能体加载的知识与流程。承载内容：领域知识、参考材料、可重复的工作流；可被模型或用户调用；在运行时推理。可以把它理解为「上下文工程」（context engineering）。示例：/release 2.4.0</p>
+<p class="src">【来源：原始课件 第 33 页】</p>
+<h3 class="sec-h2">6.5  Skill 的结构</h3>
+<div class="table-wrap"><table><thead><tr><th>组成</th><th>说明</th></tr></thead><tbody><tr><td>目录结构</td><td>.claude/skills/release/ 下有 SKILL.md、references/、scripts/</td></tr><tr class="alt"><td>name / description</td><td>name: release；description: Prepare a release</td></tr><tr><td>description 的作用</td><td>控制发现（discovery）——模型据此判断何时使用该技能</td></tr><tr class="alt"><td>body 正文</td><td>承载具体流程；支持文件提供参考资料与脚本</td></tr><tr><td>用户直接调用</td><td>/release</td></tr></tbody></table></div>
+<p class="i">示例流程：1 读发布说明 → 2 确认版本 → 3 跑测试 → 4 准备提交 → 5 发布前询问。</p>
+<p class="src">【来源：原始课件 第 34 页】</p>
+<h3 class="sec-h2">6.6  Skill 的调用方式与上下文成本</h3>
+<div class="table-wrap"><table><thead><tr><th>调用模式</th><th>说明</th></tr></thead><tbody><tr><td>Model-invoked 模型调用</td><td>当技能描述与任务匹配时，Claude 自动加载</td></tr><tr class="alt"><td>User-invoked 用户调用</td><td>用户显式运行 /&lt;skill-name&gt;</td></tr></tbody></table></div>
+<ul class=""><li>成本：描述在会话启动时加载；完整正文只在技能运行时加载。</li><li>有副作用的工作流通常应要求显式调用。</li><li>清晰、彼此区分度高的描述能减少错误选用技能。</li></ul>
+<p class="src">【来源：原始课件 第 35 页】</p>
+<h3 class="sec-h2">6.7  MCP：外部能力层</h3>
+<p class="">MCP（Model Context Protocol，模型上下文协议）通过一套标准协议把智能体连接到外部服务。它能让 Claude 获得既不在模型里、也不在本地文件里的能力。</p>
+<div class="table-wrap"><table><thead><tr><th>典型能力</th><th>示例</th></tr></thead><tbody><tr><td>读写 GitHub issues</td><td>创建 / 更新 issue</td></tr><tr class="alt"><td>查询数据库</td><td>执行 SQL 查询</td></tr><tr><td>检索监控数据</td><td>拉取指标与日志</td></tr><tr class="alt"><td>访问 Figma 设计稿</td><td>读取设计信息</td></tr><tr><td>发 Slack 消息</td><td>向频道发送通知</td></tr><tr class="alt"><td>控制浏览器</td><td>网页自动化</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 36 页】</p>
+<h3 class="sec-h2">6.8  MCP 工具调用如何工作（六步）</h3>
+<div class="table-wrap"><table><thead><tr><th>步骤</th><th>动作</th></tr></thead><tbody><tr><td>1</td><td>Claude 识别出需要某个动作</td></tr><tr class="alt"><td>2</td><td>MCP 客户端使用一个工具</td></tr><tr><td>3</td><td>MCP 服务端处理连接</td></tr><tr class="alt"><td>4</td><td>外部服务执行操作</td></tr><tr><td>5</td><td>结构化结果返回 Claude</td></tr><tr class="alt"><td>6</td><td>Claude 评估结果</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">与本地工具几乎一样</span> 相同的名字、描述与类型化 schema；相同的「调用—返回」契约；只是运行在另一个进程里。协议负责承载调用，是否调用仍由智能体决定。</div>
+<p class="src">【来源：原始课件 第 37 页】</p>
+<h3 class="sec-h2">6.9  Hook：生命周期自动化</h3>
+<p class="">会话从左向右运行，hook 可以在每个标记的事件点触发：</p>
+<div class="table-wrap"><table><thead><tr><th>事件点</th><th>可做的事</th></tr></thead><tbody><tr><td>Session start 会话开始</td><td>加载上下文、记日志</td></tr><tr class="alt"><td>User prompt 用户输入</td><td>校验或补充</td></tr><tr class="hl"><td>Model reasoning 模型推理</td><td>无 hook —— 推理不是事件</td></tr><tr class="alt"><td>Before tool use 工具调用前</td><td>检查或阻断</td></tr><tr><td>After tool use 工具调用后</td><td>格式化、测试、记日志</td></tr><tr class="alt"><td>Before stopping 结束前</td><td>验证测试</td></tr></tbody></table></div>
+<p class="b">Hook 在事件上触发，可运行命令、HTTP 请求、MCP 工具、prompt 或子智能体。</p>
+<p class="src">【来源：原始课件 第 38 页】</p>
+<h3 class="sec-h2">6.10  Plugin：打包层</h3>
+<p class="">插件 = 一个可安装单元，携带 skills、hooks、agents 与 MCP 配置：</p>
+<div class="table-wrap"><table><thead><tr><th>目录项</th><th>作用</th></tr></thead><tbody><tr><td>skills/、hooks/、agents/</td><td>技能、钩子、子智能体</td></tr><tr class="alt"><td>.mcp.json、.lsp.json</td><td>MCP 与 LSP 配置</td></tr><tr><td>.claude-plugin/plugin.json</td><td>插件清单</td></tr></tbody></table></div>
+<ul class=""><li><strong>打包带来的好处：</strong>一条命令安装；版本固定；命名空间避免重名；团队复用统一配置；可通过 marketplace 分发。</li><li><strong>一句话：</strong>插件是把一套可用的配置变成别人也能安装的东西的方式。</li></ul>
+<p class="src">【来源：原始课件 第 39 页】</p>
+<h3 class="sec-h2">6.11  四种机制如何配合</h3>
+<div class="table-wrap"><table><thead><tr><th>机制</th><th>角色</th></tr></thead><tbody><tr><td>Skill</td><td>知识与流程（knowledge and procedure）</td></tr><tr class="alt"><td>Claude</td><td>推理与工具使用（reasoning and tool use）</td></tr><tr><td>MCP</td><td>连接 GitHub、Slack、数据库等外部系统</td></tr><tr class="alt"><td>Hook</td><td>在生命周期事件触发——每次工具调用前后都可执行</td></tr><tr><td>Plugin</td><td>把 skill、MCP 配置与 hooks 打包，便于安装到其他地方</td></tr></tbody></table></div>
+<p class="i">判断力（judgment）、能力（capability）、强制（enforcement）——以及把三者打包发货的包。</p>
+<p class="src">【来源：原始课件 第 40 页】</p>
+<h2 class="sec-h1"><span class="sec-num">7</span> .claude/ 目录结构与设计练习</h2>
+<h3 class="sec-h2">7.1  .claude/ 里有什么</h3>
+<div class="table-wrap"><table><thead><tr><th>子项</th><th>归类</th></tr></thead><tbody><tr><td>CLAUDE.md、rules/</td><td>记忆（Memory）</td></tr><tr class="alt"><td>settings.json、settings.local.json</td><td>配置（权限、hooks、环境变量）</td></tr><tr><td>commands/、skills/</td><td>工作流（Workflows）</td></tr><tr class="alt"><td>agents/、hooks/</td><td>委派与护栏（Delegation &amp; guardrails）</td></tr><tr><td>plugins/</td><td>插件</td></tr></tbody></table></div>
+<p class="">用户级同样有 ~/.claude/ 目录结构；项目级设置优先于用户级设置。</p>
+<p class="src">【来源：原始课件 第 41 页】</p>
+<h3 class="sec-h2">7.2  课堂设计练习</h3>
+<p class="">任务：判断每条需求该用哪种机制，并说明其他机制为什么不合适。</p>
+<div class="table-wrap"><table><thead><tr><th>需求</th><th>答案</th></tr></thead><tbody><tr><td>应用公司 API 约定</td><td>Skill</td></tr><tr class="alt"><td>从 Jira 读取 issue</td><td>MCP</td></tr><tr><td>每次编辑后运行格式化</td><td>Hook</td></tr><tr class="alt"><td>引导多步部署流程</td><td>Skill</td></tr><tr><td>发送完成通知</td><td>Hook + MCP</td></tr><tr class="alt"><td>阻止写入生产环境</td><td>Hook 或策略（policy）</td></tr><tr><td>跨仓库共享整套配置</td><td>Plugin</td></tr></tbody></table></div>
+<p class="b">口诀：Skill = 知识与流程；MCP = 外部访问；Hook = 事件自动化；Plugin = 打包与分发。</p>
+<p class="src">【来源：原始课件 第 42 页】</p>
+<h3 class="sec-h2">7.3  下节课预告</h3>
+<ul class=""><li>从用户视角看智能体（二）（Agent from a user&#x27;s perspective II）</li></ul>
+<p class="src">【来源：原始课件 第 43 页】</p>
+<h2 class="sec-h1"><span class="sec-num">8</span> 选读：MCP 深入（Optional Slides）</h2>
+<p class="i">以下为选读内容（OPTIONAL — 额外阅读，非必需），编号对应原始课件第 45–52 页。</p>
+<h3 class="sec-h2">8.1  MCP 是什么、为什么存在</h3>
+<ul class=""><li><strong>动因：</strong>需要访问外部工具与服务。MCP 出现之前是 N×M 的实现问题——每个 AI 客户端都要为每个服务单独做集成。</li><li><strong>定义：</strong>一个开放的（无状态的）协议，让 AI 应用能够发现并使用外部服务器暴露的能力。</li><li><strong>官网：</strong>https://modelcontextprotocol.io</li></ul>
+<p class="src">【来源：原始课件 第 45 页】</p>
+<h3 class="sec-h2">8.2  MCP 架构</h3>
+<div class="table-wrap"><table><thead><tr><th>组件</th><th>说明</th></tr></thead><tbody><tr><td>Host 宿主</td><td>Claude Code——你正在对话的应用</td></tr><tr class="alt"><td>MCP client 客户端</td><td>每个 server 一个连接，由宿主运行</td></tr><tr><td>MCP server 服务端</td><td>把某个系统的能力暴露为工具</td></tr><tr class="alt"><td>External system 外部系统</td><td>GitHub、Slack、PostgreSQL 或本地服务</td></tr><tr><td>MCP protocol 协议</td><td>连接客户端与服务端的标准协议</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 46 页】</p>
+<h3 class="sec-h2">8.3  MCP 的三个核心原语</h3>
+<div class="table-wrap"><table><thead><tr><th>原语</th><th>含义</th><th>示例</th></tr></thead><tbody><tr><td>Tools 工具</td><td>Claude 可以调用的动作</td><td>create_issue(…)</td></tr><tr class="alt"><td>Resources 资源</td><td>可读的数据——一个 issue、一个 schema</td><td>github://issues/123</td></tr><tr><td>Prompts 提示词</td><td>服务端暴露的可复用提示模板</td><td>triage_issue(…)</td></tr></tbody></table></div>
+<ul class=""><li><strong>Prompt 返回指令：</strong>例如「审查 issue #123；判断是否可复现；评估严重性为高；推荐负责人与下一步」。</li><li><strong>Prompt 由用户控制：</strong>应用把它做成命令或菜单项；在 Claude Code 中是带命名空间的斜杠命令，如 /mcp__github__triage_issue 123 high。</li></ul>
+<p class="src">【来源：原始课件 第 47 页】</p>
+<h3 class="sec-h2">8.4  三者如何协同</h3>
+<p class="">示例请求：「分诊 issue #123，如果它是严重的认证 bug 就分配出去。」</p>
+<div class="table-wrap"><table><thead><tr><th>原语</th><th>实例</th><th>提供的东西</th></tr></thead><tbody><tr><td>Prompt</td><td>triage_issue</td><td>组织的分诊流程</td></tr><tr class="alt"><td>Resource</td><td>github://issues/123</td><td>issue 的具体内容</td></tr><tr><td>Tool</td><td>get_related_errors</td><td>当前的诊断信息</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 48 页】</p>
+<h3 class="sec-h2">8.5  MCP 安全：最关键的部分</h3>
+<p class="">一个已连接的服务器能看到你发给它的内容，并能用你的凭据执行操作。连接前应自问：「这个服务器能读什么、能改什么？」</p>
+<div class="table-wrap"><table><thead><tr><th>原则</th><th>做法</th></tr></thead><tbody><tr><td>最小权限 Least privilege</td><td>把 token 限定到真正需要的仓库、表或频道</td></tr><tr class="alt"><td>读写分离 Read vs. write</td><td>读与写分开；变更操作需经过批准</td></tr><tr><td>不信任工具输出</td><td>永远不要把返回内容当成指令来执行</td></tr><tr class="alt"><td>安装前审查 Vet before installing</td><td>第三方服务器可能携带提示注入，务必审查</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 49 页】</p>
+<h3 class="sec-h2">8.6  什么是 MCP 网关（Gateway）</h3>
+<p class="">网关是 AI 客户端与一个或多个 MCP 服务器之间的控制层——类似 API 网关，但说的是 MCP 协议（tools/list、tools/call、resources、prompts、schemas、协议版本）。它是一种架构模式；对客户端来说，网关看起来就像另一个 MCP 服务器。</p>
+<div class="table-wrap"><table><thead><tr><th>组件</th><th>职责</th></tr></thead><tbody><tr><td>Claude Code / agent</td><td>客户端</td></tr><tr class="alt"><td>MCP gateway</td><td>认证 · 策略 · 日志 · 路由 · 限流</td></tr><tr><td>后端 MCP servers</td><td>GitHub MCP、Jira MCP、Database MCP 等</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 50 页】</p>
+<h3 class="sec-h2">8.7  网关做什么</h3>
+<div class="table-wrap"><table><thead><tr><th>功能</th><th>说明</th></tr></thead><tbody><tr><td>1 · 聚合 Aggregate</td><td>一个连接、一个带命名空间的目录：github.*、jira.*、postgres.*</td></tr><tr class="alt"><td>2 · 路由 Route</td><td>把每次调用转发给对应的服务器；Mcp-Method 头无需读取 body 即可路由</td></tr><tr><td>3 · 执行策略 Enforce policy</td><td>谁可连接、哪些工具可见 / 可调用 / 需要人工批准</td></tr><tr class="alt"><td>4 · 身份代理 Broker identity</td><td>客户端只认证一次，上游凭据留在网关后面</td></tr><tr><td>5 · 观测 Observe</td><td>集中审计：身份、工具、决策、延迟、结果、成本</td></tr><tr class="alt"><td>6 · 扩展 Scale</td><td>负载均衡、重试、熔断、目录缓存、配额</td></tr></tbody></table></div>
+<ul class=""><li><strong>什么时候值得用：</strong>当许多用户、智能体、服务器、凭据或合规规则需要被一致治理时。</li><li><strong>但它也是信任边界：</strong>凭据范围过宽、终端用户身份丢失、命名冲突、日志里的秘密、单点故障。</li></ul>
+<p class="src">【来源：原始课件 第 51 页】</p>
+<h3 class="sec-h2">8.8  新特性（Spec 2026-07-28）</h3>
+<p class="">这是 MCP 自发布以来最大的一次修订：</p>
+<div class="table-wrap"><table><thead><tr><th>特性</th><th>说明</th></tr></thead><tbody><tr><td>无状态核心 Stateless core</td><td>无需维护会话；任意请求可落到任意实例，前面只需普通负载均衡器</td></tr><tr class="alt"><td>路由 Routing</td><td>Mcp-Method 头让网关无需读取 body 即可路由；list 结果可用 TTL 缓存</td></tr><tr><td>扩展 Extensions</td><td>长时工作任务（Tasks）和服务端渲染 UI 的 MCP Apps 作为扩展发布</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 52 页】</p>
+<h2 class="sec-h1"><span class="sec-num">9</span> 附录：核心术语对照表</h2>
+<div class="table-wrap"><table><thead><tr><th>英文</th><th>中文</th><th>说明</th></tr></thead><tbody><tr><td>Agentic loop</td><td>智能体循环</td><td>收集上下文 → 生成动作 → 执行工具，循环往复</td></tr><tr class="alt"><td>Harness</td><td>外壳 / 框架</td><td>解析模型输出、检查权限、执行工具的宿主程序（如 Claude Code）</td></tr><tr><td>Compaction</td><td>上下文压缩</td><td>总结旧轨迹并重新注入 CLAUDE.md 与记忆</td></tr><tr class="alt"><td>Working / Persistent memory</td><td>工作记忆 / 持久记忆</td><td>前者随会话消失，后者跨会话保留</td></tr><tr><td>CLAUDE.md</td><td>项目指令文件</td><td>由人编写的规则，按范围从大到小加载</td></tr><tr class="alt"><td>Auto memory</td><td>自动记忆</td><td>Claude 自己写的笔记，MEMORY.md 作索引</td></tr><tr><td>Skill</td><td>技能</td><td>按需加载的知识与流程（how）</td></tr><tr class="alt"><td>MCP (Model Context Protocol)</td><td>模型上下文协议</td><td>连接外部数据与动作的标准协议</td></tr><tr><td>Hook</td><td>钩子</td><td>在生命周期事件上自动触发的动作</td></tr><tr class="alt"><td>Plugin</td><td>插件</td><td>把 skills、hooks、agents、MCP 配置打包分发</td></tr><tr><td>Permission layer</td><td>权限层</td><td>介于模型意图与工具执行之间的批准机制</td></tr><tr class="alt"><td>Prefix cache</td><td>前缀缓存</td><td>缓存重复前缀以降低成本，读取占成本大头</td></tr><tr><td>Subagent / Delegate</td><td>子智能体 / 委派</td><td>派生子任务并只返回摘要的工具</td></tr><tr class="alt"><td>MCP gateway</td><td>MCP 网关</td><td>聚合、路由、鉴权、审计 MCP 调用的控制层</td></tr></tbody></table></div></div>
+</section>
+<style>
+:root{--bg:#f7f8fa;--text:#17202a;--muted:#697586;--line:#e4e8ee;--accent:#1769aa;--code:#f1f4f7}
+.note-page{max-width:860px;margin:0 auto;padding:0 0 40px}
+.back-link{display:inline-block;margin:26px 0 8px;font-size:14px;color:var(--accent)}
+.note-cover{padding:28px 0 30px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.note-cover .kicker{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:2px}
+.note-cover h1{font-size:clamp(28px,5vw,40px);line-height:1.3;margin:10px 0 6px}
+.note-cover .sub{color:var(--muted);font-size:17px}
+.note-page p{margin:0 0 12px}
+.note-page .b{font-weight:700}
+.note-page .i{font-style:italic;color:var(--muted)}
+.note-page h2.sec-h1{font-size:23px;line-height:1.35;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);color:#1b2a4a}
+.note-page .sec-num{color:#b01e3c;margin-right:6px}
+.note-page h3.sec-h2{font-size:18px;margin:24px 0 10px;color:#2e5c8a}
+.note-page ul{margin:0 0 14px;padding-left:24px}
+.note-page li{margin:5px 0;line-height:1.75}
+.note-page ul.sub{padding-left:44px;list-style:circle}
+.note-page .src{font-size:12.5px;color:var(--muted);font-style:italic;margin:4px 0 12px}
+.note-page .callout{border-left:4px solid #c8a24a;background:#fbf3e4;color:#4a3f22;padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;line-height:1.75}
+.note-page .callout-label{font-weight:700;color:#a8801f}
+.table-wrap{overflow-x:auto;margin:16px 0}
+.note-page table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}
+.note-page th,.note-page td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;line-height:1.6}
+.note-page thead th{background:#1b2a4a;color:#fff;font-weight:600;white-space:nowrap}
+.note-page tbody tr.alt{background:#f2f5f9}
+.note-page tbody tr.hl{background:#f7e9ec}
+.note-page tbody tr.hl td{font-weight:600;color:#b01e3c}
+@media(max-width:700px){.note-page h2.sec-h1{font-size:20px}.note-page p{font-size:15px}}
+</style>

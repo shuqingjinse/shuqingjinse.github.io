@@ -1,0 +1,176 @@
+---
+layout: default
+title: "CS2680 第 1 讲 · 课程导论"
+permalink: /course-notes/cs2680-lecture-01/
+---
+<section class="note-page">
+<a class="back-link" href="/course-notes/">← 返回课程笔记</a>
+<div class="note-cover"><p class="kicker">CS2680 课程学习讲义</p><h1>CS2680 第 1 讲 · 课程导论</h1><p class="sub">现代 AI 系统：智能体与系统优化 · 中文学习笔记</p></div>
+<div class="prose"><div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>课程</td><td>CS2680 Modern AI Systems: Agents and System Optimizations（现代 AI 系统：智能体与系统优化）</td></tr><tr class="alt"><td>授课教师</td><td>Juncheng Yang（杨俊成），哈佛 SEAS 助理教授</td></tr><tr><td>学期</td><td>2026 秋季（Fall 2026）</td></tr><tr class="alt"><td>课件来源</td><td>https://cs2680.seas.harvard.edu/slides/1_intro.pdf（共 50 页）</td></tr><tr><td>笔记说明</td><td>按主题提炼整理，非逐页直译；每节标注原始课件页码，便于对照复核。</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">本讲主线</span> 这是一门研究生水平的计算机系统课，围绕一条主线展开——从智能体（agent）本身的循环，一路向下贯穿到支撑它的服务栈（serving stack）：先用现代编码智能体，再自己设计并度量、优化智能体，最后亲手服务一个开源模型，负责其下的批处理、调度、KV 缓存、路由、量化与投机解码等各层。</div>
+<h2 class="sec-h1"><span class="sec-num">1</span> 今日计划</h2>
+<ul class=""><li>课程概览（Course overview）</li><li>政策与后勤（Policy and logistics）</li><li>AI 系统与智能体系统（AI systems and agentic systems）</li></ul>
+<p class="src">【来源：原始课件 第 2 页】</p>
+<h2 class="sec-h1"><span class="sec-num">2</span> 授课团队与研究背景</h2>
+<h3 class="sec-h2">2.1  主讲教师</h3>
+<ul class=""><li><strong>Juncheng Yang（杨俊成）：</strong>哈佛工程与应用科学学院（SEAS）助理教授</li><li><strong>教育背景：</strong>2024 年博士毕业于卡内基梅隆大学（CMU）</li><li><strong>工业经历：</strong>曾在 AWS、Snowflake、Cloudflare、Twitter 任职</li></ul>
+<p class="src">【来源：原始课件 第 3 页】</p>
+<h3 class="sec-h2">2.2  助教与联系方式</h3>
+<ul class=""><li><strong>助教团队：</strong>Yiyu Liu、Yunjia Zheng 等（另有多位 TF）</li><li><strong>答疑时间：</strong>均需预约（by appointment）</li><li><strong>课程邮箱：</strong>cs2680-staff@g.harvard.edu</li></ul>
+<p class="src">【来源：原始课件 第 5 页】</p>
+<h3 class="sec-h2">2.3  Harvard MaDSys 研究组</h3>
+<p class="i">MaDSys = Measurement and Design of Computer Systems（计算机系统的度量与设计）。其研究理念是：「别人寻找解决方案，我们寻找问题；我们度量、设计并运维真实系统。」</p>
+<div class="table-wrap"><table><thead><tr><th>研究方向</th><th>含义</th><th>课程中对应的主题</th></tr></thead><tbody><tr><td>Efficiency 效率</td><td>更少资源、更高利用率</td><td>—</td></tr><tr class="alt"><td>Performance 性能</td><td>更快、更可扩展</td><td>—</td></tr><tr><td>Reliability 可靠性</td><td>更少停机、更健壮</td><td>—</td></tr><tr class="alt"><td>Sustainability 可持续性</td><td>更低碳排放</td><td>—</td></tr><tr><td>Storage Systems 存储系统</td><td>缓存、可持续存储</td><td>Caching / Sustainable storage</td></tr><tr class="alt"><td>Agent Serving Systems 智能体服务系统</td><td>上下文管理、LLM 服务优化</td><td>Context management / LLM serving optimizations</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 4 页】</p>
+<h3 class="sec-h2">2.4  课堂互动约定</h3>
+<ul class=""><li>老师会努力记住每个人的名字——提问或回答前请先报姓名。</li><li>请每桌选出一位 leader 介绍桌上所有人；随后用 5 分钟向同桌做自我介绍：姓名与来自哪里、项目/年级/背景、研究兴趣、为何选这门课及想学到什么。</li></ul>
+<p class="src">【来源：原始课件 第 6–7 页】</p>
+<h2 class="sec-h1"><span class="sec-num">3</span> 课程定位与学习内容</h2>
+<h3 class="sec-h2">3.1  这是一门什么课</h3>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>说明</th></tr></thead><tbody><tr><td>课程性质</td><td>研究生水平的计算机系统课程，聚焦「智能体 AI 系统（Agentic AI Systems）」</td></tr><tr class="alt"><td>预期基础</td><td>至少修过一门研究生层次的系统课（操作系统、网络、数据库、体系结构）；需有真实系统经验</td></tr><tr><td>两大主题</td><td>① 智能体设计（Agent design）；② LLM / 智能体服务系统（LLM / agent serving systems）</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 9 页】</p>
+<h3 class="sec-h2">3.2  你将学到什么</h3>
+<div class="table-wrap"><table><thead><tr><th>阶段</th><th>时间占比</th><th>核心内容</th></tr></thead><tbody><tr><td>基础部分 Foundations</td><td>前几节课</td><td>LLM 与智能体导论；如何使用 Claude Code；如何设计一个编码智能体；如何优化你的编码智能体</td></tr><tr class="alt"><td>系统与 LLM/智能体 Systems for LLMs &amp; agents</td><td>大部分课程</td><td>GPU 编程与内核；批处理、调度、内存管理；负载均衡与路由；KV-cache 与 prefix-cache；智能体服务系统及其他优化</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 10 页】</p>
+<div class="callout"><span class="callout-label">课程期望</span> 「大量学习发生在课后」——课堂时间有限，课程不会讲完作业所需的全部知识，而是教你学习的方法并指明方向。要拿 A，请做好课后投入大量时间自学与实验的准备（每周预计 10+ 小时）。</div>
+<h2 class="sec-h1"><span class="sec-num">4</span> 五项作业与期末项目</h2>
+<h3 class="sec-h2">4.1  五项作业（Mads 系列）</h3>
+<p class="">「Mads」是 Modern Agent Design and Systems 的缩写，也是本课程的主线；同时致敬哈佛的 MaDSys 研究组。五项作业沿系统栈逐层下降：</p>
+<div class="table-wrap"><table><thead><tr><th>作业</th><th>主题</th><th>要点</th></tr></thead><tbody><tr><td>A1  Mads-Lens</td><td>为 Claude Code 构建 Web UI</td><td>观察智能体如何工作；解决一组简单问题；体验编码智能体的魔力；理解其生命周期</td></tr><tr class="alt"><td>A2  Mads-Loop</td><td>构建一个简单的编码智能体</td><td>自己搭建智能体循环</td></tr><tr><td>A3  Mads-Opt</td><td>优化你的编码智能体</td><td>开放式：上下文、记忆、测试时扩展、路由、子智能体、工具调用；指标：准确率、成本、延迟；为排行榜设计新题目</td></tr><tr class="alt"><td>A4  Mads-Serve</td><td>服务你的智能体</td><td>从商业 API 切换到小模型；让智能体与服务引擎协同调优以获得性能</td></tr><tr><td>A5  Mads-Stack</td><td>优化全栈</td><td>最难的作业：开放式（量化、路由、微调、引擎–智能体协同设计）；按排行榜计分</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 11–12 页；课程主页 Overview】</p>
+<h3 class="sec-h2">4.2  期末项目</h3>
+<div class="table-wrap"><table><thead><tr><th>路径</th><th>说明</th></tr></thead><tbody><tr><td>① 做一个工具（Build a tool）</td><td>找到一个缺口，做一个你自己会真正使用的工具</td></tr><tr class="alt"><td>② 研究项目（Research）</td><td>研究型项目——先与助教沟通</td></tr><tr><td>共同要求</td><td>开放式、个人项目 + AI；阅读周有海报与 Demo 展示；评分 = 代码 + 报告 + 海报/Demo 同伴评审</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 13 页】</p>
+<div class="callout"><span class="callout-label">重要提醒</span> 作业 3 与 5 按排行榜排名评分（排名 + 相对 baseline 的改进）；评分含 20% 的 A 比例限制政策，「即使拿到 A- 也很难」。若在意外绩点，请勿选修本课程。</div>
+<h2 class="sec-h1"><span class="sec-num">5</span> 评分、政策与后勤</h2>
+<h3 class="sec-h2">5.1  评分构成</h3>
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>占比</th><th>备注</th></tr></thead><tbody><tr><td>五次作业</td><td>70%</td><td>A1/A2/A4 各 10%；A3/A5 各 20%</td></tr><tr class="alt"><td>项目 Project</td><td>16%</td><td>代码 + 报告 + 海报/Demo</td></tr><tr><td>课堂参与 Participation</td><td>4%</td><td>全学期持续参与</td></tr><tr class="alt"><td>加分 Bonus</td><td>10%</td><td>课程反馈 + 「AI 无法解决的问题」等；展示最多 4%/次；A5 排名最高再加 5%</td></tr><tr><td>展示 Presentation</td><td>10%</td><td>论文 + 作业 1（见课程主页，讲义此页与主页口径略有差异）</td></tr></tbody></table></div>
+<ul class=""><li>迟交：全学期共 4 个 late day，迟交每天扣 20%。</li><li>警示：执行 20% 的 A 比例政策，A 甚至 A- 都很难拿到。</li></ul>
+<p class="src">【来源：原始课件 第 16 页；课程主页 Grading（口径略有差异，已并列标注）】</p>
+<h3 class="sec-h2">5.2  招生与旁听</h3>
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>计划容量</td><td>40 人（原计划与预算）</td></tr><tr class="alt"><td>当前注册</td><td>80 人（上限已提高）</td></tr><tr><td>申请情况</td><td>68 名 prospective + 10 名 cross-registration + 6 名 waiting list</td></tr><tr class="alt"><td>旁听 Auditing</td><td>仅在哈佛政策允许且有空位时才可；注意算力资源可能不会同比例增加，作业截止日很可能抢不到 GPU</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 17 页】</p>
+<h3 class="sec-h2">5.3  AI 使用政策</h3>
+<div class="table-wrap"><table><thead><tr><th>要点</th><th>要求</th></tr></thead><tbody><tr><td>总体态度</td><td>鼓励使用 AI，但必须对 AI 生成的代码进行推理与判断；对提交的所有代码负责</td></tr><tr class="alt"><td>披露要求</td><td>每次作业都需披露：使用方式、什么有效/什么无效，并上传你的会话日志（session log）</td></tr><tr><td>参考</td><td>阅读课程网站上的作业提交页面</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 18 页】</p>
+<h3 class="sec-h2">5.4  出勤与笔记本政策</h3>
+<div class="table-wrap"><table><thead><tr><th>要点</th><th>要求</th></tr></thead><tbody><tr><td>出勤</td><td>要求出勤，期望线下到课；完整政策见网站</td></tr><tr class="alt"><td>录像</td><td>课程不录制、不录像</td></tr><tr><td>笔记本</td><td>允许使用；若打算一直开着，请坐在后排</td></tr><tr class="alt"><td>客座讲座</td><td>会面前一周开放报名（sign-up）</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 19 页】</p>
+<h3 class="sec-h2">5.5  计算资源</h3>
+<div class="table-wrap"><table><thead><tr><th>资源</th><th>说明</th></tr></thead><tbody><tr><td>Claude Code</td><td>作业 1 必需</td></tr><tr class="alt"><td>API access</td><td>api.cs2680.com（作业 2、3 必需）</td></tr><tr><td>GitHub</td><td>私有仓库，与课程组内共享</td></tr><tr class="alt"><td>课程 HPC</td><td>所有有 Canvas 权限者已在系统中；基于 SLURM；RTX 6000 PRO Blackwell；仅限课程作业</td></tr><tr><td>AWS</td><td>周五前注册并填写 Google Form；不用时请终止或关机实例</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 20 页】</p>
+<div class="callout"><span class="callout-label">课程安排可能变动</span> 这是本课程首次开设，前半程可能颇多波折；课表会变，评分方案（含论文阅读部分）也可能调整。</div>
+<p class="src">【来源：原始课件 第 21 页】</p>
+<h2 class="sec-h1"><span class="sec-num">6</span> 学生背景摸底与编码智能体分级</h2>
+<h3 class="sec-h2">6.1  三个摸底问题</h3>
+<ul class=""><li>你修过多少门计算机系统课程？——操作系统、分布式系统、数据库、计算机网络、计算机体系结构……及其他。</li><li>以下主题你熟悉多少？——Transformer 架构、TP/PP/DP/EP（并行策略）、迭代级调度 / PagedAttention、线性注意力、GPU 编程、Linux 内核。</li><li>你如何用过 AI？——① 聊天；② 编码智能体（MCP、Skills/插件、子智能体、并行智能体）；③ 定制智能体。</li></ul>
+<p class="src">【来源：原始课件 第 23–25 页】</p>
+<h3 class="sec-h2">6.2  智能体编码分级（Agentic Coding Levels）</h3>
+<div class="table-wrap"><table><thead><tr><th>等级</th><th>名称</th><th>含义</th></tr></thead><tbody><tr><td>0</td><td>无 AI（No AI）</td><td>手写代码</td></tr><tr class="alt"><td>1</td><td>辅助（Assist）</td><td>AI 自动补全</td></tr><tr><td>2</td><td>监督（Supervised）</td><td>AI 写函数，你来审阅</td></tr><tr class="alt"><td>3</td><td>限定范围（Scoped）</td><td>交出一个任务，审阅生成的代码</td></tr><tr class="hl"><td>4</td><td>目标驱动（Goal-driven）</td><td>AI 写全部代码，由测试来验证</td></tr><tr class="hl"><td>5</td><td>并行智能体（Parallel agents）</td><td>子智能体分工协作</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 26 页】</p>
+<h2 class="sec-h1"><span class="sec-num">7</span> Part I — AI 系统：与传统计算机系统的差异</h2>
+<h3 class="sec-h2">7.1  什么是 AI 系统？</h3>
+<p class="">AI 系统包含许多活动部件：调度与编排、状态管理、通信、缓存、容错、安全、可观测性……（注：AI 系统是个宽泛概念，本课程狭义聚焦于 LLM 系统。）</p>
+<div class="table-wrap"><table><thead><tr><th></th><th>AI / ML</th><th>AI Systems</th></tr></thead><tbody><tr><td>核心问题</td><td>「该用什么模型？/ 我该如何设计模型？」</td><td>「如何大规模地训练和服务它？」</td></tr><tr class="alt"><td>典型做法</td><td>选一个模型，写个 Python 脚本解决任务</td><td>追求：GPU 利用率最大化（性能）、资源浪费最小化（效率）、停机时间最小化（可靠性）、碳足迹更低（可持续性）</td></tr><tr><td>优化目标</td><td>准确率与能力（accuracy / capability）</td><td>性能、效率、可靠性、可持续性</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 28 页】</p>
+<h3 class="sec-h2">7.2  为什么要关心 AI 系统？</h3>
+<p class="">「这里正是能力（capability）转化为产品（product）的地方——而且它比 AI 本身更难。」</p>
+<ul class=""><li>关键数字基础设施（critical digital infrastructure）</li><li>理解模型设计、设计更好的产品、更多就业机会</li></ul>
+<p class="src">【来源：原始课件 第 29 页】</p>
+<h3 class="sec-h2">7.3  AI 系统的六大差异</h3>
+<div class="table-wrap"><table><thead><tr><th>差异维度</th><th>要点</th></tr></thead><tbody><tr><td>① 计算（compute）</td><td>异构计算：CPU 负责分词、内核启动、数据搬运、工具调用；GPU 负责矩阵乘法；混用不同代 GPU 与 xPU。
+计算阶段分明：prefill 受算力限制（compute-bound），decode 受显存带宽限制（memory-bandwidth-bound）；同一部署会遇到不同瓶颈（算力/带宽/容量）。
+执行时间不可预测：取决于输出长度，使调度复杂化。</td></tr><tr class="alt"><td>② 非确定性计算（non-deterministic compute）</td><td>浮点加法不满足结合律（每次运算都有舍入），传递性也失效；「蝴蝶效应」：矩阵乘中小数点后第 7 位的偏移就会翻转下一个 token。
+来源：运行时（warp/block 调度、访存顺序、异步流、batch size）、软件（融合乘加 vs 两次运算、自动调优、次正规数）、硬件（CUDA vs 张量核、Hopper FP8 vs Blackwell 微缩放 tile）。
+结论：近似计算是可接受的（approximate computing is acceptable）。</td></tr><tr><td>③ 内存、存储与通信</td><td>状态巨大：模型权重 GB~TB 级；KV-cache 每 token 数十~数百 KB；prefix cache 跨请求复用 KV；数据搬运成为瓶颈。
+多 GPU 通信：流水线/张量/专家/上下文并行；集合通信 NCCL、UCCL；拓扑 NVLink、以太网/InfiniBand；CPU 与内核旁路 RDMA。</td></tr><tr class="alt"><td>④ 快速演进的模型与负载</td><td>模型架构快速演进：MHA、GQA、MLA、NSA、线性注意力……
+负载快速演进：多轮对话（交互式、延迟敏感）、问题求解（长输出推理）、RAG（检索文档、长上下文）、智能体（长上下文、prefix-cache 关键、路由与负载均衡）。
+思路：让模型适配硬件 → 为模型架构设计硬件。</td></tr><tr><td>⑤ 可靠性、功耗与能耗</td><td>可靠性：9% 年故障率（AFR）、50,000 小时 MTBF；在 16K GPU 集群中平均每 3 小时就有一块 GPU 故障。
+功耗能耗：CPU 100–300W，GPU 700–1000W，每台服务器 4–8 块 GPU；服务器功耗 800W→6,000W（约 8 倍）；如何避免功率波动。</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 30–34 页】</p>
+<div class="callout"><span class="callout-label">本部分小结</span> AI 系统之所以难，在于它同时叠加了：异构且非确定的计算、巨大的有状态内存、多 GPU 通信、快速变化的模型与负载，以及高故障率与高功耗——这些都是传统系统课里不常同时出现的约束。</div>
+<h2 class="sec-h1"><span class="sec-num">8</span> Part II — 智能体 AI 系统：什么是智能体，为何它是系统问题</h2>
+<h3 class="sec-h2">8.1  什么是 AI 智能体？</h3>
+<p class="">定义：AI 智能体是一个自主软件系统，它使用 AI 模型来推理目标、调用外部工具，并执行多步动作，直到任务完成。智能体内部包含 Memory（记忆）、LLM（推理与规划）；它通过 Action / Observation 与环境（Environment）交互。</p>
+<div class="table-wrap"><table><thead><tr><th>五步循环</th><th>含义</th></tr></thead><tbody><tr><td>1. plan 规划</td><td>把任务拆解为子步骤</td></tr><tr class="alt"><td>2. act 行动</td><td>调用外部工具（API、数据库）</td></tr><tr><td>3. observe 观察</td><td>解读工具返回的结果</td></tr><tr class="alt"><td>4. adapt 调整</td><td>根据新信息修订计划</td></tr><tr><td>5. deliver 交付</td><td>返回最终结果</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 36 页】</p>
+<h3 class="sec-h2">8.2  为什么需要 AI 智能体？</h3>
+<p class="">「LLM 是一台奇怪的计算机：同时超人又无能。」</p>
+<div class="table-wrap"><table><thead><tr><th>超人之处（Superhuman at）</th><th>出人意料的弱点（Surprisingly weak at）</th></tr></thead><tbody><tr><td>海量事实知识的记忆</td><td>持久记忆（persistent memory）</td></tr><tr class="alt"><td>语言能力</td><td>可靠地理解上下文</td></tr><tr><td>模式匹配</td><td>避免幻觉</td></tr><tr class="alt"><td>生成代码</td><td>知道自己不知道什么</td></tr><tr><td>跨多个领域操作</td><td>安全性与对抗性输入</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 37 页】</p>
+<h3 class="sec-h2">8.3  智能体是一种新型计算机</h3>
+<div class="table-wrap"><table><thead><tr><th>传统计算机</th><th>→</th><th>智能体（Agent）</th></tr></thead><tbody><tr><td>CPU</td><td>→</td><td>LLM</td></tr><tr class="alt"><td>RAM / 工作内存</td><td>→</td><td>上下文窗口（Context window）</td></tr><tr><td>外设（Peripherals）</td><td>→</td><td>工具（Tools）</td></tr><tr class="alt"><td>操作系统（OS）</td><td>→</td><td>智能体外壳（Agent Harness）</td></tr><tr><td>应用程序（Application）</td><td>→</td><td>智能体（Agent）</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">核心观点</span> 「LLM 不止是一颗更聪明的 CPU」——它是一台新型的可编程计算机，拥有完全不同的编程模型与失效模型（failure model）。</div>
+<p class="src">【来源：原始课件 第 38 页】</p>
+<h3 class="sec-h2">8.4  为什么智能体是系统问题？</h3>
+<p class="">智能体有许多轮次（many turns），其关键路径横跨 GPU、CPU、存储、网络与外部服务。</p>
+<div class="table-wrap"><table><thead><tr><th></th><th>流程对比</th></tr></thead><tbody><tr><td>传统 LLM 服务</td><td>request（请求） → inference（推理） → response（响应）</td></tr><tr class="alt"><td>智能体服务</td><td>infer（推理） → tool（工具） → infer → tool → retrieval（检索） → infer → …</td></tr></tbody></table></div>
+<ul class=""><li>步骤之间存在依赖关系（dependencies）</li><li>各步骤延迟高度可变（highly variable step latency）</li><li>阻塞 / 等待工具（blocking / waiting on tools）</li><li>状态快速增长（rapidly growing state）</li><li>并发与投机（concurrency &amp; speculation）</li><li>轨迹中任何地方都可能失败（failures anywhere in trajectory）</li></ul>
+<p class="src">【来源：原始课件 第 39 页】</p>
+<h3 class="sec-h2">8.5  智能体系统技术栈（The agentic systems stack）</h3>
+<div class="table-wrap"><table><thead><tr><th>层级</th><th>内容</th></tr></thead><tbody><tr><td>Application / User（应用/用户）</td><td>顶层</td></tr><tr class="alt"><td>Agent / Harness（智能体/外壳）</td><td>planning · context · memory · tools · subagents（规划·上下文·记忆·工具·子智能体）</td></tr><tr><td>Model（模型）</td><td>—</td></tr><tr class="alt"><td>Serving System（服务系统）</td><td>batching · scheduling · routing · caching（批处理·调度·路由·缓存）</td></tr><tr><td>Tools（工具，外部环境）</td><td>web · files · APIs · humans（网页·文件·API·人）</td></tr><tr class="alt"><td>Systems（系统侧）</td><td>scheduling · caching（调度·缓存）</td></tr><tr><td>Runtime / Kernels（运行时/内核）</td><td>CUDA · Triton · collectives（集合通信）</td></tr><tr class="alt"><td>Hardware（硬件）</td><td>GPU · CPU · memory · network · storage</td></tr><tr><td>右侧协同轴线</td><td>Agent ↔ Serving ↔ Hardware 三者协同设计（co-design）</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 40 页】</p>
+<h3 class="sec-h2">8.6  我们到底在优化什么？</h3>
+<div class="callout"><span class="callout-label">关键论断</span> 「吞吐量（Throughput）对于智能体来说是错误的目标。」</div>
+<p><strong>优化目标：</strong>最大化 task success（任务成功率），受限于 latency（延迟）、cost（成本）、resources（资源）、reliability（可靠性）、security（安全）。</p>
+<div class="table-wrap"><table><thead><tr><th>有用但不充分（Useful, but insufficient）</th><th>我们实际优化的（What we actually optimize）</th></tr></thead><tbody><tr><td>TTFT / TPOT（首 token 延迟 / 每 token 延迟）</td><td>任务成功率 / 准确率（task success / accuracy）</td></tr><tr class="alt"><td>工具调用延迟（tool-call latency）</td><td>端到端延迟（end-to-end latency）</td></tr><tr><td>GPU 利用率（GPU utilization）</td><td>每个任务的 token 数（tokens / task）</td></tr><tr class="hl"><td></td><td>每个成功任务的成本（$ / successful task）★</td></tr><tr class="hl"><td></td><td>每个成功任务的能耗（Energy / successful task）★</td></tr></tbody></table></div>
+<p class="i">注解：每秒 token 数更多，仍可能意味着一个更慢、更贵的智能体。</p>
+<p class="src">【来源：原始课件 第 41 页】</p>
+<h3 class="sec-h2">8.7  智能体系统引入的新系统问题</h3>
+<p class="">智能体负载的每一项属性，都对应本课程要研究的一个系统问题：</p>
+<div class="table-wrap"><table><thead><tr><th>智能体负载属性</th><th>→  对应的系统问题</th></tr></thead><tbody><tr><td>长轨迹（Long trajectories）</td><td>状态与上下文管理（state &amp; context management）</td></tr><tr class="alt"><td>重复前缀（Repeated prefixes）</td><td>前缀缓存（prefix caching）</td></tr><tr><td>工具依赖（Tool dependencies）</td><td>依赖感知调度（dependency-aware scheduling）</td></tr><tr class="alt"><td>可变的工具延迟（Variable tool latency）</td><td>异步执行（asynchronous execution）</td></tr><tr><td>多智能体（Multiple agents）</td><td>编排与通信（orchestration &amp; communication）</td></tr><tr class="alt"><td>巨大上下文（Huge context）</td><td>内存层级与检索（memory hierarchy &amp; retrieval）</td></tr><tr><td>分支推理（Branching reasoning）</td><td>投机执行（speculative execution）</td></tr><tr class="alt"><td>不同模型（Different models）</td><td>路由（routing）</td></tr><tr><td>外部副作用（External side effects）</td><td>安全与隔离（security &amp; isolation）</td></tr><tr class="alt"><td>长时运行任务（Long-running tasks）</td><td>检查点与容错（checkpointing &amp; fault tolerance）</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 42 页】</p>
+<h3 class="sec-h2">8.8  可观测性是一等公民</h3>
+<p class="">对智能体而言，分布式追踪（distributed trace）变成了一个嵌套的轨迹（nested trajectory）：</p>
+<div class="table-wrap"><table><thead><tr><th>嵌套层级（从外到内）</th></tr></thead><tbody><tr><td>Session（会话） → Turn（轮次） → Agent step（智能体步骤） → Model request（模型请求） → Tool call（工具调用） → Tool result（工具结果） → Agent step → Subagent（子智能体） → …</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">金句</span> 「你无法优化你无法观测的东西。」（You cannot optimize what you cannot observe.）</div>
+<p class="src">【来源：原始课件 第 43 页】</p>
+<h3 class="sec-h2">8.9  本课程你将思考的问题</h3>
+<ul class=""><li>为什么批处理会提升吞吐量，却损害智能体的延迟？</li><li>智能体何时该使用更大的模型？</li><li>KV / prefix 状态应该放在哪里？</li><li>来自同一智能体的请求该如何调度？</li><li>工具调用能否与推理重叠（overlap）？</li><li>什么时候该派生一个子智能体（spawn a subagent）？</li><li>如何在异构 GPU 与模型之间做路由？</li><li>一个运行了 30 分钟的智能体，出错后如何恢复？</li><li>如何优化「每个成功任务的成本」而不是「每秒 token 数」？</li></ul>
+<p><strong>课程目标：</strong>到 CS2680 结束时，你应能用定量方法（quantitatively）回答这些问题。</p>
+<p class="src">【来源：原始课件 第 44 页】</p>
+<h3 class="sec-h2">8.10  本课程不覆盖的内容</h3>
+<ul class=""><li>训练（inference 主导算力需求）：数据流水线、checkpoint、预训练/微调/后训练、RL rollout</li><li>集群管理（cluster management）</li><li>模型架构设计（Model architecture design）</li><li>其他与推理相关的主题：通信、功耗与能耗、新硬件设计</li></ul>
+<p class="src">【来源：原始课件 第 45 页】</p>
+<h2 class="sec-h1"><span class="sec-num">9</span> 结语与选读</h2>
+<ul class=""><li><strong>下节课：</strong>LLM 基础（LLM basics）</li></ul>
+<p class="src">【来源：原始课件 第 46 页】</p>
+<div class="callout"><span class="callout-label">选读材料</span> AI agents vs. AI assistants vs. bots 对比（详见下方附录）；参考链接：cloud.google.com/discover/what-are-ai-agents。课程主页另附两份参考页：Agent evaluation and benchmarks、Cost-effective agents。</div>
+<p class="src">【来源：原始课件 第 48–50 页；课程主页 Reference pages】</p>
+<h2 class="sec-h1"><span class="sec-num">10</span> 附录 A：AI 智能体 / 助手 / 机器人 对比</h2>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>AI 智能体（Agent）</th><th>AI 助手（Assistant）</th><th>机器人（Bot）</th></tr></thead><tbody><tr><td>目的 Purpose</td><td>自主、主动地执行任务</td><td>协助用户完成任务</td><td>自动化简单任务或对话</td></tr><tr class="alt"><td>能力 Capabilities</td><td>复杂的多步动作；学习并自适应；自主决策</td><td>响应提示；可推荐动作，但由用户决定</td><td>遵循预定义规则；学习能力有限；基础交互</td></tr><tr><td>交互 Interaction</td><td>主动、目标导向</td><td>被动、响应用户请求</td><td>被动、响应触发或命令</td></tr></tbody></table></div>
+<p class="b">关键差异：自主性（Autonomy）、复杂度（Complexity）、学习（Learning）。</p>
+<ul class=""><li><strong>自主性：</strong>智能体为达成目标自主运行与决策；助手需要用户输入与指引；机器人遵循预设程序规则。</li><li><strong>复杂度：</strong>智能体处理复杂任务与多步工作流；助手与机器人适合更简单的任务与交互。</li><li><strong>学习：</strong>智能体通过机器学习随时间自适应；助手可能略能学习；机器人几乎不学习。</li></ul>
+<p class="src">【来源：原始课件 第 49–50 页】</p>
+<h2 class="sec-h1"><span class="sec-num">11</span> 附录 B：核心术语对照表</h2>
+<div class="table-wrap"><table><thead><tr><th>英文</th><th>中文</th><th>说明</th></tr></thead><tbody><tr><td>Agent / Agentic system</td><td>智能体 / 智能体系统</td><td>能推理目标、调用工具、执行多步动作的自主软件系统</td></tr><tr class="alt"><td>Agent Harness</td><td>智能体外壳 / 框架</td><td>承载规划、上下文、记忆、工具、子智能体的运行框架</td></tr><tr><td>Serving system</td><td>服务系统</td><td>负责批处理、调度、路由、缓存的推理服务层</td></tr><tr class="alt"><td>Prefill / Decode</td><td>预填充 / 解码</td><td>LLM 推理两阶段：前者受算力限制，后者受显存带宽限制</td></tr><tr><td>KV-cache / Prefix cache</td><td>KV 缓存 / 前缀缓存</td><td>缓存注意力键值对；跨请求复用相同前缀的 KV</td></tr><tr class="alt"><td>Batching / Scheduling</td><td>批处理 / 调度</td><td>合并请求提升吞吐；决定请求执行顺序</td></tr><tr><td>Routing / Load balancing</td><td>路由 / 负载均衡</td><td>在异构模型/GPU 间分配请求</td></tr><tr class="alt"><td>Speculative decoding</td><td>投机解码</td><td>用小模型或分支预生成并由大模型校验以加速</td></tr><tr><td>Quantization</td><td>量化</td><td>降低权重/激活的数值精度以省资源</td></tr><tr class="alt"><td>TP / PP / DP / EP</td><td>张量/流水线/数据/专家并行</td><td>多 GPU 并行策略</td></tr><tr><td>PagedAttention</td><td>分页注意力</td><td>以分页方式管理 KV 缓存，减少碎片</td></tr><tr class="alt"><td>TTFT / TPOT</td><td>首 token 延迟 / 每 token 延迟</td><td>推理延迟的两个关键指标</td></tr><tr><td>Observability / Trace</td><td>可观测性 / 追踪</td><td>对智能体嵌套执行轨迹的度量与记录</td></tr><tr class="alt"><td>Co-design</td><td>协同设计</td><td>智能体、服务系统与硬件三者联合优化</td></tr></tbody></table></div></div>
+</section>
+<style>
+:root{--bg:#f7f8fa;--text:#17202a;--muted:#697586;--line:#e4e8ee;--accent:#1769aa;--code:#f1f4f7}
+.note-page{max-width:860px;margin:0 auto;padding:0 0 40px}
+.back-link{display:inline-block;margin:26px 0 8px;font-size:14px;color:var(--accent)}
+.note-cover{padding:28px 0 30px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.note-cover .kicker{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:2px}
+.note-cover h1{font-size:clamp(28px,5vw,40px);line-height:1.3;margin:10px 0 6px}
+.note-cover .sub{color:var(--muted);font-size:17px}
+.note-page p{margin:0 0 12px}
+.note-page .b{font-weight:700}
+.note-page .i{font-style:italic;color:var(--muted)}
+.note-page h2.sec-h1{font-size:23px;line-height:1.35;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);color:#1b2a4a}
+.note-page .sec-num{color:#b01e3c;margin-right:6px}
+.note-page h3.sec-h2{font-size:18px;margin:24px 0 10px;color:#2e5c8a}
+.note-page ul{margin:0 0 14px;padding-left:24px}
+.note-page li{margin:5px 0;line-height:1.75}
+.note-page ul.sub{padding-left:44px;list-style:circle}
+.note-page .src{font-size:12.5px;color:var(--muted);font-style:italic;margin:4px 0 12px}
+.note-page .callout{border-left:4px solid #c8a24a;background:#fbf3e4;color:#4a3f22;padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;line-height:1.75}
+.note-page .callout-label{font-weight:700;color:#a8801f}
+.table-wrap{overflow-x:auto;margin:16px 0}
+.note-page table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}
+.note-page th,.note-page td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;line-height:1.6}
+.note-page thead th{background:#1b2a4a;color:#fff;font-weight:600;white-space:nowrap}
+.note-page tbody tr.alt{background:#f2f5f9}
+.note-page tbody tr.hl{background:#f7e9ec}
+.note-page tbody tr.hl td{font-weight:600;color:#b01e3c}
+@media(max-width:700px){.note-page h2.sec-h1{font-size:20px}.note-page p{font-size:15px}}
+</style>

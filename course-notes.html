@@ -1,0 +1,32 @@
+---
+layout: default
+title: "课程笔记"
+description: "名校课程的系统学习笔记，按讲次整理，便于长期查阅与复习。"
+permalink: /course-notes/
+---
+<section class="category-header">
+  <p class="eyebrow">COLUMN</p>
+  <h1>{{ page.title }}</h1>
+  <p class="intro">{{ page.description }}</p>
+</section>
+
+<section class="post-list" aria-label="课程讲义列表">
+  <article class="post-card course-card">
+    <p class="post-meta">CS2680 · 现代 AI 系统：智能体与系统优化 · 第 1 讲</p>
+    <h2><a href="{{ '/course-notes/cs2680-lecture-01/' | relative_url }}">课程导论（Overview）</a></h2>
+    <p>课程主线与整体脉络：从智能体循环到支撑它的服务栈，涵盖课程安排、智能体循环、记忆、核心工具、扩展机制、.claude 目录、MCP 深入与术语表。</p>
+    <a class="read-more" href="{{ '/course-notes/cs2680-lecture-01/' | relative_url }}">阅读讲义 →</a>
+  </article>
+  <article class="post-card course-card">
+    <p class="post-meta">CS2680 · 现代 AI 系统：智能体与系统优化 · 第 2 讲</p>
+    <h2><a href="{{ '/course-notes/cs2680-lecture-02/' | relative_url }}">从用户视角看智能体（一）：Claude Code 如何工作</a></h2>
+    <p>以 Claude Code 为案例拆解对话框背后的智能体循环：上下文收集、动作生成、工具执行，以及跨会话记忆与 Skill / MCP / Hook / Plugin 四类扩展机制。</p>
+    <a class="read-more" href="{{ '/course-notes/cs2680-lecture-02/' | relative_url }}">阅读讲义 →</a>
+  </article>
+</section>
+
+<style>
+.course-card{padding:28px 0}
+.course-card h2{font-size:23px}
+.course-card .post-meta{color:var(--accent)}
+</style>

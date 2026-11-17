@@ -2,11 +2,38 @@
 layout: default
 ---
 <section class="hero"><p class="eyebrow">KNOWLEDGE NOTES</p><h1>记录问题，沉淀答案。</h1><p class="intro">这里是 Straight 的个人知识库，主要记录人工智能、软件工程、工具实践与阅读思考。</p></section>
-<section class="columns" aria-label="专栏">
-  <a class="column-card" href="{{ '/llm-basics/' | relative_url }}"><span class="column-index">01</span><h2>LLM 基础</h2><p>从 Attention、训练方法到模型机制，记录可复用的基础知识。</p><span class="column-link">进入专栏 →</span></a>
-  <a class="column-card" href="{{ '/research/' | relative_url }}"><span class="column-index">02</span><h2>最新调研</h2><p>跟踪新模型、新方法和值得深入阅读的技术项目。</p><span class="column-link">进入专栏 →</span></a>
-  <a class="column-card" href="{{ '/personal/' | relative_url }}"><span class="column-index">03</span><h2>个人杂谈</h2><p>记录日常思考、实践经验和学习过程中的零散发现。</p><span class="column-link">进入专栏 →</span></a>
+
+<section class="columns columns-three" aria-label="三大栏目">
+  <a class="column-card" href="{{ '/course-notes/' | relative_url }}">
+    <span class="column-index">01</span>
+    <h2>课程笔记</h2>
+    <p>名校课程的系统学习笔记。已收录 CS2680《现代 AI 系统》中文讲义。</p>
+    <span class="column-link">进入栏目 →</span>
+  </a>
+  <a class="column-card" href="{{ '/personal-summary/' | relative_url }}">
+    <span class="column-index">02</span>
+    <h2>个人总结</h2>
+    <p>技术文章与学习复盘：LLM 基础、模型训练、前沿调研与日常思考。</p>
+    <span class="column-link">进入栏目 →</span>
+  </a>
+  <a class="column-card" href="{{ '/llm-interview/' | relative_url }}">
+    <span class="column-index">03</span>
+    <h2>面试经验</h2>
+    <p>大模型后训练高频面经，交互式闪卡 + 自测，帮你把答案记得住。</p>
+    <span class="column-link">进入栏目 →</span>
+  </a>
 </section>
-<section class="post-list" aria-label="文章列表">
-{% for post in paginator.posts %}<article class="post-card"><p class="post-meta">{{ post.date | date: "%Y-%m-%d" }}{% if post.categories %} · {{ post.categories | join: " / " }}{% endif %}</p><h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2><p>{{ post.excerpt | strip_html | truncate: 180 }}</p><a class="read-more" href="{{ post.url | relative_url }}">阅读全文 →</a></article>{% else %}<p class="empty">还没有文章。在 <code>_posts/</code> 中创建第一篇 Markdown 笔记吧。</p>{% endfor %}
+
+<section id="personal-notes" class="post-list" aria-label="最近文章">
+  <div class="section-head"><h2>最近文章</h2><a class="read-more" href="{{ '/personal-summary/' | relative_url }}">查看全部 →</a></div>
+  {% for post in site.posts limit:5 %}
+  <article class="post-card"><p class="post-meta">{{ post.date | date: "%Y-%m-%d" }}{% if post.categories %} · {{ post.categories | join: " / " }}{% endif %}</p><h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2><p>{{ post.excerpt | strip_html | truncate: 180 }}</p><a class="read-more" href="{{ post.url | relative_url }}">阅读全文 →</a></article>
+  {% endfor %}
 </section>
+
+<style>
+.columns-three{grid-template-columns:repeat(3,1fr)}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;padding:34px 0 4px;border-bottom:1px solid var(--line)}
+.section-head h2{font-size:22px;margin:0}
+@media(max-width:700px){.section-head h2{font-size:19px}}
+</style>

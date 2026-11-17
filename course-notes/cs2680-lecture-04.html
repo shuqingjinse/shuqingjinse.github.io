@@ -1,0 +1,193 @@
+---
+layout: default
+title: "CS2680 第 4 讲 · 智能体设计（一）"
+permalink: /course-notes/cs2680-lecture-04/
+---
+<section class="note-page">
+<a class="back-link" href="/course-notes/">← 返回课程笔记</a>
+<div class="note-cover"><p class="kicker">CS2680 课程学习讲义</p><h1>CS2680 第 4 讲 · 智能体设计（一）</h1><p class="sub">上下文管理与工具设计 · 中文学习笔记</p></div>
+<div class="prose">
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>课程</td><td>CS2680 Modern AI Systems: Agents and System Optimizations（现代 AI 系统：智能体与系统优化）</td></tr><tr class="alt"><td>主题</td><td>智能体设计（一）：ReAct 循环、工具设计、提示工程与上下文工程</td></tr><tr><td>授课教师</td><td>Juncheng Yang（杨俊成），哈佛 SEAS 助理教授</td></tr><tr class="alt"><td>课件来源</td><td>https://cs2680.seas.harvard.edu/slides/4_agent_design_1.pdf（共 56 页）</td></tr><tr><td>笔记说明</td><td>按主题提炼整理，非逐页直译；每节标注原始课件 PDF 页码，便于对照复核。</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">本讲主线</span> 本讲进入智能体「设计」层面，分两大块：一是工具设计——智能体如何搜索代码、如何编辑、如何执行，每种方案都有 token 成本与鲁棒性的取舍；二是上下文工程——上下文是有限资源，长度和位置都会损害准确率，因此需要用准入、卸载、转换、压缩四类手段管理窗口。贯穿全讲的核心公式是「智能体 = 模型 × 外壳」：模型能力决定上限，外壳设计决定实际表现。</div>
+<h2 class="sec-h1"><span class="sec-num">1</span> 后勤与今日计划</h2>
+<ul class=""><li><strong>作业 1：</strong>本周日截止；分享你的仓库；填写 Google 表单；周四开始作业 1 分享报名。</li></ul>
+<p class="src">【来源：原始课件 第 2 页】</p>
+<h3 class="sec-h2">1.1  今日计划</h3>
+<ul class=""><li>智能体循环（ReAct）</li><li>工具设计（Tool designs）</li><li>上下文管理（Context management）</li><li>提示工程（prompt engineering）与上下文工程（context engineering）</li></ul>
+<p class="src">【来源：原始课件 第 3 页】</p>
+<h2 class="sec-h1"><span class="sec-num">2</span> ReAct 循环与智能体循环</h2>
+<h3 class="sec-h2">2.1  ReAct：在一个循环里推理与行动</h3>
+<p class="">ReAct = Reasoning + Acting，把「推理」与「行动」放进同一个循环。三步交替：</p>
+<ul class=""><li><strong>Thought 思考：</strong>我知道什么、缺什么、下一步做什么？</li><li><strong>Action 行动：</strong>发出一个环境可以执行的结构化调用。</li><li><strong>Observation 观察：</strong>环境用事实回应。</li></ul>
+<p class="">循环直到观察回答了问题——或停止规则（stopping rule）结束本次运行。</p>
+<div class="table-wrap"><table><thead><tr><th>方式</th><th>问题</th></tr></thead><tbody><tr><td>Reason only 只推理</td><td>没有人检验推理；小错误累积成自信的幻觉（confident hallucination）</td></tr><tr class="alt"><td>Act only 只行动</td><td>工具调用背后没有计划；模型会不断重复自己</td></tr><tr><td>ReAct</td><td>思考引导下一步行动；观察修正下一步思考</td></tr></tbody></table></div>
+<p class="i">参考：arxiv.org/pdf/2210.03629。</p>
+<p class="src">【来源：原始课件 第 4 页】</p>
+<h3 class="sec-h2">2.2  智能体循环的代码骨架</h3>
+<p class="">一个最小智能体循环：把 system 指令与 user 请求放进 messages；每步 call_model(messages, tools) → 追加模型消息 → 若 final_answer 则返回 → 否则遍历 tool_calls，validate 参数、execute_tool、把结果作为 role=tool 的消息追加；超过 MAX_STEPS 抛异常。</p>
+<div class="callout"><span class="callout-label">三处设计动作</span> 作为外壳设计者，你要做的是：① 组装上下文（assemble the context）；② 校验请求、检查权限并执行；③ 可选地处理结果并管理上下文。加上「编写工具定义」（write tool definitions）。</div>
+<p class="src">【来源：原始课件 第 5–6 页】</p>
+<h3 class="sec-h2">2.3  编码智能体的三个组件（协同设计）</h3>
+<div class="table-wrap"><table><thead><tr><th>组件</th><th>说明</th><th>一句话</th></tr></thead><tbody><tr><td>01 模型 + 智能体循环</td><td>LLM 提出动作、看到结果、重复直到完成</td><td>智能体 = 模型 + 循环</td></tr><tr class="alt"><td>02 工具与护栏</td><td>搜索、读、改、跑测试与 shell——位于权限、沙箱与批准之后</td><td>工具决定能力；护栏保证安全</td></tr><tr><td>03 状态：上下文与记忆</td><td>窗口里现在有什么，加上跨步骤携带的东西</td><td>组装它；保留能活过这一轮的内容</td></tr></tbody></table></div>
+<p class="">三个组件共享同一个上下文窗口——必须一起设计。</p>
+<p class="src">【来源：原始课件 第 7 页】</p>
+<h2 class="sec-h1"><span class="sec-num">3</span> 工具设计（一）：搜索与读取代码</h2>
+<p class="">核心问题：智能体该提供哪些工具？如何找到相关代码？（课堂互动：举手加分）</p>
+<p class="src">【来源：原始课件 第 8–9 页】</p>
+<h3 class="sec-h2">3.1  glob 与 grep（词法搜索）</h3>
+<ul class=""><li>智能体循环使用 ls、glob、grep——无需构建任何东西，也无需保持同步。</li><li>始终反映仓库的实时状态（live repo）。</li><li>代价：消耗轮次与上下文；词法匹配会漏掉意译（paraphrase）。</li></ul>
+<p class="">示例「fix the login timeout」：① grep -rn &quot;timeout&quot; src/ → 12 个文件 37 处命中；② glob src/**/auth/*.ts → 缩小到 auth/retry.ts；③ 读取并打补丁 RETRY_MS = 500。</p>
+<p class="src">【来源：原始课件 第 10 页】</p>
+<h3 class="sec-h2">3.2  语义搜索（Semantic search）</h3>
+<ul class=""><li><strong>语义：</strong>把代码块做 embedding，按含义检索（意思相同、用词不同 → 向量接近）。</li><li><strong>结构：</strong>文件树 + 排序后的符号（Aider 的 repo map，文件/类/签名的分级大纲）。</li><li><strong>查询时快；代价是构建与重新同步索引。</strong></li></ul>
+<p class="">示例：「where do we rate-limit?」第一次查询就返回 throttle.ts。</p>
+<p class="src">【来源：原始课件 第 11 页】</p>
+<h3 class="sec-h2">3.3  外部信号（Extrinsic signals）</h3>
+<ul class=""><li>源码之外的证据：栈追踪、失败的测试、git 历史。</li><li>调试时精度最高的信号（highest-precision signal）。</li><li>只有在存在这类信号时才有用。</li></ul>
+<p class="">示例（checkout 崩溃）：① 读信号 stack trace: cart.ts:88；② 打开相关栈帧 read tax.ts:20-60，发现 applyTax 的舍入问题；③ 打补丁并重跑 pytest → 全绿，完全没用搜索。</p>
+<p class="src">【来源：原始课件 第 12 页】</p>
+<h3 class="sec-h2">3.4  语言服务器（LSP）</h3>
+<ul class=""><li>查询编译器的索引：定义、引用、符号、类型。</li><li>能解析 grep 只能猜测的 import、重载与重命名。</li><li>代价：每种语言一个常驻服务器；冷启动慢。</li></ul>
+<p class="">示例（把 charge() 改名为 capture()）：① textDocument/references → 7 个文件 42 处调用；② textDocument/rename → 包含别名 import；③ 类型检查 → 无未解析符号。</p>
+<p class="src">【来源：原始课件 第 13 页】</p>
+<h3 class="sec-h2">3.5  四种搜索方式对比</h3>
+<div class="table-wrap"><table><thead><tr><th>方式</th><th>如何找代码</th><th>最适合</th><th>主要代价</th></tr></thead><tbody><tr><td>glob / grep</td><td>字面名字与路径</td><td>名字已知或可猜</td><td>每次搜索消耗轮次与上下文</td></tr><tr class="alt"><td>语义索引</td><td>嵌入块的含义</td><td>用词与代码不匹配</td><td>构建与重新同步索引</td></tr><tr><td>外部信号</td><td>追踪、失败测试、git 历史</td><td>已有报告指向代码</td><td>只对部分任务存在</td></tr><tr class="alt"><td>语言服务器</td><td>编译器的符号图</td><td>编辑必须跟随引用</td><td>每种语言一个常驻服务器</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">实践建议</span> 从 grep 开始；当名字不够用时再求助于索引或 LSP。（In practice — start with grep; reach for an index or LSP when names run out）</div>
+<p class="src">【来源：原始课件 第 14–15 页】</p>
+<h2 class="sec-h1"><span class="sec-num">4</span> 工具设计（二）：编辑代码</h2>
+<p class="">核心问题：智能体该如何编辑代码？（课堂互动：举手加分）</p>
+<p class="src">【来源：原始课件 第 16 页】</p>
+<h3 class="sec-h2">4.1  整文件重写（Whole-file rewrite）</h3>
+<ul class=""><li>模型重新生成整个文件，工具直接覆盖。</li><li>不用纠结补丁语法——每次编辑都能干净地应用。</li><li>代价：输出随文件大小增长；未触碰的代码可能漂移（drift）。</li></ul>
+<p class="">示例：读 client.ts（120 行进上下文）→ 写 client.ts（整文件，改了 4 行）→ 与前一版做 diff，一次成功。</p>
+<p class="src">【来源：原始课件 第 17 页】</p>
+<h3 class="sec-h2">4.2  Unified diff / patch</h3>
+<ul class=""><li>模型发出补丁，由单独的工具应用；紧凑、可审阅，是人与 CI 已在用的格式。</li><li>代价：行号或上下文漂移时 hunk 会失败。</li></ul>
+<p class="">示例：读 client.ts、api.ts 拿到锚点 → 发出 @@ -41,3 +41,3 @@（6 行、两个 hunk）→ git apply patch.diff，两个 hunk 都应用。</p>
+<p class="src">【来源：原始课件 第 18 页】</p>
+<h3 class="sec-h2">4.3  搜索替换（Search and replace）</h3>
+<ul class=""><li>模型发出精确的锚点字符串及其替换。</li><li>输出与改动量成正比，而非与文件成正比。</li><li>代价：锚点含糊、过期或空白不符时会失败。</li></ul>
+<p class="">示例：grep -n &quot;retries = 3&quot; 找到唯一匹配 → retries = 3 → 5，一次调用无重写 → 读回验证，文件其余部分未动。</p>
+<p class="src">【来源：原始课件 第 19 页】</p>
+<h3 class="sec-h2">4.4  结构化 / AST 编辑</h3>
+<ul class=""><li>模型说出对一个符号的操作：重命名、加参数。</li><li>不受格式影响；不可能产生无效语法。</li><li>代价：需要每种语言的工具；可表达的编辑集合有限。</li></ul>
+<p class="">示例（给 fetchUser() 加 timeout 参数）：add_param(fetchUser)，timeout 默认 5s → 工具改写签名及全部 18 个调用者 → parse + 类型检查，构造上即合法。</p>
+<p class="src">【来源：原始课件 第 20 页】</p>
+<h3 class="sec-h2">4.5  四种编辑方式对比（token 成本 vs 鲁棒性）</h3>
+<div class="table-wrap"><table><thead><tr><th>方式</th><th>主要风险</th></tr></thead><tbody><tr><td>整文件重写</td><td>长文件上会漂移（drifts on long files）</td></tr><tr class="alt"><td>Unified diff</td><td>行号过期时失效（breaks on stale lines）</td></tr><tr><td>搜索 / 替换块</td><td>需要精确且唯一的匹配</td></tr><tr class="alt"><td>结构化 / AST 编辑</td><td>语言覆盖范围有限</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 21 页】</p>
+<h2 class="sec-h1"><span class="sec-num">5</span> 工具执行与其他工具</h2>
+<h3 class="sec-h2">5.1  Shell：最强也最危险的工具</h3>
+<ul class=""><li><strong>组合性 Composition：</strong>一次调用就能链接、过滤、循环、重试。</li><li><strong>可达范围 Reach：</strong>文件系统、网络、包管理器、已安装的二进制。</li><li><strong>持久性 Persistence：</strong>文件与进程活过单次调用。</li><li><strong>影响半径 Blast radius：</strong>shell 能做什么，智能体就能做什么。</li></ul>
+<p class="src">【来源：原始课件 第 22 页】</p>
+<h3 class="sec-h2">5.2  执行工具必须考虑的五件事</h3>
+<ul class=""><li>失败信号（Failure signal）——智能体真正能据以行动的报错；</li><li>输出（Output）——足够但不要太多；</li><li>时长（Duration）——长时运行与后台进程；</li><li>预算（Budgets）——何时停止重试并交还控制；</li><li>隔离（Isolation）——代码在哪里运行、能触及什么。</li></ul>
+<p class="src">【来源：原始课件 第 23 页】</p>
+<h3 class="sec-h2">5.3  另外五个常用工具</h3>
+<div class="table-wrap"><table><thead><tr><th>工具</th><th>说明</th></tr></thead><tbody><tr><td>A. 记忆与笔记</td><td>把发现写进文件；计划能活过压缩（compaction）</td></tr><tr class="alt"><td>B. 子智能体与委派</td><td>探索只返回候选清单，而不是 40 次文件读取</td></tr><tr><td>C. 网页搜索与抓取</td><td>先读已安装的源码，再查网络</td></tr><tr class="alt"><td>D. 浏览器与视觉反馈</td><td>对渲染结果截图并回喂给模型</td></tr><tr><td>E. 询问用户</td><td>一个便宜的问题胜过自信的错误补丁</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 24 页】</p>
+<h3 class="sec-h2">5.4  工具设计最佳实践</h3>
+<ul class=""><li><strong>少而正交的工具：</strong>重叠的工具会让模型在它们之间犹豫。</li><li><strong>专用而非通用：</strong>search_orders(customer_id) 胜过裸的 run_sql。</li><li><strong>token 廉价的输出：</strong>截断、分页、摘要——工具设计就是上下文设计。</li><li><strong>能教人的错误：</strong>返回修复提示，而不只是「invalid argument」。</li><li><strong>默认幂等：</strong>尽可能让重试是安全的。</li></ul>
+<p class="">课堂问题「能不能只提供 shell 工具？」——课件给出了 SWE-agent 的实验结果：No specialized editor 10.3%、Shell only 11.0%、Full-file view 12.7%、Full interaction history 15.0%、Purpose-built SWE-agent 18.0%（GPT-4 上）。答案留待作业中自己体会。</p>
+<p class="src">【来源：原始课件 第 25–26 页】</p>
+<h2 class="sec-h1"><span class="sec-num">6</span> 从提示工程到上下文工程</h2>
+<h3 class="sec-h2">6.1  术语的演进</h3>
+<div class="table-wrap"><table><thead><tr><th>时期</th><th>术语</th><th>核心问题</th><th>关注点</th></tr></thead><tbody><tr><td>2023–2024</td><td>Prompt Engineering 提示工程</td><td>该如何指示模型？</td><td>措辞、示例、输出格式</td></tr><tr class="alt"><td>2025–2026</td><td>Context Engineering 上下文工程</td><td>模型该看到什么？</td><td>检索、记忆、历史、压缩</td></tr><tr><td>2026</td><td>Harness Engineering 外壳工程</td><td>智能体该如何运作？</td><td>循环、工具、沙箱、重试、停止</td></tr><tr class="alt"><td>Now → Next</td><td>Goal Engineering 目标工程</td><td>什么算成功？</td><td>目标、标准、约束、取舍</td></tr></tbody></table></div>
+<p class="i">「人们喜欢造新词。我用它们是为了你遇到时知道含义，并不代表我认同或喜欢它们。」——授课教师</p>
+<p class="src">【来源：原始课件 第 28 页】</p>
+<h3 class="sec-h2">6.2  提示工程的技术谱系</h3>
+<ul class=""><li>Zero-shot 零样本：只给指令。任务常见、格式能用话说清时用。</li><li>Few-shot 少样本：指令 + 几个示例。输出形状特殊或规则难以言传时用。</li><li>Role &amp; persona 角色人格：给模型一个角色。语气或判断重要、受众特定时用。</li><li>Chain-of-thought 思维链：把推理步骤显式列出，答案放最后。任务真有步骤时用。</li><li>Tree-of-thoughts 思维树：分支、打分、剪枝。多条路径都合理且能廉价打分时用。</li><li>Self-consistency 自洽性：多次采样、多数投票。存在唯一正确答案且答错代价高时用。</li><li>Prompt chaining 提示链：一次调用一件事，验证过的交接。工作可分阶段时用。</li><li>Meta prompting 元提示：让模型自己改写 prompt。你有评测集、prompt 本身是要调的对象时用。</li></ul>
+<p class="src">【来源：原始课件 第 29–37 页】</p>
+<h3 class="sec-h2">6.3  选择正确的技术</h3>
+<div class="table-wrap"><table><thead><tr><th>层次</th><th>技术</th><th>适用</th></tr></thead><tbody><tr><td>从简单开始</td><td>Zero-shot / Few-shot / Role &amp; persona</td><td>常见任务基线 / 特殊输出形状或隐性规则 / 语气或判断</td></tr><tr class="alt"><td>加入推理</td><td>Chain-of-thought / Tree-of-thought / Self-consistency</td><td>多步推理 / 多路径打分 / 多次询问取多数</td></tr><tr><td>工程化系统</td><td>Prompt chaining / Meta prompting</td><td>可分阶段且可验证 / prompt 本身是要调的产物</td></tr></tbody></table></div>
+<p class="i">课件提醒：有些技术「已经过期」——留待作业中自行发现。</p>
+<p class="src">【来源：原始课件 第 38–39 页】</p>
+<h3 class="sec-h2">6.4  设计提示的四个最佳实践</h3>
+<ul class=""><li><strong>先简单后迭代：</strong>需要时才加上下文。</li><li><strong>分区块：</strong>上下文、指令、工具、输出规格分开。指令、分隔符、数据——按此顺序。</li><li><strong>具体而简洁：</strong>花哨的措辞没有任何好处。</li><li><strong>把大任务拆成子任务：</strong>不要一开始就把复杂性堆满。</li></ul>
+<p class="">提示建议是与具体模型绑定的——换模型就要重新调。</p>
+<p class="src">【来源：原始课件 第 40 页】</p>
+<h2 class="sec-h1"><span class="sec-num">7</span> 上下文工程</h2>
+<div class="callout"><span class="callout-label">定义（Karpathy）</span> 上下文工程是「用恰到好处的信息填充上下文窗口，以支撑下一步操作」的精妙艺术与科学。（Context engineering is the delicate art and science of filling the context window with just the right information for the next step.）</div>
+<p class="src">【来源：原始课件 第 41 页】</p>
+<h3 class="sec-h2">7.1  上下文是有限资源</h3>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>问题</th><th>后果</th></tr></thead><tbody><tr><td>Cost 成本</td><td>每一步都重新发送整个窗口</td><td>每一轮都要再付一次钱</td></tr><tr class="alt"><td>Latency 延迟</td><td>越大的 prompt，prefill 与 decode 越慢</td><td>每一轮循环都更慢</td></tr><tr><td>Attention 注意力</td><td>窗口越满，回忆越弱，中间部分被漏掉</td><td>更多上下文 ≠ 更好答案</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 42 页】</p>
+<h3 class="sec-h2">7.2  长度和位置都会损害准确率</h3>
+<p class="">两组实验结论：① 输入越长，准确率衰减（简单查找 73% → 带干扰项 46%）；② 答案在窗口中的位置也重要——在 20 篇文档中，答案位于第 1 位约 76%、第 5 位约 61%、第 10 位约 55%、第 15 位约 59%、第 20 位约 71%，中间位置最差。这就是「Lost in the Middle」与 Context Rot 现象。</p>
+<p class="i">来源：Chroma「Context Rot」；Liu et al., &quot;Lost in the Middle,&quot; TACL 12 (2024)。</p>
+<p class="src">【来源：原始课件 第 43 页】</p>
+<h3 class="sec-h2">7.3  上下文窗口的解剖（单次调用的示意预算）</h3>
+<div class="table-wrap"><table><thead><tr><th>组成</th><th>示意 token 预算</th></tr></thead><tbody><tr><td>System prompt 系统提示</td><td>~2K</td></tr><tr class="alt"><td>Tool definitions 工具定义</td><td>~6K</td></tr><tr><td>Retrieved context 检索到的上下文</td><td>~25K</td></tr><tr class="alt"><td>Message history（用户 + LLM + 工具结果）</td><td>~8K</td></tr><tr><td>Project environment 项目环境</td><td>~80K 且还在增长</td></tr></tbody></table></div>
+<p class="">课堂问题：上下文太大时该怎么办？（举手加分）</p>
+<p class="src">【来源：原始课件 第 44 页】</p>
+<h3 class="sec-h2">7.4  管理上下文窗口的四类手段</h3>
+<p class="">从预防性、无损 → 有损、不可逆，依次是：Admission（准入）→ Offloading（卸载）→ Transformation（转换）→ Compaction（压缩）。</p>
+<div class="table-wrap"><table><thead><tr><th>手段</th><th>含义</th></tr></thead><tbody><tr><td>Admission 准入</td><td>守卫什么进入窗口</td></tr><tr class="alt"><td>Offloading 卸载</td><td>需要时才加载，保持可检索而非常驻</td></tr><tr><td>Transformation 转换</td><td>有选择地丢弃历史</td></tr><tr class="alt"><td>Compaction 压缩</td><td>用 LLM 做最后的手段</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 45 页】</p>
+<h3 class="sec-h2">7.5  Admission：守住入口</h3>
+<ul class=""><li><strong>定向检索：</strong>查询要窄，取字段而非整篇文档。</li><li><strong>工具输出塑形：</strong>丢掉 DOM，只保留抽取结果。</li><li><strong>截断：</strong>只有在塑形不够时才限制大小。</li><li><strong>隔离：</strong>把原始载荷交给子智能体。</li></ul>
+<p class="">示例：原始 DOM 直通 = 48,000 tokens → 在入口塑形后只留价格与标题 = 900 tokens（小 98%，答案相同）。</p>
+<p class="src">【来源：原始课件 第 46 页】</p>
+<h3 class="sec-h2">7.6  Offloading：需要时才加载</h3>
+<ul class=""><li>渐进式工具定义——只在需要时加载 schema；</li><li>工具搜索——保留索引，按需取用；</li><li>工具输出卸载——返回句柄（handle），按需加载；</li><li>外部化任务清单——把计划放在磁盘上；</li><li>持久记忆——把笔记写出去，只保留小索引。</li></ul>
+<p class="">示例：60 个 schema 常驻 = 42,000 tokens → 索引 + 3 个 schema = 3,100 tokens（小 93%，60 个工具仍全部可达）。</p>
+<p class="src">【来源：原始课件 第 47 页】</p>
+<h3 class="sec-h2">7.7  Transformation：有选择地丢弃历史</h3>
+<ul class=""><li>去重（Deduplication）——只保留每个对象的最新状态；</li><li>观察掩码（Observation masking）——剥离超过 N 步的工具结果；</li><li>滑动窗口（Sliding window）——只保留最近的轮次与开头。</li></ul>
+<p class="">示例：保留每个结果 = 96,000 tokens → 只留最新状态 = 24,000 tokens（小 75%，没有任何内容被摘要）。</p>
+<p class="src">【来源：原始课件 第 48 页】</p>
+<h3 class="sec-h2">7.8  Compaction：把 LLM 作为最后手段</h3>
+<ul class=""><li><strong>滚动摘要：</strong>边走边总结旧的工具结果。</li><li><strong>完整摘要：</strong>到达上限时重写整段历史。</li><li><strong>自动记忆：</strong>把关键事实持久化到窗口之外。</li></ul>
+<div class="callout"><span class="callout-label">警告</span> 为输出预留空间（headroom）；保留系统前缀；压缩后重新注入关键事实。</div>
+<p class="src">【来源：原始课件 第 49 页】</p>
+<h3 class="sec-h2">7.9  上下文失效的五种方式</h3>
+<div class="table-wrap"><table><thead><tr><th>失效</th><th>描述</th></tr></thead><tbody><tr><td>Poisoning 投毒</td><td>一个幻觉进入窗口，之后被当作事实引用</td></tr><tr class="alt"><td>Distraction 分心</td><td>历史增长到智能体开始模仿自己过去的动作</td></tr><tr><td>Confusion 混淆</td><td>无关工具与文档把答案带偏</td></tr><tr class="alt"><td>Clash 冲突</td><td>新信息与旧信息矛盾，两者都未解决</td></tr><tr><td>Drift 漂移</td><td>真正的目标被掩埋，换成附近的子目标</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">要点</span> 给失效命名，修复方案就变得显而易见。（Name the failure and the fix becomes obvious.）参考：Breunig, &quot;How Contexts Fail and How to Fix Them&quot; (2025)。</div>
+<p class="src">【来源：原始课件 第 50 页】</p>
+<h3 class="sec-h2">7.10  智能体 = 模型 × 外壳</h3>
+<p class="">模型能力决定天花板（ceiling）；外壳决定实际的表现（realized performance）。</p>
+<div class="table-wrap"><table><thead><tr><th>基准</th><th>基础外壳</th><th>改进外壳</th></tr></thead><tbody><tr><td>SWE-bench Verified</td><td>43 / 169</td><td>72 / 169</td></tr><tr class="alt"><td>SWE-bench Pro</td><td>31 / 316</td><td>72 / 316</td></tr></tbody></table></div>
+<p class="">改进点：压缩旧工具输出、保留最近的观察、检测重复与停滞、卡住时介入。结论：一些看似「模型失败」其实是上下文与控制循环的失败。</p>
+<p class="i">来源：Lewis, S., &quot;Same Model, Different Harness: Different Coding-Agent Results&quot; (arXiv:2608.26218, 2026)。</p>
+<p class="src">【来源：原始课件 第 51–53 页】</p>
+<h2 class="sec-h1"><span class="sec-num">8</span> 结语与选读</h2>
+<h3 class="sec-h2">8.1  下节课预告</h3>
+<ul class=""><li><strong>Agent design II：</strong>智能体设计（二）</li><li>智能体（持久）记忆</li><li>高性价比智能体（cost-effective agents）</li><li>安全与隐私（safety and security）</li><li>多智能体设计（multi-agent designs）</li></ul>
+<p class="src">【来源：原始课件 第 54 页】</p>
+<h3 class="sec-h2">8.2  选读：Beyond ReAct Loop</h3>
+<div class="table-wrap"><table><thead><tr><th>控制模式</th><th>循环时机</th><th>流程</th></tr></thead><tbody><tr><td>ReAct</td><td>每一步都循环</td><td>Thought → Act → Observe</td></tr><tr class="alt"><td>Reflexion</td><td>失败后循环</td><td>Attempt → Evaluate → Critique → Retry</td></tr><tr><td>Plan-and-execute</td><td>出现偏差时循环</td><td>Plan → Execute steps → Re-plan</td></tr><tr class="alt"><td>Tree search</td><td>无循环——一次通过、铺开</td><td>State → 并行探索 Branch A · B · C → 保留最优</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 56 页】</p>
+<h2 class="sec-h1"><span class="sec-num">9</span> 附录：核心术语对照表</h2>
+<div class="table-wrap"><table><thead><tr><th>英文</th><th>中文</th><th>说明</th></tr></thead><tbody><tr><td>ReAct</td><td>推理—行动循环</td><td>Thought / Action / Observation 交替，直到任务完成或触发停止规则</td></tr><tr class="alt"><td>Agent harness</td><td>智能体外壳</td><td>负责组装上下文、校验执行、管理状态的宿主程序</td></tr><tr><td>Extrinsic signals</td><td>外部信号</td><td>源码之外的证据：栈追踪、失败测试、git 历史</td></tr><tr class="alt"><td>LSP</td><td>语言服务器协议</td><td>查询编译器索引，精确解析引用、重命名与类型</td></tr><tr><td>Compaction</td><td>上下文压缩</td><td>用 LLM 总结旧轨迹，为窗口恢复空间</td></tr><tr class="alt"><td>Admission / Offloading</td><td>准入 / 卸载</td><td>控制什么进入窗口 / 按需加载而非常驻</td></tr><tr><td>Transformation</td><td>转换</td><td>去重、观察掩码、滑动窗口等有损/无损裁剪</td></tr><tr class="alt"><td>Context Rot</td><td>上下文腐化</td><td>输入变长导致准确率衰减的现象</td></tr><tr><td>Lost in the Middle</td><td>中间遗失</td><td>答案位于窗口中段时准确率最低</td></tr><tr class="alt"><td>Prompt / Context / Harness / Goal Engineering</td><td>提示/上下文/外壳/目标工程</td><td>四代术语，分别关注怎么说、看什么、怎么运作、什么算成功</td></tr><tr><td>Chain-of-thought / Tree-of-thought / Self-consistency</td><td>思维链/思维树/自洽性</td><td>显式步骤 / 分支打分剪枝 / 多次采样投票</td></tr><tr class="alt"><td>Agent = Model × Harness</td><td>智能体 = 模型 × 外壳</td><td>模型定上限，外壳定实际表现</td></tr></tbody></table></div>
+<p class="i">— 本讲义由原始课件（cs2680.seas.harvard.edu/slides/4_agent_design_1.pdf，56 页）翻译整理；页码标注对应课件 PDF 页码，供对照复核。—</p>
+</div>
+</section>
+<style>
+:root{--bg:#f7f8fa;--text:#17202a;--muted:#697586;--line:#e4e8ee;--accent:#1769aa;--code:#f1f4f7}
+.note-page{max-width:860px;margin:0 auto;padding:0 0 40px}
+.back-link{display:inline-block;margin:26px 0 8px;font-size:14px;color:var(--accent)}
+.note-cover{padding:28px 0 30px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.note-cover .kicker{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:2px}
+.note-cover h1{font-size:clamp(28px,5vw,40px);line-height:1.3;margin:10px 0 6px}
+.note-cover .sub{color:var(--muted);font-size:17px}
+.note-page p{margin:0 0 12px}
+.note-page .b{font-weight:700}
+.note-page .i{font-style:italic;color:var(--muted)}
+.note-page h2.sec-h1{font-size:23px;line-height:1.35;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);color:#1b2a4a}
+.note-page .sec-num{color:#b01e3c;margin-right:6px}
+.note-page h3.sec-h2{font-size:18px;margin:24px 0 10px;color:#2e5c8a}
+.note-page ul{margin:0 0 14px;padding-left:24px}
+.note-page li{margin:5px 0;line-height:1.75}
+.note-page ul.sub{padding-left:44px;list-style:circle}
+.note-page .src{font-size:12.5px;color:var(--muted);font-style:italic;margin:4px 0 12px}
+.note-page .callout{border-left:4px solid #c8a24a;background:#fbf3e4;color:#4a3f22;padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;line-height:1.75}
+.note-page .callout-label{font-weight:700;color:#a8801f}
+.table-wrap{overflow-x:auto;margin:16px 0}
+.note-page table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}
+.note-page th,.note-page td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;line-height:1.6}
+.note-page thead th{background:#1b2a4a;color:#fff;font-weight:600;white-space:nowrap}
+.note-page tbody tr.alt{background:#f2f5f9}
+.note-page tbody tr.hl{background:#f7e9ec}
+.note-page tbody tr.hl td{font-weight:600;color:#b01e3c}
+@media(max-width:700px){.note-page h2.sec-h1{font-size:20px}.note-page p{font-size:15px}}
+</style>

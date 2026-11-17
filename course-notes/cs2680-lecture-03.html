@@ -1,0 +1,269 @@
+---
+layout: default
+title: "CS2680 第 3 讲 · 从用户视角看智能体（二）"
+permalink: /course-notes/cs2680-lecture-03/
+---
+<section class="note-page">
+<a class="back-link" href="/course-notes/">← 返回课程笔记</a>
+<div class="note-cover"><p class="kicker">CS2680 课程学习讲义</p><h1>CS2680 第 3 讲 · 从用户视角看智能体（二）</h1><p class="sub">多智能体与最佳实践 · 中文学习笔记</p></div>
+<div class="prose">
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>课程</td><td>CS2680 Modern AI Systems: Agents and System Optimizations（现代 AI 系统：智能体与系统优化）</td></tr><tr class="alt"><td>主题</td><td>从用户视角看智能体（二）：多智能体、插件案例研究与最佳实践；编程 / 软件 3.0</td></tr><tr><td>授课教师</td><td>Juncheng Yang（杨俊成），哈佛 SEAS 助理教授</td></tr><tr class="alt"><td>课件来源</td><td>https://cs2680.seas.harvard.edu/slides/3_agent_use_2.pdf（共 72 页）</td></tr><tr><td>笔记说明</td><td>按主题提炼整理，非逐页直译；每节标注原始课件 PDF 页码，便于对照复核。</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">本讲主线</span> 本讲分两条线：一是通过 Superpowers 与 Caveman 两个真实插件，讲清楚「技能 / 钩子 / 命令 / MCP / 插件」如何组合成一个可分发、可强制执行的智能体工作流；二是回答「如何用多个智能体成为 100x 工程师」——并行智能体、子智能体、智能体团队、动态工作流，以及 /goal 与 /loop 两种长时运行机制。最后引入「编程 3.0」的概念：程序从代码变为自然语言与上下文，不确定性成为核心主题，最佳实践是「不要指望智能体确定，而要让 surrounding system 可靠」。</div>
+<h2 class="sec-h1"><span class="sec-num">1</span> 更新、提醒与知识回顾</h2>
+<h3 class="sec-h2">1.1  更新与提醒</h3>
+<ul class=""><li><strong>作业 1：</strong>本周截止（Assignment 1 due）；作业 1 分享开始报名（sharing signup）。</li><li><strong>仓库设置：</strong>把授课教师与助教添加到你的仓库（Add me and TFs to your repo）。</li><li><strong>新助教：</strong>Charles Wang。</li></ul>
+<p class="src">【来源：原始课件 第 2 页】</p>
+<h3 class="sec-h2">1.2  上讲回顾（Recap）</h3>
+<ul class=""><li><strong>智能体循环（Agent loops）：</strong>收集上下文 → 生成动作 → 执行工具，循环往复。</li><li><strong>状态管理（State management）：</strong>上下文即工作记忆——每次用户 prompt、LLM 响应、工具调用结果都被追加；智能体记忆（agent memory）跨会话持久。</li><li><strong>两类记忆载体：</strong>CLAUDE.md（AGENTS.md）与自动记忆（auto memory）。</li><li><strong>工具（Tools）：</strong>内置工具；以及通过 skill、MCP、hook、plugin 扩展 Claude Code 能力。</li></ul>
+<p class="src">【来源：原始课件 第 3 页】</p>
+<h2 class="sec-h1"><span class="sec-num">2</span> 今日计划</h2>
+<ul class=""><li>案例研究：Superpowers 与 Caveman</li><li>用多个智能体成为 100x 研究者与工程师</li><li>编程 / 软件 3.0：编程是如何演进的</li><li>人们如何使用 OpenAI Codex：2026 年 6 月与 9 月的两份报告</li></ul>
+<p class="src">【来源：原始课件 第 4 页】</p>
+<h2 class="sec-h1"><span class="sec-num">3</span> 案例研究一：Superpowers（软件开发插件）</h2>
+<p class="">Superpowers 是一个软件开发插件（obra/superpowers），安装命令：/plugin install superpowers@claude-plugins-official。它用一个结构化的技能库把「同一个模型」变成遵循严格流程的智能体。</p>
+<p class="src">【来源：原始课件 第 5 页】</p>
+<h3 class="sec-h2">3.1  同一个模型，不同的工作流</h3>
+<p class="">默认（DEFAULT）流程：功能请求 → 直接开始编码 → 迭代修复。Superpowers 流程：0 用户输入 → 1 澄清问题 → 2 批准设计 → 3 写详细计划 → 4 测试驱动构建 → 5 检查验证 → 6 完成或合并分支（PLAN → BUILD → SHIP）。</p>
+<div class="callout"><span class="callout-label">核心洞察</span> 两个智能体用的是同一个模型和同一套工具——区别只在于指令（instructions）不同。</div>
+<p class="src">【来源：原始课件 第 6 页】</p>
+<h3 class="sec-h2">3.2  Superpowers 的九个技能</h3>
+<div class="table-wrap"><table><thead><tr><th>技能 Skill</th><th>职责 Responsibility</th></tr></thead><tbody><tr><td>using-superpowers</td><td>发现和调用技能的规则</td></tr><tr class="alt"><td>brainstorming</td><td>把请求变成一个被批准的设计</td></tr><tr><td>writing-plans</td><td>把设计拆解为具体任务</td></tr><tr class="alt"><td>using-git-worktrees</td><td>创建隔离的工作区</td></tr><tr><td>test-driven-development</td><td>强制红—绿—重构（red, green, refactor）</td></tr><tr class="alt"><td>systematic-debugging</td><td>在提出修复前先找根因</td></tr><tr><td>requesting-code-review</td><td>对照计划检查实现</td></tr><tr class="alt"><td>verification-before-completion</td><td>报告成功前要求提供证据</td></tr><tr><td>finishing-a-development-branch</td><td>合并、PR、保留或清理</td></tr></tbody></table></div>
+<p class="i">该页在原始课件中标注为选读（OPTIONAL）。</p>
+<p class="src">【来源：原始课件 第 7 页】</p>
+<h3 class="sec-h2">3.3  Superpowers 架构</h3>
+<p class="">仓库布局：.claude-plugin/（plugin.json 元数据）→ hooks/（hooks.json + session-start 会话钩子）→ skills/（技能库：using-superpowers、brainstorming、writing-plans、test-driven-development 等）→ tests/。组件映射：插件元数据、会话钩子、技能库共同决定智能体行为。</p>
+<div class="callout"><span class="callout-label">要点</span> 插件只是分发容器（distribution container）——真正提供行为的是技能与钩子。</div>
+<p class="src">【来源：原始课件 第 8 页】</p>
+<h3 class="sec-h2">3.4  一个技能的解剖（Anatomy of a Skill）</h3>
+<p class="">目录 skills/brainstorming/ 下有 SKILL.md、visual-companion.md、scripts。SKILL.md 的 front matter 是元数据（name: brainstorming；description: Use before creative work.），正文是工作流：1 检查项目 → 2 分类范围 → 3 澄清需求 → 4 比较方案 → 5 给出设计 → 6 等待用户批准 → 7 调用 writing-plans。</p>
+<div class="callout"><span class="callout-label">一句话</span> Front matter 是元数据；正文（body）是智能体遵循的流程。</div>
+<p class="src">【来源：原始课件 第 9 页】</p>
+<h3 class="sec-h2">3.5  SKILL.md 的六个组成部分</h3>
+<div class="table-wrap"><table><thead><tr><th>组成部分</th><th>功能</th></tr></thead><tbody><tr><td>name</td><td>稳定标识符</td></tr><tr class="alt"><td>description</td><td>技能何时适用</td></tr><tr><td>Instructions（指令）</td><td>要遵循的流程；入口条件、必需动作、禁止动作</td></tr><tr class="alt"><td>Checkpoints（检查点）</td><td>继续之前需要人工批准（human approval gates）</td></tr><tr><td>References（参考）</td><td>只在需要时加载的细节（验证要求）</td></tr><tr class="alt"><td>Scripts（脚本）</td><td>确定性操作（deterministic operations）</td></tr></tbody></table></div>
+<p class="">流程型技能还可以定义「下一个适用的技能」（the next applicable skill）——每个技能引导智能体行为，并可指定其后继。</p>
+<p class="src">【来源：原始课件 第 10 页】</p>
+<h3 class="sec-h2">3.6  为什么仅有技能不够</h3>
+<p class="">安装技能只是让它们可用（available）——可用并不保证智能体一定会去查看它们。Superpowers 用 hooks/hooks.json 里的 SessionStart 钩子（matcher: startup|clear|compact，type: command，command: run-hook.cmd，async: false）来保证：每个会话都确定性触发、在智能体行动之前运行、在 clear 与 compaction 之后重新运行。</p>
+<p class="src">【来源：原始课件 第 11 页】</p>
+<h3 class="sec-h2">3.7  会话启动脚本（Session-Start Script）</h3>
+<p class="">hooks/session-start（简化）：定位已安装的插件 → 读取引导技能 using-superpowers/SKILL.md → 对 Markdown 做 JSON 转义 → 作为 hookSpecificOutput.additionalContext 返回 → Claude Code 把它加入上下文。</p>
+<p class="i">该页为选读内容。</p>
+<p class="src">【来源：原始课件 第 12 页】</p>
+<h3 class="sec-h2">3.8  端到端流程：「Add authentication」</h3>
+<div class="table-wrap"><table><thead><tr><th>阶段</th><th>发生的事</th></tr></thead><tbody><tr><td>启动</td><td>Claude Code 启动会话 → 钩子读取引导技能 → 智能体收到选择策略</td></tr><tr class="alt"><td>规划 PLAN</td><td>用户：「Add authentication」→ 智能体加载 brainstorming 并澄清 → 用户批准设计 → 加载 writing-plans</td></tr><tr><td>构建 BUILD</td><td>实施计划 → 隔离的 worktree → 测试驱动构建</td></tr><tr class="alt"><td>交付 SHIP</td><td>代码审查 → 验证 → 分支集成</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 13 页】</p>
+<h3 class="sec-h2">3.9  从 Superpowers 中学到的设计经验</h3>
+<div class="table-wrap"><table><thead><tr><th>设计问题</th><th>Superpowers 的答案</th></tr></thead><tbody><tr><td>复杂行为如何表示？</td><td>小而可组合的技能（small, composable skills）</td></tr><tr class="alt"><td>智能体如何记得使用它们？</td><td>通过会话钩子注入一个引导技能（bootstrap skill）</td></tr><tr><td>上下文如何保持可管理？</td><td>只在相关时加载任务技能</td></tr><tr class="alt"><td>各阶段如何协调？</td><td>每个技能声明自己的检查点与后继</td></tr><tr><td>用户如何安装？</td><td>把一切打包成一个插件</td></tr><tr class="alt"><td>每个插件都需要命令或 MCP 吗？</td><td>不需要——只在必要时添加</td></tr></tbody></table></div>
+<p class="i">该页为选读内容。</p>
+<p class="src">【来源：原始课件 第 14 页】</p>
+<h2 class="sec-h1"><span class="sec-num">4</span> 案例研究二：Caveman（双向 token 压缩插件）</h2>
+<p class="">Caveman 展示了五种扩展机制外加一个本地代理（local proxy）。安装：claude plugin marketplace add JuliusBrussee/caveman → claude plugin install caveman@caveman。</p>
+<p class="src">【来源：原始课件 第 15 页】</p>
+<h3 class="sec-h2">4.1  为什么要压缩智能体的 token</h3>
+<ul class=""><li><strong>上下文会满：</strong>日志、diff 和工具输出把真正的工作挤出去。</li><li><strong>每一轮都要付费：</strong>token 双向都要付钱、要等待。</li><li><strong>压缩会丢细节：</strong>太晚裁剪上下文会丢掉重要的东西。</li></ul>
+<p class="">示例：测试输出原本 786 行（含 776 行冗余），压缩后模型只读到「3 tests fail: ETIMEDOUT at client.ts:88」。原则：双向压缩——并保留原文可供随时检索。</p>
+<p class="src">【来源：原始课件 第 16 页】</p>
+<h3 class="sec-h2">4.2  双向压缩：技能改「写」，代理改「读」</h3>
+<div class="table-wrap"><table><thead><tr><th>方向</th><th>机制</th><th>作用</th></tr></thead><tbody><tr><td>输出 AGENT OUTPUT</td><td>响应技能（Response skill，提前注入上下文）</td><td>改变模型如何写——报告 输出 token 减少 65%</td></tr><tr class="alt"><td>输入 AGENT INPUT</td><td>本地代理 + 引擎（Local proxy + engine）</td><td>改变模型读到的内容——压缩日志、diff、文件等</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">注意</span> 技能本身会增加输入 token，因此整场会话的净节省要低于 65%。用法：/caveman ultra，然后「Run the tests and explain the failure.」</div>
+<p class="src">【来源：原始课件 第 17 页】</p>
+<h3 class="sec-h2">4.3  一个例子的执行顺序</h3>
+<div class="table-wrap"><table><thead><tr><th>步骤</th><th>动作</th></tr></thead><tbody><tr><td>1</td><td>钩子保存 ultra 模式</td></tr><tr class="alt"><td>2</td><td>钩子注入简洁回复提醒</td></tr><tr><td>3</td><td>智能体执行命令（来自 LLM）</td></tr><tr class="alt"><td>4</td><td>Caveman（代理）压缩嘈杂的测试输出</td></tr><tr><td>5</td><td>模型收到压缩后的上下文</td></tr><tr class="alt"><td>6</td><td>模型返回简洁诊断</td></tr><tr><td>7</td><td>MCP 按需检索原文</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 18 页】</p>
+<h3 class="sec-h2">4.4  Caveman 的插件打包</h3>
+<p class="">仓库结构：.claude-plugin/plugin.json、skills/（caveman、-commit、-review、-compress、-stats）、commands/、src/hooks/、mcp/、proxy/、engine/、agents/。插件清单在 SessionStart 挂 caveman-activate.js，在 UserPromptSubmit 挂 caveman-mode-tracker.js。</p>
+<p class="src">【来源：原始课件 第 19 页】</p>
+<h3 class="sec-h2">4.5  响应技能：让输出更简洁</h3>
+<p class="">skills/caveman/SKILL.md：描述为「Compressed mode」。保留（Preserve）：技术术语、命令、路径、代码、错误、数字、单位、否定；移除（Remove）：填充词、重复、客套、模糊表达；短句、主动语态。它改变的是智能体的沟通方式。</p>
+<p class="src">【来源：原始课件 第 20 页】</p>
+<h3 class="sec-h2">4.6  命令：显式用户控制</h3>
+<div class="table-wrap"><table><thead><tr><th>命令</th><th>作用</th></tr></thead><tbody><tr><td>/caveman</td><td>激活默认 full 模式</td></tr><tr class="alt"><td>/caveman ultra</td><td>最大压缩</td></tr><tr><td>/caveman off</td><td>停用该风格</td></tr><tr class="alt"><td>/caveman-commit / -review / -compress / -stats / -help</td><td>简洁提交信息 / 审查意见 / 压缩记忆文件 / 会话统计 / 可用操作</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 22 页】</p>
+<h3 class="sec-h2">4.7  钩子：让提示词时的一次选择持久化</h3>
+<div class="table-wrap"><table><thead><tr><th>钩子</th><th>职责</th></tr></thead><tbody><tr><td>SessionStart（caveman-activate.js）</td><td>决定本会话模式；安全存储模式状态；把规则作为隐藏上下文注入；压缩后恢复规则；清理旧状态并提供状态行</td></tr><tr class="alt"><td>UserPromptSubmit（caveman-mode-tracker.js）</td><td>检查每条用户 prompt；检测 /caveman ultra 与「normal mode」等短语；更新会话模式；在聚焦操作后恢复模式</td></tr></tbody></table></div>
+<p class="i">SessionStart 初始化行为；UserPromptSubmit 在对话中途检测变化。</p>
+<p class="src">【来源：原始课件 第 23 页】</p>
+<h3 class="sec-h2">4.8  MCP：把压缩暴露为可调用工具</h3>
+<div class="table-wrap"><table><thead><tr><th>五个 MCP 工具</th><th>功能</th></tr></thead><tbody><tr><td>caveman_compress</td><td>压缩 + 返回恢复句柄（recovery handle）</td></tr><tr class="alt"><td>caveman_retrieve</td><td>逐字节还原原文（byte-exact original）</td></tr><tr><td>caveman_stats</td><td>压缩统计</td></tr><tr class="alt"><td>caveman_toon_encode / decode</td><td>JSON 转 TOON / TOON 转回 JSON</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 24 页】</p>
+<h3 class="sec-h2">4.9  代理：压缩模型读到的内容</h3>
+<p class="">链路：编码智能体 → 本地 Caveman 代理 → 模型提供方。类型感知压缩（Type-Aware Compression）保留：日志（错误、栈追踪、首尾）、代码（import、签名、类型、函数体）、diff（文件与 hunk 头、改动行）、JSON（键、结构、错误子树）、搜索（高价值匹配、诊断）、HTML/文本（标题、相关章节）。</p>
+<div class="table-wrap"><table><thead><tr><th>对比</th><th>本地代理</th><th>MCP</th></tr></thead><tbody><tr><td>调用方式</td><td>拦截每一个请求</td><td>只在被调用时运行</td></tr><tr class="alt"><td>位置</td><td>位于智能体与提供方之间</td><td>位于其旁边</td></tr><tr><td>影响</td><td>能改变上下文</td><td>不能改变上下文</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">为什么必须用代理</span> 钩子能拦截请求，但无法透明地重写发给 LLM 的请求——因此需要代理。（如果你自己写 harness，则另当别论。）</div>
+<p class="src">【来源：原始课件 第 25 页】</p>
+<h3 class="sec-h2">4.10  Caveman 中各能力的分工</h3>
+<div class="table-wrap"><table><thead><tr><th>机制</th><th>角色</th></tr></thead><tbody><tr><td>Skills</td><td>简洁风格、聚焦工作流</td></tr><tr class="alt"><td>Hooks</td><td>激活、追踪、强化模式</td></tr><tr><td>Commands</td><td>选择模式、请求操作</td></tr><tr class="alt"><td>MCP</td><td>压缩、检索、统计、编码</td></tr><tr><td>Plugin</td><td>打包 Claude Code 集成（一次安装与更新单元）</td></tr><tr class="alt"><td>Local proxy</td><td>拦截发往模型提供方的请求</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 26 页】</p>
+<h2 class="sec-h1"><span class="sec-num">5</span> 用多智能体成为 100x 工程师</h2>
+<p class="">核心问题：「如何在两小时内完成作业？」答案是把工作交给多个并行、长时运行的智能体。常见形态：子智能体（Subagent）、智能体团队（Agent team）、动态工作流（Dynamic Workflow）——智能体并行铺开，账单也并行增长（Agents fan out in parallel. So does the invoice.）。</p>
+<p class="src">【来源：原始课件 第 27 页（PDF 第 26–27 页）】</p>
+<h3 class="sec-h2">5.1  扩展的三个维度（Three Axes of Scaling）</h3>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>做法</th><th>买到什么</th></tr></thead><tbody><tr><td>并行智能体 Parallel agents — 广度</td><td>运行多个独立任务，各自在隔离的工作树中</td><td>吞吐量：缩短墙钟时间，而非提高答案质量</td></tr><tr class="alt"><td>子智能体 Subagents — 广度与深度</td><td>把有界任务委派给全新上下文，拿回摘要</td><td>吞吐量与专注：父智能体看不到中间的杂乱</td></tr><tr><td>长时运行智能体 Long-running — 时长</td><td>让一个更大的任务跨越许多步骤</td><td>范围：更少干预完成更多工作</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">总结</span> 智能体团队与动态工作流把三者结合起来。</div>
+<p class="src">【来源：原始课件 第 28 页】</p>
+<h3 class="sec-h2">5.2  手工并行：一个会话一个 git worktree</h3>
+<p class="">每个任务一个会话，各自在自己的 git worktree（独立工作目录与分支，共享仓库历史）中：claude -w feature-payments（终端 1 建功能）与 claude -w bugfix-auth（终端 2 修 bug）。一个会话的编辑不会碰到另一个的文件——无需 stash，也无需第二次 clone。桌面应用中每个新会话会自动获得一个 worktree。</p>
+<p class="src">【来源：原始课件 第 29 页】</p>
+<h3 class="sec-h2">5.3  Git Worktree：一个仓库，多个工作目录</h3>
+<p class="">一个 .git（历史、分支、对象、远程）对应多个检出：../repo-main（main 分支，Agent 1 review）、../feat-auth（feature/auth，Agent 2 build）、../fix-flaky（fix/flaky-test，Agent 3 debug）。一份共享历史、三个检出，无需切分支、无需 stash。</p>
+<p class="src">【来源：原始课件 第 30 页】</p>
+<h3 class="sec-h2">5.4  手工并行的极限</h3>
+<ul class=""><li><strong>计划在你脑子里：</strong>每次交接与下一步都靠你记着。</li><li><strong>会话互相看不见：</strong>发现只能靠你人工搬运。</li><li><strong>分支由你协调：</strong>合并顺序与冲突要你自己解决。</li><li><strong>无法复现：</strong>这次运行没有被记录下来以供重跑。</li></ul>
+<p class="">3 个会话你还能hold住计划；20 个会话你需要「自己的克隆」。</p>
+<p class="src">【来源：原始课件 第 31 页】</p>
+<h3 class="sec-h2">5.5  子智能体（Subagents）：为什么</h3>
+<p class="">子智能体是拥有自己上下文窗口、工具与权限的专用助手。理由：</p>
+<ul class=""><li><strong>保留上下文：</strong>日志、搜索结果、文件转储不进入主对话。</li><li><strong>强制约束：</strong>限制可用工具与所用模型。</li><li><strong>随处复用：</strong>针对某领域的聚焦 prompt，跨项目跨团队共享。</li><li><strong>并行化：</strong>独立子任务并发运行，总时间取决于最慢的一个（如同时跑 style-checker、security-scanner、test-coverage）。</li><li><strong>控制成本：</strong>把任务路由到更快更便宜的模型（如 Haiku）——在子智能体 front matter 里写 model: haiku。</li></ul>
+<p class="src">【来源：原始课件 第 32 页】</p>
+<h3 class="sec-h2">5.6  内置子智能体</h3>
+<div class="table-wrap"><table><thead><tr><th>内置智能体</th><th>说明</th></tr></thead><tbody><tr><td>Explore</td><td>只读搜索代码库；禁止 Write/Edit；每次调用可设 thoroughness</td></tr><tr class="alt"><td>Plan</td><td>在 plan 模式做调研，使探索不进入主窗口</td></tr><tr><td>General-purpose</td><td>需要探索与行动的复杂多步工作</td></tr></tbody></table></div>
+<p class="i">Explore 与 Plan 会跳过 CLAUDE.md 与 git status 以保持快速、低成本。</p>
+<p class="src">【来源：原始课件 第 33 页】</p>
+<h3 class="sec-h2">5.7  定义一个子智能体</h3>
+<p class="">子智能体就是一个带 YAML front matter 的 Markdown 文件，正文成为系统提示。示例 .claude/agents/code-reviewer.md：name: code-reviewer；description: Reviews code for quality；tools: Read, Glob, Grep；model: sonnet；正文是「You are a code reviewer...」。放在 .claude/agents/ 为项目级（纳入版本控制，团队共享）；放在 ~/.claude/agents/ 为用户级（跨所有项目）。</p>
+<p class="src">【来源：原始课件 第 34 页】</p>
+<h3 class="sec-h2">5.8  嵌套子智能体</h3>
+<p class="">父智能体的 front matter 中 tools 必须包含 Agent，它才能派生子智能体（如 name: my-orchestrator，tools: Read, Grep, Agent，model: claude-sonnet-5-0）。允许最多 5 层嵌套；2–3 层是最佳区间（sweet spot）。</p>
+<p class="src">【来源：原始课件 第 35 页】</p>
+<h3 class="sec-h2">5.9  多层子智能体的常见模式</h3>
+<div class="table-wrap"><table><thead><tr><th>层级</th><th>角色</th></tr></thead><tbody><tr><td>Level 0</td><td>主智能体——持有计划</td></tr><tr class="alt"><td>Level 1</td><td>实现子智能体、调试子智能体、代码审查子智能体</td></tr><tr><td>Level 2</td><td>测试编写子智能体、验证子智能体</td></tr></tbody></table></div>
+<p class="">每一层都以全新上下文开始，只返回摘要。</p>
+<p class="src">【来源：原始课件 第 36 页】</p>
+<h3 class="sec-h2">5.10  与子智能体协作的三种方式</h3>
+<div class="table-wrap"><table><thead><tr><th>方式</th><th>说明</th><th>范围</th></tr></thead><tbody><tr><td>自然语言</td><td>在 prompt 中点名子智能体（「Use the test-runner subagent to fix tests」），由 Claude 决定是否委派</td><td>一次性 ONE-OFF</td></tr><tr class="alt"><td>@-mention</td><td>选中某个子智能体，保证它会运行（@agent-code-reviewer look at auth changes）</td><td>单个任务 ONE TASK</td></tr><tr><td>--agent 标志</td><td>整个会话采用该智能体的 prompt、工具与模型（claude --agent code-reviewer）</td><td>整个会话 WHOLE SESSION</td></tr></tbody></table></div>
+<p class="i">自动委派会自行发生——当它没有发生时，再显式升级控制。</p>
+<p class="src">【来源：原始课件 第 37 页】</p>
+<h3 class="sec-h2">5.11  该用子智能体还是主对话？</h3>
+<div class="table-wrap"><table><thead><tr><th>留在主对话</th><th>委派给子智能体</th></tr></thead><tbody><tr><td>反复来回迭代</td><td>不会复用的冗长输出</td></tr><tr class="alt"><td>共享上下文的多个阶段</td><td>工具或权限需要限制</td></tr><tr><td>快速、定向的修改</td><td>自包含、只返回摘要的工作</td></tr><tr class="alt"><td>延迟敏感</td><td>并行独立的工作</td></tr><tr><td></td><td>简单工作可交给小模型</td></tr></tbody></table></div>
+<p class="">子智能体从零开始：看不到历史，且需要付出收集上下文的延迟成本。若想要在主上下文中复用工作流，应使用技能（Skill）。</p>
+<p class="src">【来源：原始课件 第 38 页】</p>
+<h3 class="sec-h2">5.12  智能体团队（Agent Teams）</h3>
+<p class="">多个 Claude Code 会话协同工作：一个 lead（组长）+ 多个 teammates（组员）。适用场景：审查（组员从不同角度探查并互相质疑）、独立模块（各管一块）、调试（并行检验相互竞争的假设更快收敛）、跨层（前端、后端、测试各由一人负责）。</p>
+<div class="callout"><span class="callout-label">代价与限制</span> 不是免费的：协调开销与 token 成本随团队规模增长。顺序任务、同文件编辑或重依赖场景——用单会话或子智能体。该功能为实验性，默认关闭。</div>
+<p class="src">【来源：原始课件 第 39 页】</p>
+<h3 class="sec-h2">5.13  团队的构成与通信</h3>
+<div class="table-wrap"><table><thead><tr><th>部件</th><th>说明</th></tr></thead><tbody><tr><td>Team lead</td><td>主会话：派生组员、协调工作、综合结果</td></tr><tr class="alt"><td>Teammates</td><td>独立的 Claude Code 实例，各有自己的上下文窗口</td></tr><tr><td>Task list</td><td>共享工作项，组员认领并标记完成</td></tr><tr class="alt"><td>Mailbox</td><td>每个智能体一个 JSON 收件箱</td></tr></tbody></table></div>
+<p class="">组员不会继承你的对话：它们自动加载 CLAUDE.md 与技能，并把任务细节放进 prompt。</p>
+<p class="src">【来源：原始课件 第 40 页】</p>
+<h3 class="sec-h2">5.14  子智能体 vs 智能体团队</h3>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>子智能体 Subagents</th><th>智能体团队 Agent teams</th></tr></thead><tbody><tr><td>上下文 Context</td><td>独立窗口，结果返回调用者</td><td>独立窗口，彼此独立</td></tr><tr class="alt"><td>通信 Comm.</td><td>只回传给调用者</td><td>组员之间可直接对话</td></tr><tr><td>协调 Coordination</td><td>由 lead 管理工作</td><td>共享任务清单</td></tr><tr class="alt"><td>最适合 Best for</td><td>只要结果的任务</td><td>需要讨论的工作</td></tr><tr><td>Token 成本</td><td>较低</td><td>较高</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">决策</span> 团队成本更高——只在工作需要讨论时使用。</div>
+<p class="src">【来源：原始课件 第 41–42 页】</p>
+<h3 class="sec-h2">5.15  动态工作流（Dynamic Workflow）</h3>
+<p class="">动态工作流是一个 JavaScript 脚本，在后台编排大量子智能体。当任务需要的智能体数量超过一个对话能协调的范围时使用（如全代码库 bug 扫描、500 文件迁移、交叉验证的研究、多角度的方案）。两种启动方式：在 prompt 里输入 ultracode，或 /effort ultracode 让 Claude 自行决定。两条路径都会派生大量子智能体——规划、设计、实现、审查。</p>
+<p class="src">【来源：原始课件 第 44 页】</p>
+<h3 class="sec-h2">5.16  让单个智能体跑得更久：/goal 与 /loop</h3>
+<div class="table-wrap"><table><thead><tr><th>机制</th><th>说明</th></tr></thead><tbody><tr><td>/goal</td><td>交出一个可验证的终态（如 /goal &quot;npm run lint exits with zero errors&quot;）。定义完成条件 → 每次尝试后评估器复查 → 目标达成或 --max-tries 用尽即停止。必须「可验证」：「所有集成测试通过」可以，「重构代码」不行。</td></tr><tr class="alt"><td>/loop</td><td>按计划重复运行一个 prompt，直到你停止（如 /loop 5m &quot;check CI, fix whatever broke&quot;）。它是触发器而非测试：交出的是时间间隔；你在两次运行之间按 Esc 结束；可在 .claude/loop.md 里放默认 prompt。</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">关键区别</span> /goal 在条件成立时停止；/loop 在你要求它停时停止。</div>
+<p class="src">【来源：原始课件 第 45–46 页】</p>
+<h3 class="sec-h2">5.17  小结：六种放大方式</h3>
+<div class="table-wrap"><table><thead><tr><th>分类</th><th>方式</th><th>要点</th></tr></thead><tbody><tr><td>同时用更多智能体</td><td>手工并行智能体</td><td>你自己负责协调合并</td></tr><tr class="alt"><td>同时用更多智能体</td><td>子智能体</td><td>Claude 委派，结果回到它</td></tr><tr><td>同时用更多智能体</td><td>智能体团队</td><td>lead 通过共享清单管理同伴</td></tr><tr class="alt"><td>同时用更多智能体</td><td>工作流</td><td>由脚本持有计划，而非对话</td></tr><tr><td>一个智能体跑更久</td><td>/goal</td><td>运行到可验证的终态成立</td></tr><tr class="alt"><td>一个智能体跑更久</td><td>/loop</td><td>按计划重跑，直到你停止</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 47 页】</p>
+<h2 class="sec-h1"><span class="sec-num">6</span> 大规模案例：16 个智能体构建 C 编译器</h2>
+<p class="">一个能构建 Linux 内核的 Rust C 编译器：16 个智能体、约 2,000 个会话、两周时间。</p>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>数据</th></tr></thead><tbody><tr><td>规模 Scale</td><td>16 个智能体并行；两周约 2,000 会话；20 亿输入 / 1.4 亿输出 token；API 成本略低于 2 万美元</td></tr><tr class="alt"><td>成果 Result</td><td>约 10 万行代码；Linux 6.9 支持 x86、ARM、RISC-V；可构建 QEMU、FFmpeg、Postgres、Redis、Doom；主要测试套件通过率约 99%</td></tr></tbody></table></div>
+<p class="i">选读；来源：anthropic.com/engineering/building-c-compiler。</p>
+<p class="src">【来源：原始课件 第 48 页】</p>
+<h3 class="sec-h2">6.1  16 个智能体如何协调</h3>
+<ul class=""><li><strong>朴素的基建：</strong>容器、Git 与文本文件完成编排。</li><li><strong>隔离：</strong>每个智能体在独立容器与 Git checkout 中工作。</li><li><strong>认领任务：</strong>通过简单的锁文件（lock files）。</li><li><strong>Git 作为协调与集成层：</strong>没有聊天，也没有经理智能体。</li><li><strong>新会话恢复上下文：</strong>读取进度文档（progress docs）。</li><li><strong>专家智能体：</strong>文档、性能、质量、去重各司其职。</li><li><strong>进度信号：</strong>自动化测试给智能体反馈。</li></ul>
+<p class="src">【来源：原始课件 第 49 页】</p>
+<h3 class="sec-h2">6.2  Git 作为协调层</h3>
+<p class="">循环：读仓库（clone、扫文档与日志）→ 认领任务（current_tasks/ 中的锁文件）→ 在自己的容器中实现与测试 → 先 pull 所有人再 merge、push、解锁。循环往复，智能体自己挑下一个显然的任务，Git 解决重复认领。冲突自行解决（同一任务被认领两次？一个智能体转向别的）；工件承载上下文（README、进度文档、CI 失败信息让新会话快速进入状态）。</p>
+<p class="src">【来源：原始课件 第 50 页】</p>
+<h3 class="sec-h2">6.3  成功但不完美</h3>
+<ul class=""><li>合并冲突频繁；</li><li>当所有智能体撞上同一个内核故障时，并行不再带来收益；</li><li>16 位 x86 部分仍依赖 GCC；</li><li>生成的代码效率低于 GCC 输出。</li></ul>
+<p class="i">「智能体还不完美，前面还有更多工作等着你。」</p>
+<p class="src">【来源：原始课件 第 51 页】</p>
+<h2 class="sec-h1"><span class="sec-num">7</span> 编程 / 软件 3.0</h2>
+<h3 class="sec-h2">7.1  Programming 3.0：从「编程硬件」到「表达目标」</h3>
+<div class="table-wrap"><table><thead><tr><th>范式</th><th>链路</th><th>说明</th></tr></thead><tbody><tr><td>Programming 1.0（编程硬件）</td><td>Human → 显式机器指令或汇编 → Hardware</td><td>人直接写机器指令</td></tr><tr class="alt"><td>Programming 2.0（编程语言）</td><td>Human → 编程语言 → 编译器 → 机器指令 → Hardware</td><td>人写高级语言，编译器翻译</td></tr><tr><td>Programming 3.0（表达目标）</td><td>Human → 自然语言 → Agent → 编程语言 → 机器指令 → Hardware</td><td>人表达目标，智能体补全中间层</td></tr></tbody></table></div>
+<p class="i">这是授课教师自造的术语，与 Andrej（Karpathy）的定义不同（见下一节）。总体趋势：生产力更高（Higher productivity），不确定性更大（More uncertainty）。</p>
+<p class="src">【来源：原始课件 第 53 页】</p>
+<h3 class="sec-h2">7.2  Software 3.0（Karpathy 的定义）</h3>
+<div class="table-wrap"><table><thead><tr><th>范式</th><th>程序是什么？</th><th>如何创建？</th></tr></thead><tbody><tr><td>Software 1.0</td><td>源代码</td><td>人写 Python / C++</td></tr><tr class="alt"><td>Software 2.0</td><td>神经网络权重</td><td>收集数据 + 优化（human → data → optimizer → neural network）</td></tr><tr><td>Software 3.0</td><td>LLM prompts（语言 / 上下文）</td><td>自然语言（human → language/context → LLM → action）</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">工程要点</span> 知道在 1.0、2.0 与 3.0 之间该把边界画在哪里，是一项重要的工程技能。</div>
+<p class="src">【来源：原始课件 第 54 页】</p>
+<h3 class="sec-h2">7.3  不确定性成为核心主题</h3>
+<p class="">「不确定性成为核心主题，你必须学会与它共处。」</p>
+<div class="callout"><span class="callout-label">金句</span> 不要指望智能体是确定性的；要让周围的系统变得可靠。（Do not expect the agent to be deterministic; make the surrounding system dependable.） autonomy 越高，不确定性与风险越高——让自主性与风险相匹配。</div>
+<p class="src">【来源：原始课件 第 55、60 页】</p>
+<h3 class="sec-h2">7.4  不确定性是新的吗？</h3>
+<div class="table-wrap"><table><thead><tr><th>不确定性来源</th><th>Programming 2.0</th><th>Programming 3.0 新增</th><th>2.0 的应对之道</th></tr></thead><tbody><tr><td>硬件 Hardware</td><td>架构差异：32/64 位、字节序</td><td>GPU 计算：非确定性内核、浮点方差</td><td>定宽类型、交叉编译、虚拟化</td></tr><tr class="alt"><td>环境 Environment</td><td>并发、不可靠网络</td><td>代码生成时就与环境交互</td><td>内存一致性模型、幂等 API</td></tr><tr><td>软件 Software</td><td>编译器版本、依赖漂移</td><td>编译器与模型：不同内核、采样</td><td>升级前全面测试</td></tr></tbody></table></div>
+<p class="">「同样的源代码 ≠ 同样的输出」早在很久以前就发生了。</p>
+<p class="src">【来源：原始课件 第 56 页】</p>
+<h3 class="sec-h2">7.5  从意图到结果：更多的不确定性</h3>
+<p class="">1.0/2.0 链路：人（PM）→ 需求 → 程序员 → 环境、记忆 → 程序 → 结果（形式化验证在此发挥作用）。3.0 链路：人 → 需求 → LLM 智能体 → 环境、记忆 → 程序 → 结果。新增的不确定性：单一 prompt 带来的输入歧义（被忽略但实际存在），需要更多研究。</p>
+<p class="src">【来源：原始课件 第 57 页】</p>
+<h3 class="sec-h2">7.6  与不确定性共处：不确定性来自哪里</h3>
+<div class="table-wrap"><table><thead><tr><th>环节</th><th>不确定性</th></tr></thead><tbody><tr><td>自然语言</td><td>语义不确定性（semantic uncertainty）</td></tr><tr class="alt"><td>检索 / 上下文</td><td>检索漂移：索引更新、分块、上下文截断</td></tr><tr><td>模型生成</td><td>概率波动：① 采样 ② 软件与硬件的非确定性</td></tr><tr class="alt"><td>智能体 / 工具循环</td><td>轨迹与环境非确定性：工具失败、环境变化</td></tr><tr><td>生成的程序</td><td>生成后通常是确定性的——除非运行时调用模型或工具</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 58 页】</p>
+<h3 class="sec-h2">7.7  编程 / 软件 3.0 的最佳实践</h3>
+<div class="table-wrap"><table><thead><tr><th>阶段</th><th>实践</th><th>做法</th></tr></thead><tbody><tr><td>1 · DEFINE 定义</td><td> upfront 声明假设</td><td>让模型在执行前确认任何含糊之处</td></tr><tr class="alt"><td>2 · CONTROL 控制</td><td>把提议与执行分离</td><td>智能体提出计划；任何提交前先验证</td></tr><tr><td>2 · CONTROL 控制</td><td>显式管理上下文</td><td>拥有记忆、来源与检索；让过期信息失效</td></tr><tr class="alt"><td>2 · CONTROL 控制</td><td>指定结果而非 prompt</td><td>给出需求、不变量、约束与验收测试</td></tr><tr><td>3 · VERIFY &amp; GOVERN 验证治理</td><td>收紧「生成—验证」循环</td><td>廉价而频繁的检查胜过最后一次昂贵审查</td></tr><tr class="alt"><td>3 · VERIFY &amp; GOVERN 验证治理</td><td>再深一层地度量</td><td>创建测试、度量多指标、构造可推理的合成负载</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 59 页】</p>
+<h2 class="sec-h1"><span class="sec-num">8</span> 来自一线的证据：OpenAI Codex 使用报告</h2>
+<p class="">两份报告：2026 年 6 月的 Codex 证据，与 2026 年 9 月的 OpenAI 员工使用调查。</p>
+<p class="src">【来源：原始课件 第 61 页】</p>
+<h3 class="sec-h2">8.1  从对话到委派</h3>
+<div class="table-wrap"><table><thead><tr><th></th><th>对话式 AI（Conversational）</th><th>智能体式 AI（Codex）</th></tr></thead><tbody><tr><td>人做什么</td><td>问问题；人在循环中；人执行工作</td><td>委派任务；审查与整合</td></tr><tr class="alt"><td>模型做什么</td><td>回答问题</td><td>规划、调用工具、编辑文件、运行命令</td></tr><tr><td>交付物</td><td>答案（人是执行者）</td><td>交付工件或动作（人是审查者）</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">趋势</span> 2026 年上半年活跃用户增长超过 5 倍。过去 28 天用过 Codex 的比例：个人 &lt;1%，组织 17.3%，OpenAI 员工几乎全部。</div>
+<p class="src">【来源：原始课件 第 62 页】</p>
+<h3 class="sec-h2">8.2  委派的任务变得大得多</h3>
+<div class="table-wrap"><table><thead><tr><th>任务时长</th><th>2025 年 12 月</th><th>2026 年 5 月</th></tr></thead><tbody><tr><td>任务 ≥ 1 人时</td><td>2.1%</td><td>35.4%</td></tr><tr class="alt"><td>任务 ≥ 8 人时</td><td>—</td><td>25.6%（约 70.2% 等口径见图）</td></tr></tbody></table></div>
+<p class="">处理「全天任务」的用户数量增长 12 倍（12× rise in users tackling full-day tasks）。</p>
+<p class="src">【来源：原始课件 第 63 页】</p>
+<h3 class="sec-h2">8.3  一个人，多个智能体</h3>
+<ul class=""><li><strong>一人多智能体：</strong>Agent A 构建功能、Agent B 跑分析、Agent C 调试测试；人负责审查、整合、再委派。</li><li><strong>28.6%：</strong>OpenAI 用户在一周内同时运行 5 个以上智能体（2026 年 6 月）。</li><li><strong>~2.5 智能体小时/天：</strong>OpenAI 员工的中位数。</li><li><strong>~71 智能体小时/天：</strong>第 99 百分位（较 4 月增长 +88%）。</li></ul>
+<p class="">人的角色转向：规划者、委派者、监控者、审查者、整合者。</p>
+<p class="src">【来源：原始课件 第 64 页】</p>
+<h3 class="sec-h2">8.4  智能体工作时长已远超人类研究者</h3>
+<ul class=""><li>2026 年 6 月之前，智能体运行时间落后于人类劳动；现在智能体完成的工作量是人类的 3.14 倍（2026 年 9 月）。</li><li>大多数研究者同时运行 4 个以上工作流。</li><li>工程师交付速度接近 8 倍提升（Engineers Are Shipping Almost 8x Faster）。</li><li>智能体解决的任务越来越复杂，但仍然需要人工干预。</li></ul>
+<p class="src">【来源：原始课件 第 65–67 页】</p>
+<h3 class="sec-h2">8.5  委派阶梯（The Delegation Ladder）</h3>
+<div class="table-wrap"><table><thead><tr><th>层级</th><th>形态</th><th>描述</th></tr></thead><tbody><tr><td>1</td><td>Chatbot</td><td>AI 回答；人来做工作</td></tr><tr class="alt"><td>2</td><td>Assistant</td><td>人与 AI 一起做任务</td></tr><tr><td>3</td><td>Agent</td><td>人委派一整个工作单元</td></tr><tr class="alt"><td>4</td><td>Multi-agent worker</td><td>人协调多个智能体</td></tr><tr><td>5</td><td>Systematized workflows</td><td>技能与智能体运行流程</td></tr></tbody></table></div>
+<p class="i">OpenAI 的员工整体还处在阶梯的较低位置。</p>
+<p class="src">【来源：原始课件 第 69 页】</p>
+<h2 class="sec-h1"><span class="sec-num">9</span> 结语与下节课</h2>
+<ul class=""><li><strong>下节课：</strong>智能体设计 I（Agent design I）。</li><li><strong>提醒：</strong>找助教登记你的课堂参与分（Find TF to get your participation score）。</li></ul>
+<p class="src">【来源：原始课件 第 70 页】</p>
+<h2 class="sec-h1"><span class="sec-num">10</span> 选读：CLI 编码智能体全景</h2>
+<p class="i">以下为选读内容（OPTIONAL），来源：State of CLI Coding Agents, Mid-2026（2026 年 7 月）。</p>
+<h3 class="sec-h2">10.1  超越 Claude Code：四类 CLI 编码智能体</h3>
+<div class="table-wrap"><table><thead><tr><th>类别</th><th>代表产品</th></tr></thead><tbody><tr><td>Model labs（模型 + harness 一体）</td><td>Claude Code、Codex CLI、Antigravity CLI、Grok Build、Mistral Vibe、Kimi Code、Qwen Code</td></tr><tr class="alt"><td>Platform CLIs（在开发栈内）</td><td>Copilot CLI、Cursor CLI、Amp、Auggie、Droid、Junie CLI、Qoder、CodeBuddy</td></tr><tr><td>Open source（自带密钥 BYOK）</td><td>OpenCode、Crush、Goose、Aider、Cline、Kilo、Continue、OpenHands、Codebuff</td></tr><tr class="alt"><td>Minimal cores（小而可审计）</td><td>Deepseek Harness、Pi / oh-my-pi (Omp)、mini-SWE-agent（约 100 行 Python）、gptme、Open Interpreter</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 72 页】</p>
+<h3 class="sec-h2">10.2  五个关键差异维度</h3>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>两端</th><th>例子</th></tr></thead><tbody><tr><td>开放 vs 封闭</td><td>Open / Closed</td><td>Open：Codex CLI、OpenCode、Goose、Cline、Pi；Closed：Claude Code、Copilot CLI、Cursor、Droid、Junie</td></tr><tr class="alt"><td>锁定 vs BYOK</td><td>单一厂商 / 任意端点</td><td>锁定：Claude Code、Antigravity CLI、Grok Build；任意：OpenCode 支持 75+ 提供商、Kilo 500+ 模型</td></tr><tr><td>沙箱 vs 提示</td><td>OS 沙箱 / 权限提示</td><td>OS 沙箱：Codex CLI、Copilot CLI、OpenHands 容器；权限提示：Claude Code 及多数其他</td></tr><tr class="alt"><td>本地 vs 云端</td><td>本地优先 / 云端交接</td><td>本地无遥测：Goose、Nanocoder、gptme；云端交接：Copilot CLI、Codex、Mistral Vibe</td></tr><tr><td> maximal vs minimal</td><td>大而全 / 极简</td><td>全包含：Omp、Claude Code；仅四工具：Pi、mini-SWE-agent</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 73 页】</p>
+<h2 class="sec-h1"><span class="sec-num">11</span> 附录：核心术语对照表</h2>
+<div class="table-wrap"><table><thead><tr><th>英文</th><th>中文</th><th>说明</th></tr></thead><tbody><tr><td>Skill</td><td>技能</td><td>按需加载的知识与流程；SKILL.md 定义元数据与程序</td></tr><tr class="alt"><td>Hook</td><td>钩子</td><td>在生命周期事件（如 SessionStart）上确定性触发的动作</td></tr><tr><td>Bootstrap skill</td><td>引导技能</td><td>由会话钩子注入、教会智能体如何使用其他技能的技能</td></tr><tr class="alt"><td>Plugin</td><td>插件</td><td>技能、钩子、命令、MCP 等的分发容器</td></tr><tr><td>Command</td><td>命令</td><td>用户显式触发的斜杠命令，提供直接控制</td></tr><tr class="alt"><td>Git worktree</td><td>Git 工作树</td><td>一个仓库多个独立工作目录与分支，互不干扰</td></tr><tr><td>Subagent</td><td>子智能体</td><td>拥有独立上下文、工具与权限，只返回摘要的委派单元</td></tr><tr class="alt"><td>Agent team</td><td>智能体团队</td><td>lead + 多个通过共享任务清单与邮箱协作的组员</td></tr><tr><td>Dynamic workflow</td><td>动态工作流</td><td>用脚本在后台编排大量子智能体</td></tr><tr class="alt"><td>/goal</td><td>目标命令</td><td>运行到可验证的终态成立为止</td></tr><tr><td>/loop</td><td>循环命令</td><td>按时间间隔重复运行 prompt，直到用户停止</td></tr><tr class="alt"><td>Compaction</td><td>上下文压缩</td><td>总结旧轨迹并重新注入指令与记忆</td></tr><tr><td>Local proxy</td><td>本地代理</td><td>位于智能体与模型提供方之间，可透明改写请求 / 响应</td></tr><tr class="alt"><td>Programming 3.0</td><td>编程 3.0</td><td>人表达目标（自然语言），智能体补全中间编程层</td></tr><tr><td>Delegation ladder</td><td>委派阶梯</td><td>从 chatbot 到系统化工作流的五级自主性层级</td></tr></tbody></table></div>
+<p class="i">— 本讲义由原始课件（cs2680.seas.harvard.edu/slides/3_agent_use_2.pdf，72 页）翻译整理；页码标注对应课件 PDF 页码，供对照复核。—</p>
+</div>
+</section>
+<style>
+:root{--bg:#f7f8fa;--text:#17202a;--muted:#697586;--line:#e4e8ee;--accent:#1769aa;--code:#f1f4f7}
+.note-page{max-width:860px;margin:0 auto;padding:0 0 40px}
+.back-link{display:inline-block;margin:26px 0 8px;font-size:14px;color:var(--accent)}
+.note-cover{padding:28px 0 30px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.note-cover .kicker{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:2px}
+.note-cover h1{font-size:clamp(28px,5vw,40px);line-height:1.3;margin:10px 0 6px}
+.note-cover .sub{color:var(--muted);font-size:17px}
+.note-page p{margin:0 0 12px}
+.note-page .b{font-weight:700}
+.note-page .i{font-style:italic;color:var(--muted)}
+.note-page h2.sec-h1{font-size:23px;line-height:1.35;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);color:#1b2a4a}
+.note-page .sec-num{color:#b01e3c;margin-right:6px}
+.note-page h3.sec-h2{font-size:18px;margin:24px 0 10px;color:#2e5c8a}
+.note-page ul{margin:0 0 14px;padding-left:24px}
+.note-page li{margin:5px 0;line-height:1.75}
+.note-page ul.sub{padding-left:44px;list-style:circle}
+.note-page .src{font-size:12.5px;color:var(--muted);font-style:italic;margin:4px 0 12px}
+.note-page .callout{border-left:4px solid #c8a24a;background:#fbf3e4;color:#4a3f22;padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;line-height:1.75}
+.note-page .callout-label{font-weight:700;color:#a8801f}
+.table-wrap{overflow-x:auto;margin:16px 0}
+.note-page table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}
+.note-page th,.note-page td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;line-height:1.6}
+.note-page thead th{background:#1b2a4a;color:#fff;font-weight:600;white-space:nowrap}
+.note-page tbody tr.alt{background:#f2f5f9}
+.note-page tbody tr.hl{background:#f7e9ec}
+.note-page tbody tr.hl td{font-weight:600;color:#b01e3c}
+@media(max-width:700px){.note-page h2.sec-h1{font-size:20px}.note-page p{font-size:15px}}
+</style>

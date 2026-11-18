@@ -1,0 +1,84 @@
+---
+layout: default
+title: "CS146S 第 1 讲 · 导论与 LLM 原理"
+permalink: /course-notes/cs146s-lecture-01/
+---
+<section class="note-page">
+<a class="back-link" href="{{ '/course-notes/cs146s/' | relative_url }}">← 返回 CS146S 课程目录</a>
+<div class="note-cover"><p class="kicker">CS146S 课程学习讲义</p><h1>CS146S 第 1 讲 · 导论与 LLM 原理</h1><p class="sub">现代软件开发者：介绍与大语言模型是如何造出来的 · 中文学习笔记</p></div>
+<div class="prose">
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>课程</td><td>CS146S The Modern Software Developer（现代软件开发者），Stanford University，Fall 2025</td></tr><tr class="alt"><td>讲题</td><td>Introduction and How LLMs are Made（导论与大语言模型是如何造出来的）</td></tr><tr><td>授课教师</td><td>Mihail Eric（斯坦福）；CA：Febie Lin</td></tr><tr class="alt"><td>课件来源</td><td>https://themodernsoftware.dev/ （课程主页；本讲为其 Google Slides，共 20 页）</td></tr><tr><td>笔记说明</td><td>按主题提炼整理，非逐页直译；每节标注原始课件页码，便于对照复核。</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">本讲主线</span> 开篇定调：这不是一门「氛围编程（vibe coding）」课，而是关于人与智能体协同工程（human-agent engineering）的课程。核心判断是「LLM 有多强，取决于你有多强」——好上下文带来好代码，你看不懂的代码库 LLM 也看不懂。后半段用面向工程师的 5 页内容讲清 LLM 的基本原理：自回归的下一 token 预测、分词/嵌入/Transformer/概率分布四步、预训练→监督微调→偏好对齐三阶段训练，以及推理模型、模型规模与真实能力的边界（优势与幻觉、上下文、延迟、成本四大局限）。</div>
+<h2 class="sec-h1"><span class="sec-num">1</span> 世界现状与课程定位</h2>
+<h3 class="sec-h2">1.1  坏消息与好消息</h3>
+<div class="table-wrap"><table><thead><tr><th></th><th>内容</th></tr></thead><tbody><tr><td>坏消息 Bad News</td><td>（课件此页以 Windsurf 团队的动荡为例，指向 AI 编程赛道的变化与不确定性）</td></tr><tr class="alt"><td>好消息 Good News</td><td>软件开发者拥有历史上前所未有的生产力潜力；借助 AI 编程，工程师能以空前的速度掌握新技术栈与工具；你不会被 AI 取代，但会被「懂得用 AI 的称职工程师」取代。</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 4–6 页】</p>
+<h3 class="sec-h2">1.2  这不是「氛围编程」课</h3>
+<p class="">课程明确声明：This is not the &quot;vibe coding&quot; class——重点不是随意地与模型对话，而是有方法地定义意图、构造上下文、审查与工程化。</p>
+<p class="src">【来源：原始课件 第 7–8 页】</p>
+<h2 class="sec-h1"><span class="sec-num">2</span> 课程的 Takeaway</h2>
+<h3 class="sec-h2">2.1  关注不会被 AI 替代的技能</h3>
+<ul class=""><li><strong>Human-agent engineering 人机协同工程：</strong>专注于尚未被 AI 系统替代的技能；理解业务（business understanding）；成为技术负责人（become the tech lead）。</li><li><strong>LLMs are only as good as you are：</strong>好的上下文带来好的代码；如果你自己看不懂代码库，LLM 也看不懂。</li></ul>
+<p class="src">【来源：原始课件 第 10 页】</p>
+<h3 class="sec-h2">2.2  多读代码、大胆实验</h3>
+<ul class=""><li><strong>大量阅读与审查代码：</strong>学会分辨好的/坏的、错误的代码；培养品味（have good taste）。</li><li><strong>激进地实验：</strong>尚无既定的软件模式，大家都还在摸索；本课程会介绍许多工作流与工具——找出适合你自己的。</li></ul>
+<p class="src">【来源：原始课件 第 11 页】</p>
+<h2 class="sec-h1"><span class="sec-num">3</span> 课程后勤</h2>
+<h3 class="sec-h2">3.1  关于授课教师</h3>
+<ul class=""><li>斯坦福本科与研究生；</li><li>一家 Sales 领域隐形科技公司的 AI 负责人；</li><li>在 Amazon Alexa 构建了最早的 LLM；</li><li>创办并出售了一家 ML 教育创业公司；</li><li>创办了一家 YC 支持的 AI 编程公司。</li></ul>
+<p class="">助教（CA）：Febie Lin。</p>
+<p class="src">【来源：原始课件 第 12 页】</p>
+<h3 class="sec-h2">3.2  课程安排与交付物</h3>
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>课程主页</td><td>https://themodernsoftware.dev</td></tr><tr class="alt"><td>讲座时间</td><td>周一/周五 8:30–9:20 am</td></tr><tr><td>作业</td><td>9 次作业（每周 1 次），围绕讲座内容实践；仓库：github.com/mihail911/modern-software-dev-assignments</td></tr><tr class="alt"><td>期末项目</td><td>1 个开放式最终项目，实践课程讲授的 AI 编程原则</td></tr><tr><td>评分</td><td>项目 / 作业 / 参与 = 80 / 15 / 5</td></tr><tr class="alt"><td>客座讲座</td><td>来自当今顶级 AI 开发者创业公司的创始人，融资数亿美元、估值数十亿——不要错过</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 13 页】</p>
+<h2 class="sec-h1"><span class="sec-num">4</span> 工程师视角：5 页讲清 LLM</h2>
+<h3 class="sec-h2">4.1  基础：自回归的下一 token 预测</h3>
+<p class="">大语言模型（LLM）本质上是用于「下一 token 预测」的自回归模型（autoregressive models for next-token prediction）。</p>
+<p class="src">【来源：原始课件 第 14–15 页】</p>
+<h3 class="sec-h2">4.2  一次前向的四步</h3>
+<div class="table-wrap"><table><thead><tr><th>步骤</th><th>说明</th></tr></thead><tbody><tr><td>1 · 分词 Tokenize</td><td>用固定词表把输入切成 token，例如「a」「for」「loop」「for」</td></tr><tr class="alt"><td>2 · 嵌入 Embedding</td><td>把 token 转成固定维度的数值向量（约 1–3K 维）</td></tr><tr><td>3 · Transformer 层</td><td>12–96+ 层，使用自注意力机制（self-attention，Vaswani et al. 2017）</td></tr><tr class="alt"><td>4 · 概率分布</td><td>输出最可能的下一个 token 的概率分布，例如 the 0.3 / idx 0.6 / cat 0.1</td></tr></tbody></table></div>
+<p class="i">图示为 token → 嵌入层 → Transformer 层（带自注意力连线）→ 下一 token 概率表中的柱状结构。</p>
+<p class="src">【来源：原始课件 第 16 页】</p>
+<h3 class="sec-h2">4.3  训练过程：三个阶段</h3>
+<div class="table-wrap"><table><thead><tr><th>阶段</th><th>做法</th><th>规模 / 示例</th></tr></thead><tbody><tr><td>Stage 1 自监督预训练</td><td>在多样的公开数据源上教会模型「语言的概念」</td><td>数千亿到万亿+ token（语言与代码）；Common Crawl、Wikipedia、StackExchange、公共 GitHub 仓库。类比：写 for 循环 →「这可能用在某段代码里」</td></tr><tr class="alt"><td>Stage 2 监督微调</td><td>教模型遵循指令</td><td>高质量、精心整理的 prompt-response 对（「克罗地亚首都是什么」→「萨格勒布是首都」）；数万到数十万对。类比：写 for 循环 →「好的，这是一个 for 循环…」</td></tr><tr><td>Stage 3 偏好调优</td><td>让模型输出对齐人类偏好（有用性、正确性、可读性）</td><td>对同一 prompt 收集成对输出，训练奖励模型预测偏好输出；数万到数十万人工标注比较。类比：写 for 循环 →「for idx in range(10):」</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 17 页】</p>
+<h3 class="sec-h2">4.4  推理模型与规模</h3>
+<ul class=""><li><strong>推理模型（Reasoning models）：</strong>用思维链推理轨迹扩展训练；集成工具使用；对推理步骤收集人类偏好；用强化学习学会评估推理轨迹、回溯等。</li><li><strong>规模：</strong>GPT-3 / Claude 3.5 Sonnet 约 175B 参数；LLaMA 3.1 为 405B；GPT-4 据报道 1.8T。</li></ul>
+<p class="src">【来源：原始课件 第 18 页】</p>
+<h3 class="sec-h2">4.5  实践中的优势与局限</h3>
+<div class="table-wrap"><table><thead><tr><th></th><th>内容</th></tr></thead><tbody><tr><td>优势 Strengths</td><td>专家级代码补全；代码理解；代码修复</td></tr><tr class="alt"><td>幻觉 Hallucinations</td><td>生成不存在/过时的 API——可用稳健的上下文工程缓解</td></tr><tr><td>上下文窗口限制</td><td>约 100–200K tokens，但并非每个 token 都等价</td></tr><tr class="alt"><td>延迟 Latency</td><td>每个请求数秒到数分钟，取决于任务——据此规划与委派</td></tr><tr><td>成本 Cost</td><td>最好的模型每百万输入 token 约 $1–3，每百万输出 token $10+</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 19 页】</p>
+<h2 class="sec-h1"><span class="sec-num">5</span> 附录：核心术语对照表</h2>
+<div class="table-wrap"><table><thead><tr><th>英文</th><th>中文</th><th>说明</th></tr></thead><tbody><tr><td>LLM (Large Language Model)</td><td>大语言模型</td><td>用于下一 token 预测的自回归模型</td></tr><tr class="alt"><td>Autoregressive</td><td>自回归</td><td>逐个 token 依次生成输出</td></tr><tr><td>Tokenize / Token</td><td>分词 / token</td><td>用固定词表把输入切成基本单位</td></tr><tr class="alt"><td>Embedding</td><td>嵌入</td><td>把 token 转成固定维度的数值向量</td></tr><tr><td>Self-attention</td><td>自注意力</td><td>Transformer 的核心机制（Vaswani et al. 2017）</td></tr><tr class="alt"><td>Pretraining / SFT / Preference tuning</td><td>预训练/监督微调/偏好调优</td><td>LLM 训练的三个主要阶段</td></tr><tr><td>Chain-of-thought reasoning</td><td>思维链推理</td><td>显式的推理步骤轨迹</td></tr><tr class="alt"><td>Reinforcement learning</td><td>强化学习</td><td>用于训练模型评估推理轨迹、回溯等</td></tr><tr><td>Context engineering</td><td>上下文工程</td><td>构造稳健上下文以缓解幻觉等问题</td></tr><tr class="alt"><td>Human-agent engineering</td><td>人机协同工程</td><td>人与 AI 智能体协作的工程方法</td></tr></tbody></table></div>
+<p class="i">— 本讲义由原始课件（themodernsoftware.dev 课程主页所列的 Google Slides，共 20 页）翻译整理；页码标注对应课件 PDF 页码，供对照复核。—</p>
+</div>
+</section>
+<style>
+:root{--bg:#f7f8fa;--text:#17202a;--muted:#697586;--line:#e4e8ee;--accent:#1769aa;--code:#f1f4f7}
+.note-page{max-width:860px;margin:0 auto;padding:0 0 40px}
+.back-link{display:inline-block;margin:26px 0 8px;font-size:14px;color:var(--accent)}
+.note-cover{padding:28px 0 30px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.note-cover .kicker{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:2px}
+.note-cover h1{font-size:clamp(28px,5vw,40px);line-height:1.3;margin:10px 0 6px}
+.note-cover .sub{color:var(--muted);font-size:17px}
+.note-page p{margin:0 0 12px}
+.note-page .b{font-weight:700}
+.note-page .i{font-style:italic;color:var(--muted)}
+.note-page h2.sec-h1{font-size:23px;line-height:1.35;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);color:#1b2a4a}
+.note-page .sec-num{color:#b01e3c;margin-right:6px}
+.note-page h3.sec-h2{font-size:18px;margin:24px 0 10px;color:#2e5c8a}
+.note-page ul{margin:0 0 14px;padding-left:24px}
+.note-page li{margin:5px 0;line-height:1.75}
+.note-page ul.sub{padding-left:44px;list-style:circle}
+.note-page .src{font-size:12.5px;color:var(--muted);font-style:italic;margin:4px 0 12px}
+.note-page .callout{border-left:4px solid #c8a24a;background:#fbf3e4;color:#4a3f22;padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;line-height:1.75}
+.note-page .callout-label{font-weight:700;color:#a8801f}
+.table-wrap{overflow-x:auto;margin:16px 0}
+.note-page table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}
+.note-page th,.note-page td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;line-height:1.6}
+.note-page thead th{background:#1b2a4a;color:#fff;font-weight:600;white-space:nowrap}
+.note-page tbody tr.alt{background:#f2f5f9}
+.note-page tbody tr.hl{background:#f7e9ec}
+.note-page tbody tr.hl td{font-weight:600;color:#b01e3c}
+@media(max-width:700px){.note-page h2.sec-h1{font-size:20px}.note-page p{font-size:15px}}
+</style>

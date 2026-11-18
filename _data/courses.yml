@@ -42,4 +42,12 @@
   url: "/course-notes/cs146s/"
   source_url: "https://themodernsoftware.dev/"
   source_domain: "themodernsoftware.dev"
-  lessons: []
+  lessons:
+    - number: 1
+      title: "导论与 LLM 原理"
+      url: "/course-notes/cs146s-lecture-01/"
+      description: "Stanford CS146S 开篇：为什么这是历史上软件开发者生产力最高的时代、课程的 takeaway 与后勤，以及面向工程师的「5 页讲清 LLM」——自回归、分词与嵌入、Transformer、三阶段训练、推理模型与能力边界。"
+    - number: 2
+      title: "高效提示工程（LLM Power Prompting）"
+      url: "/course-notes/cs146s-lecture-02/"
+      description: "系统讲解提示词技术：零样本、K-shot/上下文学习、思维链（多样本与零样本）、自洽性、工具使用、RAG、Reflexion，以及 system/user/assistant 三类消息与结构化、角色化、显式化的最佳实践。"

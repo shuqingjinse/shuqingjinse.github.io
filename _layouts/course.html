@@ -1,0 +1,49 @@
+---
+layout: default
+---
+{% assign course = site.data.courses | where: 'id', page.course_id | first %}
+{% assign lesson_count = course.lessons | size %}
+<link rel="stylesheet" href="{{ '/assets/css/course-notes.css' | relative_url }}">
+
+<div class="course-module course-theme-{{ course.id }}">
+  <nav class="course-breadcrumb" aria-label="课程导航">
+    <a href="{{ '/course-notes/' | relative_url }}">← 全部课程</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ course.code | escape }}</span>
+  </nav>
+
+  <header class="course-module-header">
+    <div class="course-card-topline">
+      <p class="course-code">{{ course.code | escape }}</p>
+      <span class="course-status{% if lesson_count == 0 %} course-status-pending{% endif %}">{% if lesson_count > 0 %}{{ lesson_count }} 篇笔记{% else %}笔记待更新{% endif %}</span>
+    </div>
+    <p class="course-school">{{ course.school | escape }}</p>
+    <h1>{{ course.title | escape }}</h1>
+    <p class="course-english-title" lang="en">{{ course.english_title | escape }}</p>
+    <p class="course-description">{{ course.description | escape }}</p>
+    <a class="course-official-link" href="{{ course.source_url }}" target="_blank" rel="noopener noreferrer">课程官网 <span>{{ course.source_domain }}</span><span aria-hidden="true">↗</span></a>
+  </header>
+
+  <section class="course-lessons" aria-labelledby="course-lessons-title">
+    <div class="section-head">
+      <div>
+        <p class="section-kicker">LECTURE NOTES</p>
+        <h2 id="course-lessons-title">课程讲义</h2>
+      </div>
+      {% if lesson_count > 0 %}<p class="course-directory-count">共 {{ lesson_count }} 讲</p>{% endif %}
+    </div>
+    {% for lesson in course.lessons %}
+    <article class="post-card course-lesson-card">
+      <p class="post-meta">{{ course.code | escape }} · 第 {{ lesson.number }} 讲</p>
+      <h3><a href="{{ lesson.url | relative_url }}">{{ lesson.title | escape }}</a></h3>
+      <p>{{ lesson.description | escape }}</p>
+      <a class="read-more" href="{{ lesson.url | relative_url }}">阅读讲义 →</a>
+    </article>
+    {% else %}
+    <div class="course-empty">
+      <h3>笔记待更新</h3>
+      <p>这门课程的学习笔记将整理在这里。可以先前往课程官网，查看课程介绍与安排。</p>
+    </div>
+    {% endfor %}
+  </section>
+</div>

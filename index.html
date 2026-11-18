@@ -1,59 +1,66 @@
 ---
 layout: default
 ---
-<section class="hero" aria-labelledby="home-title">
-  <p class="eyebrow">STRAIGHT / KNOWLEDGE BASE</p>
-  <h1 id="home-title">记录问题，<br>沉淀答案。</h1>
-  <p class="intro">你好，这里是 Straight 的个人知识库。持续记录人工智能、软件工程、工具实践与阅读思考，把零散的探索整理成可以反复查阅的答案。</p>
-  <div class="hero-actions">
-    <a class="button-primary" href="{{ '/personal-summary/' | relative_url }}">开始阅读 ↗</a>
-    <a class="button-secondary" href="{{ '/about/' | relative_url }}">了解更多 →</a>
-  </div>
-</section>
+<div class="home-layout">
+  <div class="home-main">
+    <section class="hero" aria-labelledby="home-title">
+      <p class="eyebrow">STRAIGHT / KNOWLEDGE BASE</p>
+      <h1 id="home-title">记录问题，<br>沉淀答案。</h1>
+      <p class="intro">你好，这里是 Straight 的个人知识库。持续记录人工智能、软件工程、工具实践与阅读思考，把零散的探索整理成可以反复查阅的答案。</p>
+      <div class="hero-actions">
+        <a class="button-primary" href="{{ '/personal-summary/' | relative_url }}">开始阅读 ↗</a>
+        <a class="button-secondary" href="{{ '/about/' | relative_url }}">了解更多 →</a>
+      </div>
+    </section>
 
-<section class="home-section" aria-labelledby="topics-title">
-  <div class="section-head">
-    <div><p class="section-kicker">EXPLORE</p><h2 id="topics-title">探索内容</h2></div>
+    <section class="home-section" aria-labelledby="topics-title">
+      <div class="section-head">
+        <div><p class="section-kicker">EXPLORE</p><h2 id="topics-title">探索内容</h2></div>
+      </div>
+      <div class="columns home-columns">
+        <a class="column-card" href="{{ '/course-notes/' | relative_url }}">
+          <span class="column-index">01 / LEARN</span>
+          <h2>课程笔记</h2>
+          <p>名校课程的系统学习笔记。已收录 CS2680《现代 AI 系统》中文讲义。</p>
+          <span class="column-link">进入栏目 <span aria-hidden="true">↗</span></span>
+        </a>
+        <a class="column-card" href="{{ '/personal-summary/' | relative_url }}">
+          <span class="column-index">02 / THINK</span>
+          <h2>个人总结</h2>
+          <p>技术文章与学习复盘：LLM 基础、模型训练、前沿调研与日常思考。</p>
+          <span class="column-link">进入栏目 <span aria-hidden="true">↗</span></span>
+        </a>
+        <a class="column-card" href="{{ '/llm-interview/' | relative_url }}">
+          <span class="column-index">03 / PRACTICE</span>
+          <h2>面试经验</h2>
+          <p>大模型后训练高频面经，交互式闪卡与自测，让知识真正记得住。</p>
+          <span class="column-link">进入栏目 <span aria-hidden="true">↗</span></span>
+        </a>
+        <a class="column-card" href="{{ '/games/' | relative_url }}">
+          <span class="column-index">04 / PLAY</span>
+          <h2>小游戏</h2>
+          <p>阅读之外，玩一局《烽火破城》。用键盘走位、蓄力斩击，释放天火大招。</p>
+          <span class="column-link">开始探索 <span aria-hidden="true">↗</span></span>
+        </a>
+      </div>
+    </section>
   </div>
-  <div class="columns columns-four">
-    <a class="column-card" href="{{ '/course-notes/' | relative_url }}">
-      <span class="column-index">01 / LEARN</span>
-      <h2>课程笔记</h2>
-      <p>名校课程的系统学习笔记。已收录 CS2680《现代 AI 系统》中文讲义。</p>
-      <span class="column-link">进入栏目 <span aria-hidden="true">↗</span></span>
-    </a>
-    <a class="column-card" href="{{ '/personal-summary/' | relative_url }}">
-      <span class="column-index">02 / THINK</span>
-      <h2>个人总结</h2>
-      <p>技术文章与学习复盘：LLM 基础、模型训练、前沿调研与日常思考。</p>
-      <span class="column-link">进入栏目 <span aria-hidden="true">↗</span></span>
-    </a>
-    <a class="column-card" href="{{ '/llm-interview/' | relative_url }}">
-      <span class="column-index">03 / PRACTICE</span>
-      <h2>面试经验</h2>
-      <p>大模型后训练高频面经，交互式闪卡与自测，让知识真正记得住。</p>
-      <span class="column-link">进入栏目 <span aria-hidden="true">↗</span></span>
-    </a>
-    <a class="column-card" href="{{ '/games/' | relative_url }}">
-      <span class="column-index">04 / PLAY</span>
-      <h2>小游戏</h2>
-      <p>阅读之外，玩一局《烽火破城》。用键盘走位、蓄力斩击，释放天火大招。</p>
-      <span class="column-link">开始探索 <span aria-hidden="true">↗</span></span>
-    </a>
-  </div>
-</section>
 
-<section id="personal-notes" class="post-list" aria-labelledby="latest-title">
-  <div class="section-head">
-    <div><p class="section-kicker">LATEST WRITING</p><h2 id="latest-title">最近文章</h2></div>
-    <a class="read-more" href="{{ '/personal-summary/' | relative_url }}">查看全部 →</a>
-  </div>
-  {% for post in site.posts limit:5 %}
-  <article class="post-card">
-    <p class="post-meta">{{ post.date | date: "%Y-%m-%d" }}{% if post.categories %} · {{ post.categories | join: " / " }}{% endif %}</p>
-    <h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
-    <p>{{ post.excerpt | strip_html | truncate: 160 }}</p>
-    <a class="read-more" href="{{ post.url | relative_url }}" aria-label="阅读文章：{{ post.title | escape }}">阅读全文 →</a>
-  </article>
-  {% endfor %}
-</section>
+  <aside id="personal-notes" class="home-recent" aria-labelledby="latest-title">
+    <div class="section-head">
+      <div><p class="section-kicker">LATEST WRITING</p><h2 id="latest-title">最近文章</h2></div>
+    </div>
+    <ol class="recent-posts">
+      {% for post in site.posts limit:5 %}
+      <li>
+        <article>
+          <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%Y-%m-%d" }}</time>
+          <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
+          {% if post.categories.size > 0 %}<p class="recent-category">{{ post.categories | join: " / " }}</p>{% endif %}
+        </article>
+      </li>
+      {% endfor %}
+    </ol>
+    <a class="recent-more" href="{{ '/personal-summary/' | relative_url }}">查看全部文章 <span aria-hidden="true">→</span></a>
+  </aside>
+</div>

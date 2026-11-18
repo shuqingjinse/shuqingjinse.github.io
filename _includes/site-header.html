@@ -1,0 +1,14 @@
+<header class="site-header">
+  <div class="site-nav-shell">
+    <a class="site-brand" href="{{ '/' | relative_url }}" aria-label="Straight 首页">Straight<span>.</span></a>
+    <nav class="site-main-nav" aria-label="主导航">
+      <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>首页</a>
+      <a href="{{ '/course-notes/' | relative_url }}"{% if page.url contains '/course-notes/' %} aria-current="page"{% endif %}>课程笔记</a>
+      <a href="{{ '/personal-summary/' | relative_url }}"{% if page.url == '/personal-summary/' %} aria-current="page"{% endif %}>个人总结</a>
+      <a href="{{ '/llm-interview/' | relative_url }}"{% if page.url contains '/llm-interview/' %} aria-current="page"{% endif %}>面试经验</a>
+      <a href="{{ '/games/' | relative_url }}"{% if page.section == 'games' %} aria-current="page"{% endif %}>小游戏</a>
+      <a href="{{ '/about/' | relative_url }}"{% if page.url == '/about/' %} aria-current="page"{% endif %}>关于</a>
+      <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+    </nav>
+  </div>
+</header>

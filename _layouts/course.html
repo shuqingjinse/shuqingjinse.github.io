@@ -24,6 +24,7 @@ layout: default
     <a class="course-official-link" href="{{ course.source_url }}" target="_blank" rel="noopener noreferrer">课程官网 <span>{{ course.source_domain }}</span><span aria-hidden="true">↗</span></a>
   </header>
 
+  {% if content != empty %}<div class="course-overview prose">{{ content }}</div>{% endif %}
   <section class="course-lessons" aria-labelledby="course-lessons-title">
     <div class="section-head">
       <div>

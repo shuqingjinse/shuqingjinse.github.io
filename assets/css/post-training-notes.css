@@ -1,0 +1,27 @@
+.pt-note{max-width:880px;margin:0 auto;padding-bottom:70px;min-width:0}
+.pt-note .course-breadcrumb{flex-wrap:wrap;gap:8px 12px}
+.pt-cover{padding:22px 0 28px;border-bottom:1px solid var(--line)}
+.pt-kicker{font:700 12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1px;color:var(--course-accent)}
+.pt-cover h1{font-size:clamp(27px,4.3vw,40px);line-height:1.4;letter-spacing:-.8px;margin:12px 0}
+.pt-description{color:var(--muted);font-size:17px;line-height:1.9;margin:12px 0}
+.pt-meta{font-size:12px;color:var(--muted);margin:18px 0 0}
+.pt-context{margin:24px 0;padding:15px 20px;border-left:3px solid var(--course-accent);background:var(--course-soft);border-radius:0 10px 10px 0;font-size:13px;line-height:1.85}
+.pt-context p{margin:5px 0}
+.pt-toc{padding:20px 24px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:24px 0 32px}
+.pt-toc p{font-weight:700;font-size:14px;margin:0 0 10px}
+.pt-toc ol{margin:0;padding-left:22px;columns:2;column-gap:32px;font-size:14px;line-height:2}
+.pt-toc li{break-inside:avoid}
+.pt-toc a{color:var(--course-accent)}
+.pt-prose h2{color:var(--text);scroll-margin-top:30px}
+.pt-prose h3{color:var(--course-accent)}
+.pt-prose blockquote{border-color:var(--course-accent);background:var(--course-soft);color:var(--text)}
+.pt-prose mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:8px 0}
+.pt-prose details{border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:15px 0;background:var(--surface)}
+.pt-prose summary{cursor:pointer;font-weight:600;color:var(--course-accent);line-height:1.7}
+.pt-prose details p{margin-bottom:0}
+.pt-pagination{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:48px;border-top:1px solid var(--line);padding-top:24px}
+.pt-pagination a{display:block;border:1px solid var(--course-border);border-radius:12px;padding:18px;color:var(--text);font-size:14px;line-height:1.8;background:var(--surface);overflow-wrap:anywhere}
+.pt-pagination a:hover{border-color:var(--course-accent)}
+.pt-pagination span{display:block;color:var(--course-accent);font-size:12px;margin-bottom:6px}
+@media(max-width:600px){.pt-toc ol{columns:1}.pt-cover{padding-top:10px}.pt-description{font-size:15px}.pt-toc{padding:18px}.pt-context{padding:12px 16px}.pt-pagination{grid-template-columns:1fr}.pt-note .course-breadcrumb{font-size:12px}.pt-prose{font-size:15.5px}}
+@media print{.pt-toc,.pt-pagination,.site-header,.site-footer{display:none}.pt-note{max-width:none}.pt-prose pre{white-space:pre-wrap}.pt-context{background:none}}

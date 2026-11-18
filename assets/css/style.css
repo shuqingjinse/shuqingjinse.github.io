@@ -82,3 +82,89 @@
 @media(max-width:600px){.home-layout{padding:38px 0 55px;gap:36px}.home-main .hero{padding-bottom:32px}.home-main .hero h1{font-size:40px;letter-spacing:-1.5px}.home-main .eyebrow{font-size:9px;letter-spacing:1.5px;margin-bottom:22px}.home-main .intro{font-size:14px}.home-main .hero-actions{margin-top:24px}.home-main .home-section{padding-top:31px}.home-columns{grid-template-columns:1fr}.home-main .column-card{min-height:0;padding:23px}.home-main .column-card h2{margin-top:15px}.home-recent{padding:22px 21px}.recent-posts{display:block}.recent-posts h3{font-size:14px;display:block;overflow:visible}}
 
 .game-platforms{display:flex;gap:10px;flex-wrap:wrap}.game-platforms>a{gap:24px;min-width:130px}.game-mobile-start{border-color:#b8ccc0;background:#f0f7f2;color:#326454}.game-mobile-start:hover{border-color:#88aa98;color:#285645}.mobile-game-note{margin-top:24px;padding:28px 30px;border:1px solid #dce9df;border-radius:14px;background:#f1f7f3;display:flex;align-items:center;gap:30px;justify-content:space-between}.mobile-game-note>div{max-width:740px}.mobile-game-note .section-kicker{color:#46715d}.mobile-game-note h2{font-size:22px;letter-spacing:-.5px;line-height:1.5;margin:8px 0}.mobile-game-note p:last-child{font-size:13px;color:#6a7f70;line-height:1.9;margin:9px 0 0}.mobile-game-note>a{flex:none;color:#3e6d55;border-color:#c0d5c7;background:#fff}@media(max-width:760px){.game-platforms{gap:9px}.game-platforms>a{flex:1;min-width:0;padding-inline:15px;gap:19px}.mobile-game-note{padding:24px;display:block}.mobile-game-note h2{font-size:20px}.mobile-game-note>a{margin-top:18px}}
+
+/* Carry the home column colors into the corresponding pages. */
+body[data-section=learn]{--accent:#4960b5;--accent-dark:#354a95;--section-soft:#eef2ff;--section-line:#cbd5f3}
+body[data-section=think]{--accent:#267769;--accent-dark:#185d51;--section-soft:#eaf6f1;--section-line:#bdded0}
+body[data-section=play]{--accent:#8761aa;--accent-dark:#6c478e;--section-soft:#f5effa;--section-line:#dfccec}
+body[data-section=learn] .eyebrow:before,body[data-section=think] .eyebrow:before,body[data-section=play] .eyebrow:before{background:var(--accent);box-shadow:0 0 0 5px var(--section-soft)}
+body[data-section] .category-header .eyebrow{color:var(--accent)}
+body[data-section=learn] .category-header,body[data-section=think] .category-header,body[data-section=play] .category-header{border-color:var(--section-line)}
+body[data-section=think] .prose blockquote{background:var(--section-soft)}
+body[data-section=think] .prose a{ text-decoration-color:var(--section-line)}
+body[data-section=think] .toc-link.on{background:var(--section-soft)}
+body[data-section=play] .game-start{background:var(--accent);box-shadow:0 8px 20px #8761aa20}
+body[data-section=play] .game-start:hover{background:var(--accent-dark)}
+
+/* A mixed update feed remains compact in the right-hand rail. */
+.update-meta{display:flex;align-items:center;gap:8px}
+.update-label{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:650;line-height:1.5}
+.update-learn{color:#4960b5;background:#eef2ff}.update-think{color:#267769;background:#eaf6f1}.update-play{color:#8761aa;background:#f5effa}
+.recent-posts h3{margin-top:7px}
+.column-mobile-copy{display:none}
+.home-layout{row-gap:37px}
+.home-featured{grid-column:1;padding-top:0}
+.featured-reading{display:flex;align-items:stretch;gap:26px;padding:26px;border:1px solid #bdded0;border-radius:14px;background:linear-gradient(110deg,#eaf6f1,#fff 65%);color:var(--text)}
+.featured-reading:hover{color:var(--text);border-color:#267769;box-shadow:var(--shadow)}
+.featured-reading-art{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:0 0 114px;padding:10px 0;gap:4px;font:700 10px/1.5 ui-monospace,monospace;color:#267769}
+.featured-reading-art>span{display:grid;place-items:center;min-width:110px;padding:9px 10px;border:1px solid #bdded0;background:#fff;border-radius:7px}
+.featured-reading-art i{font-style:normal;color:#7dab9d}
+.featured-reading-copy{display:block;min-width:0}
+.featured-reading-tag{display:block;font-size:10px;font-weight:650;color:#267769;margin-bottom:8px}
+.featured-reading h3{margin:0 0 10px;font-size:21px;line-height:1.5;letter-spacing:-.4px}
+.featured-reading p{margin:0 0 16px;font-size:13px;line-height:1.9;color:var(--muted)}
+.featured-reading .column-link{color:#267769;font-size:12px}
+.post-featured-tag{display:inline-block;margin-left:10px;padding:1px 7px;border-radius:4px;background:var(--section-soft,#eaf6f1);color:var(--accent);font:600 10px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+body[data-section=think] .post-list{padding:30px 0 70px}
+body[data-section=think] .post-card{padding:23px 0}
+body[data-section=think] .post-card p:not(.post-meta){max-width:860px}
+.article-lead{font-size:16px;line-height:1.9;margin:16px 0 0}
+
+/* Both real game previews link to the version shown. */
+.game-preview-stage{position:relative;min-width:0;background:#173630;display:flex;flex-direction:column}
+.game-preview-modes{display:flex;align-items:center;gap:5px;padding:12px 15px;background:#173630}
+.game-preview-modes button{min-height:36px;padding:7px 13px;border:1px solid #9bb4a84d;border-radius:7px;color:#c0d0c3;background:transparent;font-family:inherit;font-size:11px;font-weight:600;line-height:1.5;cursor:pointer}
+.game-preview-modes button[aria-pressed=true]{background:#d8e2c8;border-color:#d8e2c8;color:#1b3b32}
+.game-preview-modes button:focus-visible{outline:3px solid #ead294;outline-offset:2px}
+.game-preview-stage .game-preview{flex:1;min-height:330px}
+.game-preview-stage .game-preview[hidden]{display:none}
+.game-preview-stage .game-preview-mobile{display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#426759,#173630 75%);padding:20px}
+.game-preview-mobile img{width:auto;max-width:100%;height:360px;object-fit:contain;border:1px solid #abc4af66;border-radius:12px;box-shadow:0 10px 26px #081c2859}
+.game-preview-modes~.game-preview-mobile{display:none}
+.game-preview-stage[data-preview=mobile] .game-preview-mobile{display:flex}
+.game-preview-stage[data-preview=mobile] .game-preview-desktop{display:none}
+.game-preview-stage[data-preview=desktop] .game-preview-mobile{display:none}
+@media(max-width:760px){
+  .game-preview-modes{justify-content:center;padding:10px}
+  .game-preview-modes button{min-height:44px;padding:9px 18px;font-size:12px}
+  .game-preview-stage .game-preview-desktop{min-height:0;aspect-ratio:1200/779}
+  .game-preview-stage .game-preview-mobile{aspect-ratio:auto;min-height:0;padding:18px}
+  .game-preview-mobile img{height:380px;max-height:none;border-radius:11px}
+  .game-platforms .game-mobile-start{order:-1;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+  body[data-section=play] .game-platforms .game-start{background:#fff;color:var(--accent);border:1px solid var(--section-line);box-shadow:none}
+  /* Default portrait preview also works before JavaScript loads. */
+  .game-preview-stage:not([data-preview]) .game-preview-desktop{display:none}
+  .game-preview-stage:not([data-preview]) .game-preview-mobile{display:flex}
+}
+@media(max-width:600px){
+  .home-columns{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .home-main .column-card{min-height:0;padding:16px 13px;gap:0;border-radius:12px}
+  .column-topline{min-height:30px;gap:4px}
+  .home-columns .column-index{font-size:9px;letter-spacing:0}
+  .home-columns .column-icon{width:29px;height:29px;border-radius:8px}
+  .home-columns .column-icon svg{width:18px;height:18px}
+  .home-main .column-card h2{font-size:18px;margin:13px 0 6px}
+  .home-main .column-card p,.home-main .column-card .column-link{display:none}
+  .column-mobile-copy{display:block;color:var(--muted);font-size:11px;line-height:1.7}
+  .home-layout{gap:28px}
+  .home-main{display:contents}
+  .home-main .home-section{padding-top:0}
+  .home-recent{padding:20px 18px}
+  .home-featured{padding-top:0}
+  .featured-reading{padding:20px;gap:0}
+  .featured-reading-art{display:none}
+  .featured-reading h3{font-size:19px}
+  .featured-reading p{font-size:12px}
+  .home-main .section-head{margin-bottom:18px}
+}
+body[data-section=learn] .note-page .sec-num,body[data-section=learn] .note-page h3.sec-h2{color:var(--accent)}

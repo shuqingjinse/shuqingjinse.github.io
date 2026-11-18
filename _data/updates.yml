@@ -1,0 +1,17 @@
+# 课程、工具和作品的发布记录。博客文章会自动合并到首页动态中。
+# 日期使用完整时间及 +0800，方便与文章的发布日期一起排序。
+- title: "烽火破城手机版：竖屏向上攻城"
+  date: 2026-11-18 13:27:00 +0800
+  kind: play
+  label: 游戏
+  url: /games/fire-siege/mobile/
+- title: "CS146S 第 2 讲：高效提示工程"
+  date: 2026-11-18 12:00:00 +0800
+  kind: learn
+  label: 课程
+  url: /course-notes/cs146s-lecture-02/
+- title: "CS146S 第 1 讲：导论与 LLM 原理"
+  date: 2026-11-18 11:50:00 +0800
+  kind: learn
+  label: 课程
+  url: /course-notes/cs146s-lecture-01/

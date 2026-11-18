@@ -13,7 +13,8 @@
   <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']]},svg:{fontCache:'global'}};</script>
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
-<body>
+{% capture site_section %}{% include page-section.html %}{% endcapture %}
+<body data-section="{{ site_section | strip }}">
   {% include site-header.html %}
   <main class="shell" id="main-content">{{ content }}</main>
   <footer class="site-footer">

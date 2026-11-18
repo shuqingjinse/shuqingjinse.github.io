@@ -15,7 +15,7 @@ description: "大模型后训练面经：交互式闪卡、知识浏览与自测
 <style>
 :root{
   --bg:#f4f5f8; --card:#ffffff; --text:#1b1f27; --muted:#6b7280; --faint:#9ca3af;
-  --primary:#4f46e5; --primary-soft:#eef2ff; --primary-text:#4338ca;
+  --primary:#916323; --primary-soft:#fcf4e4; --primary-text:#80541b;
   --border:#e6e8ed; --border-strong:#d5d9e2;
   --amber:#d97706; --amber-soft:#fef3c7; --green:#059669; --green-soft:#d1fae5;
   --blue:#2563eb; --blue-soft:#dbeafe; --code-bg:#f2f3f6;
@@ -40,12 +40,12 @@ body{
 .head-spacer{flex:1}
 .progress-mini{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);white-space:nowrap}
 .pbar{width:120px;height:7px;background:var(--border);border-radius:99px;overflow:hidden}
-.pbar>i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),#7c73e6);width:0;transition:width .4s}
+.pbar>i{display:block;height:100%;background:var(--primary);width:0;transition:width .4s}
 
 .tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:4px}
 .tab{padding:8px 16px;border-radius:9px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:transparent;transition:.15s}
 .tab:hover{color:var(--text);background:var(--bg)}
-.tab.on{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.3)}
+.tab.on{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(145,99,35,.2)}
 
 .hero{padding:32px 0 20px}
 .hero h1{font-size:26px;letter-spacing:-.6px;font-weight:750;margin-bottom:6px}
@@ -86,7 +86,7 @@ body{
   border-radius:11px;background:var(--primary-soft);color:var(--primary-text);
   font-size:14px;font-weight:600;cursor:pointer;transition:.15s;
 }
-.reveal-btn:hover{background:#e3e8ff}
+.reveal-btn:hover{background:#f5e7ca}
 .ans-zone{border-top:1px solid var(--border);padding:26px 34px 30px;background:#fcfcfd;animation:fade .25s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .ans-label{font-size:11px;letter-spacing:1.5px;color:var(--green);text-transform:uppercase;font-weight:700;margin-bottom:12px}
@@ -145,9 +145,46 @@ body{
   .ans-zone{padding:20px}.stats{grid-template-columns:repeat(2,1fr)}
   .hero h1{font-size:22px}.head-inner{gap:10px}.brand small{display:none}
 }
+.study-stats{width:100%;margin-bottom:18px}
+.study-stats .stats{margin-bottom:8px}
+.study-stats-toggle{display:none}
+.stats-reset{text-align:right}
+.keyboard-hint{display:inline}
+.touch-hint{display:none}
+button{font-family:inherit}
+button:focus-visible,input:focus-visible{outline:3px solid #c69b57;outline-offset:3px}
+@media(max-width:640px){
+  .head-inner{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 18px}
+  .head-spacer,.progress-mini .pbar{display:none}
+  .brand{font-size:14px;gap:8px}.progress-mini{font-size:11px}
+  .tabs{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:3px;border-radius:10px}
+  .tab{min-height:40px;padding:7px 15px;font-size:13px}
+  .wrap{padding:0 18px 50px}
+  .hero{padding:22px 0 16px}.hero h1{font-size:20px;margin-bottom:5px}.hero p{font-size:12px}
+  .keyboard-hint,.grade .k{display:none}.touch-hint{display:inline}
+  .study-stats{margin-bottom:12px}
+  .study-stats-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:44px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--muted);font-size:12px;text-align:left}
+  .study-stats-toggle b{color:var(--primary);font-weight:700}.stats-toggle-label{font-size:11px;white-space:nowrap;color:var(--primary)}
+  .study-stats:not(.expanded) .stats,.study-stats:not(.expanded) .stats-reset{display:none}
+  .study-stats .stats{margin-top:10px;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .stat{padding:10px 8px;border-radius:9px}.stat .v{font-size:19px}.stat .l{font-size:10px}
+  .reset{min-height:44px;padding:8px 4px}
+  .flash-filters{width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:14px}
+  .flash-filters .chip{font-size:11px;padding:8px 3px;min-height:40px}
+  .card-meta{gap:5px;min-height:24px;margin-bottom:10px}.tag{padding:3px 8px;font-size:10px}
+  .q-zone{padding:24px 18px;min-height:132px}.q-label{font-size:10px;margin-bottom:12px}.q-text{font-size:18px}
+  .reveal-btn{min-height:44px;font-size:13px;margin-bottom:16px}
+  .grade{min-height:48px;padding:12px 6px;font-size:12px}
+}
+@media(max-width:640px) and (max-height:650px){
+  .head-inner .brand,.head-inner .progress-mini{display:none}
+  .head-inner{gap:0}
+  .hero{padding:16px 0 12px}.hero h1{font-size:18px}.hero p{display:none}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 </style>
 </head>
-<body>
+<body data-section="practice">
 <div class="study-navigation">
 {% include site-header.html %}
 <header class="study-header">
@@ -170,23 +207,25 @@ body{
 <div class="wrap">
   <div class="hero" id="hero">
     <h1>把面经，变成记得住的东西</h1>
-    <p>主动回忆 + 间隔重现。<span class="kbd">空格</span> 翻答案 · <span class="kbd">1</span> 模糊 · <span class="kbd">2</span> 掌握 · <span class="kbd">←</span><span class="kbd">→</span> 切题</p>
+    <p><span class="keyboard-hint">主动回忆 + 间隔重现。<span class="kbd">空格</span> 翻答案 · <span class="kbd">1</span> 模糊 · <span class="kbd">2</span> 掌握 · <span class="kbd">←</span><span class="kbd">→</span> 切题</span><span class="touch-hint">先想一想，再看答案；按掌握程度继续练习。</span></p>
   </div>
 
   <div id="flashView" class="stage">
-    <div class="stats" style="width:100%">
+    <div class="study-stats">
+    <button class="study-stats-toggle" id="statsToggle" aria-expanded="false" aria-controls="study-stat-details"><span>已掌握 <b id="mobileMastered">0</b>/<span id="mobileTotal">42</span> · 待巩固 <b id="mobileFuzzy">0</b></span><span class="stats-toggle-label">详细统计 ⌄</span></button>
+    <div class="stats" id="study-stat-details">
       <div class="stat"><div class="v" id="sTotal">0</div><div class="l">总题数</div></div>
       <div class="stat g"><div class="v" id="sMastered">0</div><div class="l">已掌握</div></div>
       <div class="stat a"><div class="v" id="sFuzzy">0</div><div class="l">待巩固</div></div>
       <div class="stat p"><div class="v" id="sRate">0%</div><div class="l">掌握率</div></div>
     </div>
-    <div class="toolbar" style="width:100%">
-      <div class="chip on" data-filter="all">全部題</div>
-      <div class="chip" data-filter="高频">仅高频</div>
-      <div class="chip" data-filter="fuzzy">仅待巩固</div>
-      <div class="chip" data-filter="new">仅未学</div>
-      <div style="flex:1"></div>
-      <button class="reset" id="resetBtn">重置进度</button>
+    <div class="stats-reset"><button class="reset" id="resetBtn">重置进度</button></div>
+    </div>
+    <div class="toolbar flash-filters" style="width:100%">
+      <button class="chip on" data-filter="all" aria-pressed="true">全部题</button>
+      <button class="chip" data-filter="高频" aria-pressed="false">仅高频</button>
+      <button class="chip" data-filter="fuzzy" aria-pressed="false">仅待巩固</button>
+      <button class="chip" data-filter="new" aria-pressed="false">仅未学</button>
     </div>
     <div class="card-meta" id="cardMeta"></div>
     <div class="flash" id="flashCard">
@@ -194,7 +233,7 @@ body{
         <div class="q-label">Question</div>
         <div class="q-text" id="qText"></div>
       </div>
-      <button class="reveal-btn" id="revealBtn">显示参考答案 · 空格</button>
+      <button class="reveal-btn" id="revealBtn">显示参考答案<span class="keyboard-hint"> · 空格</span></button>
       <div class="ans-zone hidden" id="ansZone">
         <div class="ans-label">参考答案</div>
         <div class="answer" id="ansText"></div>
@@ -739,6 +778,9 @@ function updateStats(){
   document.getElementById('sMastered').textContent=m;
   document.getElementById('sFuzzy').textContent=f;
   document.getElementById('sRate').textContent=(Q.length?Math.round(m/Q.length*100):0)+'%';
+  document.getElementById('mobileMastered').textContent=m;
+  document.getElementById('mobileTotal').textContent=Q.length;
+  document.getElementById('mobileFuzzy').textContent=f;
 }
 
 /* ---------- 闪卡 ---------- */
@@ -890,9 +932,15 @@ function setMode(m){
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>setMode(t.dataset.mode));
 document.querySelectorAll('.chip[data-filter]').forEach(c=>c.onclick=()=>{
-  document.querySelectorAll('.chip[data-filter]').forEach(x=>x.classList.remove('on'));
-  c.classList.add('on'); filter=c.dataset.filter; buildDeck();
+  document.querySelectorAll('.chip[data-filter]').forEach(x=>{x.classList.remove('on');x.setAttribute('aria-pressed','false');});
+  c.classList.add('on'); c.setAttribute('aria-pressed','true'); filter=c.dataset.filter; buildDeck();
 });
+document.getElementById('statsToggle').onclick=()=>{
+  const button=document.getElementById('statsToggle');
+  const expanded=button.closest('.study-stats').classList.toggle('expanded');
+  button.setAttribute('aria-expanded',String(expanded));
+  button.querySelector('.stats-toggle-label').textContent=expanded?'收起统计 ⌃':'详细统计 ⌄';
+};
 document.getElementById('revealBtn').onclick=reveal;
 document.getElementById('gradeBar').querySelectorAll('.grade').forEach(b=>b.onclick=()=>grade(b.dataset.g));
 document.getElementById('searchInput').oninput=e=>{keyword=e.target.value;renderList()};
@@ -904,7 +952,9 @@ document.getElementById('resetBtn').onclick=()=>{
 };
 document.addEventListener('keydown',e=>{
   const mode=document.querySelector('.tab.on').dataset.mode;
-  if(document.activeElement.tagName==='INPUT')return;
+  const active=document.activeElement;
+  if(active.closest('input,textarea,select,.site-header'))return;
+  if(['Space','Enter'].includes(e.code)&&active.closest('button,a,summary'))return;
   if(mode==='flash'){
     if(e.code==='Space'){e.preventDefault();revealed?null:reveal();}
     else if(e.key==='ArrowRight'){e.preventDefault();next();}

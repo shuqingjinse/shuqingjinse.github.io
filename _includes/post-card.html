@@ -1,0 +1,6 @@
+<article class="post-card">
+  <p class="post-meta"><time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%Y-%m-%d" }}</time>{% if post.categories.size > 0 %} · {{ post.categories | join: " / " }}{% endif %}{% if post.featured %}<span class="post-featured-tag">推荐</span>{% endif %}</p>
+  <h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
+  <p>{{ post.description | default: post.excerpt | strip_html | truncate: 160 }}</p>
+  <a class="read-more" href="{{ post.url | relative_url }}">阅读全文 <span aria-hidden="true">→</span></a>
+</article>

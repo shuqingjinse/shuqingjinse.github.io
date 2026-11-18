@@ -1,0 +1,5 @@
+{%- if page.url contains '/course-notes/' -%}learn
+{%- elsif page.url contains '/llm-interview/' -%}practice
+{%- elsif page.section == 'games' -%}play
+{%- elsif page.url contains '/personal-summary/' or page.path contains '_posts/' or page.layout == 'category' -%}think
+{%- else -%}home{%- endif -%}

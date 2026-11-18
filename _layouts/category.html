@@ -11,7 +11,7 @@ layout: default
 {% for post in site.posts %}
   {% if post.categories contains page.category %}
     {% assign has_posts = true %}
-    <article class="post-card"><p class="post-meta">{{ post.date | date: "%Y-%m-%d" }}{% if post.tags %} · {{ post.tags | join: " / " }}{% endif %}</p><h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2><p>{{ post.excerpt | strip_html | truncate: 180 }}</p><a class="read-more" href="{{ post.url | relative_url }}">阅读全文 →</a></article>
+    {% include post-card.html %}
   {% endif %}
 {% endfor %}
 {% unless has_posts %}<p class="empty">这个专栏暂时还没有文章。</p>{% endunless %}

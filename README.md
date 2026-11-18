@@ -26,3 +26,17 @@ tags: [实践]
 ```
 
 文章支持标准 Markdown、代码块、表格和 MathJax 公式。提交后 GitHub Pages 会自动构建。
+
+## 小游戏栏目
+
+首页「探索内容」与主导航提供「小游戏」入口，栏目地址为 `/games/`。
+《烽火破城》位于 `/games/fire-siege/`，使用独立页面显示完整战场，支持键盘、触屏、返回栏目和浏览器全屏。
+游戏脚本、样式和合成音效全部内嵌，不需要后端或额外服务；最高分保存在当前浏览器。
+
+更新游戏时，先在游戏项目运行 `npm run build`，再从本仓库执行：
+
+```sh
+node scripts/sync-fire-siege.mjs '/path/to/烽火破城.html'
+```
+
+同步脚本只给构建产物添加网站返回链接和全屏按钮。游戏预览图为 `assets/images/games/fire-siege.webp`；栏目介绍与按键说明在 `games/index.html`。

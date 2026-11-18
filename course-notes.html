@@ -1,56 +1,43 @@
 ---
 layout: default
 title: "课程笔记"
-description: "名校课程的系统学习笔记，按讲次整理，便于长期查阅与复习。"
+description: "按课程整理的中文学习笔记，在这里查找课程讲义与原始课程链接。"
 permalink: /course-notes/
 ---
-<section class="category-header">
-  <p class="eyebrow">COLUMN</p>
+<link rel="stylesheet" href="{{ '/assets/css/course-notes.css' | relative_url }}">
+
+<section class="category-header course-directory-header">
+  <p class="eyebrow">COURSE NOTES</p>
   <h1>{{ page.title }}</h1>
   <p class="intro">{{ page.description }}</p>
 </section>
 
-<section class="post-list" aria-label="课程讲义列表">
-  <article class="post-card course-card">
-    <p class="post-meta">CS2680 · 现代 AI 系统：智能体与系统优化 · 第 1 讲</p>
-    <h2><a href="{{ '/course-notes/cs2680-lecture-01/' | relative_url }}">课程导论（Overview）</a></h2>
-    <p>课程主线与整体脉络：从智能体循环到支撑它的服务栈，涵盖课程安排、智能体循环、记忆、核心工具、扩展机制、.claude 目录、MCP 深入与术语表。</p>
-    <a class="read-more" href="{{ '/course-notes/cs2680-lecture-01/' | relative_url }}">阅读讲义 →</a>
-  </article>
-  <article class="post-card course-card">
-    <p class="post-meta">CS2680 · 现代 AI 系统：智能体与系统优化 · 第 2 讲</p>
-    <h2><a href="{{ '/course-notes/cs2680-lecture-02/' | relative_url }}">从用户视角看智能体（一）：Claude Code 如何工作</a></h2>
-    <p>以 Claude Code 为案例拆解对话框背后的智能体循环：上下文收集、动作生成、工具执行，以及跨会话记忆与 Skill / MCP / Hook / Plugin 四类扩展机制。</p>
-    <a class="read-more" href="{{ '/course-notes/cs2680-lecture-02/' | relative_url }}">阅读讲义 →</a>
-  </article>
-  <article class="post-card course-card">
-    <p class="post-meta">CS2680 · 现代 AI 系统：智能体与系统优化 · 第 3 讲</p>
-    <h2><a href="{{ '/course-notes/cs2680-lecture-03/' | relative_url }}">从用户视角看智能体（二）：多智能体与最佳实践</a></h2>
-    <p>通过 Superpowers 与 Caveman 两个插件案例理解技能与钩子的设计，进而掌握并行智能体、子智能体、智能体团队与长时运行智能体，并理解编程 3.0 的不确定性本质与最佳实践。</p>
-    <a class="read-more" href="{{ '/course-notes/cs2680-lecture-03/' | relative_url }}">阅读讲义 →</a>
-  </article>
-  <article class="post-card course-card">
-    <p class="post-meta">CS2680 · 现代 AI 系统：智能体与系统优化 · 第 4 讲</p>
-    <h2><a href="{{ '/course-notes/cs2680-lecture-04/' | relative_url }}">智能体设计（一）：上下文管理与工具设计</a></h2>
-    <p>从 ReAct 循环讲起，系统比较搜索/编辑/执行等工具的设计取舍，并深入上下文工程：有限资源、长度与位置代价、准入/卸载/转换/压缩四法、上下文失效模式，以及「智能体 = 模型 × 外壳」。</p>
-    <a class="read-more" href="{{ '/course-notes/cs2680-lecture-04/' | relative_url }}">阅读讲义 →</a>
-  </article>
-  <article class="post-card course-card">
-    <p class="post-meta">CS2680 · 现代 AI 系统：智能体与系统优化 · 第 5 讲</p>
-    <h2><a href="{{ '/course-notes/cs2680-lecture-05/' | relative_url }}">智能体设计（二）：多智能体系统</a></h2>
-    <p>系统梳理八种多智能体架构（主管—工人、层级、流水线/DAG、黑板、委员会、市场、集群、动态拓扑）、任务分解的粒度与失效模式、通信的四个维度，以及 MCP 与 A2A 协议的定位与区别。</p>
-    <a class="read-more" href="{{ '/course-notes/cs2680-lecture-05/' | relative_url }}">阅读讲义 →</a>
-  </article>
-  <article class="post-card course-card">
-    <p class="post-meta">CS2680 · 现代 AI 系统：智能体与系统优化 · 第 6 讲</p>
-    <h2><a href="{{ '/course-notes/cs2680-lecture-06/' | relative_url }}">智能体设计（三）：记忆与可靠性</a></h2>
-    <p>围绕记忆设计七问（写/编码/存储/检索/泛化/遗忘/归属）搭建智能体记忆体系，并用「错误会复合」的量化视角剖析任务规格、外壳、模型、工具、环境五层失效模式与各自的修复策略。</p>
-    <a class="read-more" href="{{ '/course-notes/cs2680-lecture-06/' | relative_url }}">阅读讲义 →</a>
-  </article>
+<section class="course-directory" aria-labelledby="course-directory-title">
+  <div class="section-head">
+    <div>
+      <p class="section-kicker">EXPLORE COURSES</p>
+      <h2 id="course-directory-title">课程目录</h2>
+    </div>
+    <p class="course-directory-count">{{ site.data.courses | size }} 门课程</p>
+  </div>
+  <div class="course-directory-grid">
+    {% for course in site.data.courses %}
+    {% assign lesson_count = course.lessons | size %}
+    <article class="course-catalog-card course-theme-{{ course.id }}" aria-labelledby="course-{{ course.id }}-title">
+      <div class="course-card-topline">
+        <p class="course-code">{{ course.code | escape }}</p>
+        <span class="course-status{% if lesson_count == 0 %} course-status-pending{% endif %}">{% if lesson_count > 0 %}{{ lesson_count }} 篇笔记{% else %}笔记待更新{% endif %}</span>
+      </div>
+      <p class="course-school">{{ course.school | escape }}</p>
+      <h3 id="course-{{ course.id }}-title"><a href="{{ course.url | relative_url }}">{{ course.title | escape }}</a></h3>
+      <p class="course-english-title" lang="en">{{ course.english_title | escape }}</p>
+      <p class="course-description">{{ course.description | escape }}</p>
+      <div class="course-catalog-source">
+        <span>原始课程</span>
+        <a href="{{ course.source_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ course.code }} 课程官网（新窗口打开）">{{ course.source_domain }} <span aria-hidden="true">↗</span></a>
+      </div>
+      <a class="course-enter" href="{{ course.url | relative_url }}">{% if lesson_count > 0 %}查看课程笔记{% else %}查看课程{% endif %}<span aria-hidden="true">→</span></a>
+    </article>
+    {% endfor %}
+  </div>
 </section>
-
-<style>
-.course-card{padding:28px 0}
-.course-card h2{font-size:23px}
-.course-card .post-meta{color:var(--accent)}
-</style>

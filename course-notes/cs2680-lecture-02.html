@@ -4,7 +4,7 @@ title: "CS2680 第 2 讲 · 从用户视角看智能体（一）"
 permalink: /course-notes/cs2680-lecture-02/
 ---
 <section class="note-page">
-<a class="back-link" href="/course-notes/">← 返回课程笔记</a>
+<a class="back-link" href="{{ '/course-notes/cs2680/' | relative_url }}">← 返回 CS2680 课程目录</a>
 <div class="note-cover"><p class="kicker">CS2680 课程学习讲义</p><h1>CS2680 第 2 讲 · 从用户视角看智能体（一）</h1><p class="sub">Claude Code 如何工作 · 中文学习笔记</p></div>
 <div class="prose"><div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>课程</td><td>CS2680 Modern AI Systems: Agents and System Optimizations（现代 AI 系统：智能体与系统优化）</td></tr><tr class="alt"><td>主题</td><td>从用户视角看智能体（一）：Claude Code 的工作原理；记忆机制；工具 / Skills / Hooks / Plugins</td></tr><tr><td>授课教师</td><td>Juncheng Yang（杨俊成），哈佛 SEAS 助理教授</td></tr><tr class="alt"><td>课件来源</td><td>https://cs2680.seas.harvard.edu/slides/2_agent_use_1.pdf（共 53 页）</td></tr><tr><td>笔记说明</td><td>按主题提炼整理，非逐页直译；每节标注原始课件 PDF 页码，便于对照复核。</td></tr></tbody></table></div>
 <div class="callout"><span class="callout-label">本讲主线</span> 把 Claude Code 当成一个具体案例，讲清楚「在对话框里敲下一句 prompt 之后到底发生了什么」：一个由「收集上下文 → 生成动作 → 执行工具」构成的智能体循环（agentic loop），加上跨会话的记忆（memory），以及四种扩展机制（Skill / MCP / Hook / Plugin）。核心认知：一次用户输入 ≠ 一次模型请求，而是多轮推理与工具执行的交替链。</div>

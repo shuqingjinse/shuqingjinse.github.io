@@ -1,0 +1,45 @@
+# 课程目录与讲义索引；添加课程时，在此登记并创建对应的课程页面。
+- id: cs2680
+  code: "CS2680"
+  school: "Harvard University · 哈佛大学"
+  title: "现代 AI 系统：智能体与系统优化"
+  english_title: "Modern AI Systems: Agents and System Optimizations"
+  description: "从智能体的使用、设计与评估，逐步深入大模型服务与系统优化。"
+  url: "/course-notes/cs2680/"
+  source_url: "https://cs2680.seas.harvard.edu/"
+  source_domain: "cs2680.seas.harvard.edu"
+  lessons:
+    - number: 1
+      title: "课程导论（Overview）"
+      url: "/course-notes/cs2680-lecture-01/"
+      description: "课程主线与整体脉络：从智能体循环到支撑它的服务栈，涵盖课程安排、智能体循环、记忆、核心工具、扩展机制、.claude 目录、MCP 深入与术语表。"
+    - number: 2
+      title: "从用户视角看智能体（一）：Claude Code 如何工作"
+      url: "/course-notes/cs2680-lecture-02/"
+      description: "以 Claude Code 为案例拆解对话框背后的智能体循环：上下文收集、动作生成、工具执行，以及跨会话记忆与 Skill / MCP / Hook / Plugin 四类扩展机制。"
+    - number: 3
+      title: "从用户视角看智能体（二）：多智能体与最佳实践"
+      url: "/course-notes/cs2680-lecture-03/"
+      description: "通过 Superpowers 与 Caveman 两个插件案例理解技能与钩子的设计，进而掌握并行智能体、子智能体、智能体团队与长时运行智能体，并理解编程 3.0 的不确定性本质与最佳实践。"
+    - number: 4
+      title: "智能体设计（一）：上下文管理与工具设计"
+      url: "/course-notes/cs2680-lecture-04/"
+      description: "从 ReAct 循环讲起，系统比较搜索/编辑/执行等工具的设计取舍，并深入上下文工程：有限资源、长度与位置代价、准入/卸载/转换/压缩四法、上下文失效模式，以及「智能体 = 模型 × 外壳」。"
+    - number: 5
+      title: "智能体设计（二）：多智能体系统"
+      url: "/course-notes/cs2680-lecture-05/"
+      description: "系统梳理八种多智能体架构（主管—工人、层级、流水线/DAG、黑板、委员会、市场、集群、动态拓扑）、任务分解的粒度与失效模式、通信的四个维度，以及 MCP 与 A2A 协议的定位与区别。"
+    - number: 6
+      title: "智能体设计（三）：记忆与可靠性"
+      url: "/course-notes/cs2680-lecture-06/"
+      description: "围绕记忆设计七问（写/编码/存储/检索/泛化/遗忘/归属）搭建智能体记忆体系，并用「错误会复合」的量化视角剖析任务规格、外壳、模型、工具、环境五层失效模式与各自的修复策略。"
+- id: cs146s
+  code: "CS146S"
+  school: "Stanford University · 斯坦福大学"
+  title: "现代软件开发者"
+  english_title: "The Modern Software Developer"
+  description: "围绕 AI 辅助开发、编码智能体与现代软件工程，学习从需求到交付的实践方法。"
+  url: "/course-notes/cs146s/"
+  source_url: "https://themodernsoftware.dev/"
+  source_domain: "themodernsoftware.dev"
+  lessons: []

@@ -27,6 +27,26 @@ tags: [实践]
 
 文章支持标准 Markdown、代码块、表格和 MathJax 公式。提交后 GitHub Pages 会自动构建。
 
+## 课程笔记
+
+`/course-notes/` 按课程展示入口，每门课有独立的讲义目录与课程官网链接。课程信息及讲义索引统一维护在 `_data/courses.yml`，由 `_layouts/course.html` 渲染课程页。
+
+- CS2680：`/course-notes/cs2680/`，现有 6 篇笔记，讲义原地址保持可用。
+- CS146S：`/course-notes/cs146s/`，The Modern Software Developer，暂无笔记时显示「笔记待更新」。
+
+新增课程时，先在 `_data/courses.yml` 添加课程信息（`id`、`code`、`school`、`title`、`english_title`、`description`、`url`、`source_url`、`source_domain`、`lessons`），再创建课程页面，例如：
+
+```yaml
+---
+layout: course
+title: "CS146S · 现代软件开发者"
+permalink: /course-notes/cs146s/
+course_id: cs146s
+---
+```
+
+新增讲义时，在课程的 `lessons` 中登记 `number`、`title`、`url`、`description`，并添加对应正文页面；笔记数量会自动更新。尚无讲义的课程使用 `lessons: []`。
+
 ## 小游戏栏目
 
 首页「探索内容」与主导航提供「小游戏」入口，栏目地址为 `/games/`。

@@ -5,6 +5,8 @@
 .course-catalog-card,.course-module{--course-accent:#4960b5;--course-soft:#eef2ff;--course-border:#cbd5f3}
 .course-theme-cs2680{--course-accent:#4960b5;--course-soft:#eef2ff;--course-border:#cbd5f3}
 .course-theme-cs146s{--course-accent:#267769;--course-soft:#eaf6f1;--course-border:#bdded0}
+.course-theme-post-training{--course-accent:#986125;--course-soft:#fcf4e8;--course-border:#e8cda6}
+.course-overview{padding:12px 0 0;font-size:15px}
 .course-catalog-card{display:flex;flex-direction:column;min-width:0;padding:30px;border:1px solid var(--line);border-top:3px solid var(--course-border);border-radius:14px;background:var(--surface);box-shadow:0 3px 16px rgba(28,38,70,.025)}
 .course-card-topline{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .course-code{margin:0;color:var(--course-accent);font:700 16px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.5px}

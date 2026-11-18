@@ -1,0 +1,36 @@
+---
+layout: default
+---
+{% assign course = site.data.courses | where: 'id', page.course_id | first %}
+{% assign previous_number = page.lecture | minus: 1 %}
+{% assign next_number = page.lecture | plus: 1 %}
+{% assign previous_lesson = course.lessons | where: 'number', previous_number | first %}
+{% assign next_lesson = course.lessons | where: 'number', next_number | first %}
+<link rel="stylesheet" href="{{ '/assets/css/course-notes.css' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/css/post-training-notes.css' | relative_url }}">
+<article class="pt-note course-theme-{{ course.id }}">
+  <nav class="course-breadcrumb" aria-label="课程导航">
+    <a href="{{ '/course-notes/' | relative_url }}">全部课程</a><span aria-hidden="true">/</span>
+    <a href="{{ course.url | relative_url }}">{{ course.title }}</a><span aria-hidden="true">/</span>
+    <span aria-current="page">第 {{ page.lecture }} 讲</span>
+  </nav>
+  <header class="pt-cover">
+    <p class="pt-kicker">POST-TRAINING OF LLMS · {{ page.lecture }} / {{ course.lessons | size }}</p>
+    <h1>{{ page.title | escape }}</h1>
+    <p class="pt-description">{{ page.description | escape }}</p>
+    <p class="pt-meta">中文学习笔记 · 主讲 Banghua Zhu（朱邦华）</p>
+  </header>
+  <aside class="pt-context" aria-label="本讲范围">
+    <p><strong>对应原课：</strong>{{ page.original_lessons | escape }}</p>
+    <p><strong>阅读提示：</strong>{{ page.source_note | escape }}</p>
+  </aside>
+  <nav class="pt-toc" aria-label="本讲目录">
+    <p>本讲目录</p>
+    <ol>{% for section in page.sections %}<li><a href="#{{ section.id }}">{{ section.title | escape }}</a></li>{% endfor %}</ol>
+  </nav>
+  <div class="prose pt-prose">{{ content }}</div>
+  <nav class="pt-pagination" aria-label="讲义翻页">
+    {% if previous_lesson %}<a href="{{ previous_lesson.url | relative_url }}"><span>← 上一讲</span>{{ previous_lesson.title }}</a>{% endif %}
+    {% if next_lesson %}<a href="{{ next_lesson.url | relative_url }}"><span>下一讲 →</span>{{ next_lesson.title }}</a>{% else %}<a href="{{ course.url | relative_url }}"><span>全课完成</span>返回课程目录 →</a>{% endif %}
+  </nav>
+</article>

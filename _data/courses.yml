@@ -1,4 +1,42 @@
 # 课程目录与讲义索引；添加课程时，在此登记并创建对应的课程页面。
+- id: post-training
+  code: "LLM POST-TRAINING"
+  school: "DeepLearning.AI · University of Washington · NexusFlow"
+  title: "大语言模型的后训练"
+  english_title: "Post-training of LLMs"
+  description: "7 讲完整中文笔记：从监督微调 SFT、偏好优化 DPO 到 PPO / GRPO，串起原理、数据、训练代码与评估方法。"
+  url: "/course-notes/post-training/"
+  source_url: "https://learn.deeplearning.ai/courses/post-training-of-llms/lesson/n25bz/introduction"
+  source_domain: "learn.deeplearning.ai"
+  lessons:
+    - number: 1
+      title: "后训练全景：从文本续写器到助手"
+      url: "/course-notes/post-training-lecture-01/"
+      description: "预训练与后训练的分工；SFT、DPO、在线 RL 的监督信号；如何在提示词、RAG 与参数训练之间做选择。"
+    - number: 2
+      title: "SFT 原理：示范数据、损失函数与 LoRA"
+      url: "/course-notes/post-training-lecture-02/"
+      description: "拆解条件概率、teacher forcing、回答区域的 loss mask、聊天模板与数据质量，并用矩阵维度理解 LoRA。"
+    - number: 3
+      title: "SFT 实践：搭建指令微调流水线"
+      url: "/course-notes/post-training-lecture-03/"
+      description: "整合已有 SFT 实践讲义，核对讲师数据和 checkpoint；从加载模型、整理数据到 SFTTrainer、保存与训练前后评估。"
+    - number: 4
+      title: "DPO 原理：从偏好对到直接优化"
+      url: "/course-notes/post-training-lecture-04/"
+      description: "从 KL 正则目标与 Bradley–Terry 模型推导 DPO；理解 reference、beta、相对概率和离线数据的局限。"
+    - number: 5
+      title: "DPO 实践：让助手学会新的自称"
+      url: "/course-notes/post-training-lecture-05/"
+      description: "查看真实 chosen / rejected 数据，以 Qwen → Deep Qwen 为例讲清偏好构造、DPOTrainer、指标与泛化检查。"
+    - number: 6
+      title: "在线 RL 原理：奖励、PPO 与 GRPO"
+      url: "/course-notes/post-training-lecture-06/"
+      description: "沿着采样—评分—更新理解策略梯度；区分旧策略与参考策略，推导 PPO 裁剪目标与 GRPO 组内优势。"
+    - number: 7
+      title: "GRPO 实践与全课复习：让数学答案可验证"
+      url: "/course-notes/post-training-lecture-07/"
+      description: "构建可验证奖励和最小 GRPO 流程，排查零优势、奖励投机与长度问题；附三种方法选型表、术语速查及自测答案。"
 - id: cs2680
   code: "CS2680"
   school: "Harvard University · 哈佛大学"

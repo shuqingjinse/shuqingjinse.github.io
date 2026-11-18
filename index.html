@@ -21,25 +21,29 @@ layout: default
         <a class="column-card column-learn" href="{{ '/course-notes/' | relative_url }}">
           <span class="column-topline"><span class="column-index">01 / LEARN</span><span class="column-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 5.5c3-1.5 6-1.5 9 .5 3-2 6-2 9-.5v14c-3-1.5-6-1.5-9 .5-3-2-6-2-9-.5z"/><path d="M12 6v14M6 9h3M6 12h3M15 9h3M15 12h3"/></svg></span></span>
           <h2>课程笔记</h2>
-          <p>名校课程的系统学习笔记。已收录 CS2680《现代 AI 系统》中文讲义。</p>
+          <p>哈佛 CS2680、斯坦福 CS146S：AI 系统与现代软件开发的中文学习笔记。</p>
+          <span class="column-mobile-copy">AI 系统与软件开发</span>
           <span class="column-link">进入栏目 <span aria-hidden="true">↗</span></span>
         </a>
         <a class="column-card column-think" href="{{ '/personal-summary/' | relative_url }}">
           <span class="column-topline"><span class="column-index">02 / THINK</span><span class="column-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 3a6 6 0 0 0-4 10.5c1 1 1.5 1.8 1.5 3.5h5c0-1.7.5-2.5 1.5-3.5A6 6 0 0 0 12 3Z"/><path d="M9.5 20h5M11 23h2M12 7v4M10 9h4"/></svg></span></span>
           <h2>个人总结</h2>
           <p>技术文章与学习复盘：LLM 基础、模型训练、前沿调研与日常思考。</p>
+          <span class="column-mobile-copy">技术文章与学习复盘</span>
           <span class="column-link">进入栏目 <span aria-hidden="true">↗</span></span>
         </a>
         <a class="column-card column-practice" href="{{ '/llm-interview/' | relative_url }}">
           <span class="column-topline"><span class="column-index">03 / PRACTICE</span><span class="column-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="6" y="3" width="15" height="16" rx="2"/><path d="M17 22H5a2 2 0 0 1-2-2V7M10 10l2.5 2.5L17 8M10 16h6"/></svg></span></span>
           <h2>面试经验</h2>
           <p>大模型后训练高频面经，交互式闪卡与自测，让知识真正记得住。</p>
+          <span class="column-mobile-copy">后训练面经与闪卡自测</span>
           <span class="column-link">进入栏目 <span aria-hidden="true">↗</span></span>
         </a>
         <a class="column-card column-play" href="{{ '/games/' | relative_url }}">
           <span class="column-topline"><span class="column-index">04 / PLAY</span><span class="column-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M7 7h10c2 0 3 1.3 3.5 3.5l1 6c.4 2.5-1.5 3.5-3 2L15 15H9l-3.5 3.5c-1.5 1.5-3.4.5-3-2l1-6C4 8.3 5 7 7 7Z"/><path d="M7 9v5M4.5 11.5h5M15.5 10.5h.01M18 13h.01"/></svg></span></span>
           <h2>小游戏</h2>
           <p>阅读之外，玩一局《烽火破城》。召唤四军，指挥百人攻城战，破门夺旗。</p>
+          <span class="column-mobile-copy">烽火破城 · 电脑与手机</span>
           <span class="column-link">开始探索 <span aria-hidden="true">↗</span></span>
         </a>
       </div>
@@ -48,19 +52,30 @@ layout: default
 
   <aside id="personal-notes" class="home-recent" aria-labelledby="latest-title">
     <div class="section-head">
-      <div><p class="section-kicker">LATEST WRITING</p><h2 id="latest-title">最近文章</h2></div>
+      <div><p class="section-kicker">LATEST UPDATES</p><h2 id="latest-title">最近更新</h2></div>
     </div>
     <ol class="recent-posts">
-      {% for post in site.posts limit:5 %}
+      {% assign updates = site.posts | concat: site.data.updates | sort: 'date' | reverse %}
+      {% for update in updates limit:6 %}
       <li>
         <article>
-          <time datetime="{{ post.date | date: '%Y-%m-%d' }}">{{ post.date | date: "%Y-%m-%d" }}</time>
-          <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
-          {% if post.categories.size > 0 %}<p class="recent-category">{{ post.categories | join: " / " }}</p>{% endif %}
+          <div class="update-meta"><span class="update-label update-{{ update.kind | default: 'think' }}">{{ update.label | default: '文章' }}</span><time datetime="{{ update.date | date: '%Y-%m-%d' }}">{{ update.date | date: "%Y-%m-%d" }}</time></div>
+          <h3><a href="{{ update.url | relative_url }}">{{ update.title }}</a></h3>
         </article>
       </li>
       {% endfor %}
     </ol>
-    <a class="recent-more" href="{{ '/personal-summary/' | relative_url }}">查看全部文章 <span aria-hidden="true">→</span></a>
+    <a class="recent-more" href="{{ '/personal-summary/' | relative_url }}">浏览文章归档 <span aria-hidden="true">→</span></a>
   </aside>
+
+  {% assign featured = site.posts | where: 'featured', true | first %}
+  {% if featured %}
+  <section class="home-featured" aria-labelledby="featured-title">
+    <div class="section-head"><div><p class="section-kicker">PICKED FOR YOU</p><h2 id="featured-title">推荐阅读</h2></div></div>
+    <a class="featured-reading" href="{{ featured.url | relative_url }}">
+      <span class="featured-reading-art" aria-hidden="true"><span>REWARD</span><i>↓</i><span>GAE</span><i>↓</i><span>PPO CLIP</span></span>
+      <div class="featured-reading-copy"><span class="featured-reading-tag">图解 · 交互实验室</span><h3>{{ featured.title }}</h3><p>{{ featured.description }}</p><span class="column-link">从一个算例理解 PPO <span aria-hidden="true">↗</span></span></div>
+    </a>
+  </section>
+  {% endif %}
 </div>

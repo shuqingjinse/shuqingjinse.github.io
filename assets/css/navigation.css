@@ -10,3 +10,27 @@
 .site-header a:focus-visible{outline:3px solid #a5afff;outline-offset:4px;border-radius:3px}
 @media(max-width:760px){.site-nav-shell{width:calc(100% - 36px);padding:15px 0;align-items:flex-start;flex-direction:column;gap:10px}.site-main-nav{gap:8px 14px;justify-content:flex-start}.site-main-nav a{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.site-header a{transition:none}}
+
+/* Keep the same column identity in the shared navigation. */
+.site-main-nav [data-nav-section=learn]{--nav-accent:#4960b5;--nav-soft:#eef2ff}
+.site-main-nav [data-nav-section=think]{--nav-accent:#267769;--nav-soft:#eaf6f1}
+.site-main-nav [data-nav-section=practice]{--nav-accent:#916323;--nav-soft:#fcf4e4}
+.site-main-nav [data-nav-section=play]{--nav-accent:#8761aa;--nav-soft:#f5effa}
+.site-main-nav a[aria-current=page]{color:var(--nav-accent,#4859d6)}
+.site-nav-more{display:none;position:relative}
+.site-nav-more summary{cursor:pointer;list-style:none;color:#626d7d;font-size:12px;font-weight:550}
+.site-nav-more summary::-webkit-details-marker{display:none}
+.site-nav-more summary:focus-visible{outline:3px solid #a5afff;outline-offset:-3px;border-radius:6px}
+.site-more-links{position:absolute;right:0;top:calc(100% + 6px);z-index:50;min-width:160px;padding:6px;background:#fff;border:1px solid #e7eaf0;border-radius:10px;box-shadow:0 12px 30px #17203314}
+.site-more-links a{display:flex;align-items:center;min-height:44px;padding:8px 12px;font-size:13px;border-radius:6px}
+.site-more-links a:hover{background:#f3f5fa}
+@media(max-width:760px){
+  .site-nav-shell{gap:5px;padding:12px 0 4px}
+  .site-main-nav{width:100%;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;align-items:stretch}
+  .site-main-nav>a,.site-nav-more summary{display:flex;align-items:center;justify-content:center;min-height:44px;font-size:11px;line-height:1.4;border-radius:7px}
+  .site-main-nav .site-nav-secondary{display:none}
+  .site-main-nav>a[aria-current=page]{background:var(--nav-soft,#eef2ff)}
+  .site-nav-more{display:block}
+  .site-nav-more[open] summary,.site-nav-more .is-current{color:#4859d6;background:#eef2ff}
+  .site-nav-more summary span{margin-left:3px}
+}

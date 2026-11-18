@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "你好，世界"
-description: "个人知识库正式开始。"
+description: "这个知识库的起点：记录学习过程、实践经验，以及值得反复回看的问题与答案。"
 categories: [个人杂谈]
 tags: [博客, Markdown]
 permalink: /随笔/2026/09/16/hello-world/

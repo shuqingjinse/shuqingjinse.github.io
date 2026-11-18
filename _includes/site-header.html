@@ -3,12 +3,20 @@
     <a class="site-brand" href="{{ '/' | relative_url }}" aria-label="Straight 首页">Straight<span>.</span></a>
     <nav class="site-main-nav" aria-label="主导航">
       <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>首页</a>
-      <a href="{{ '/course-notes/' | relative_url }}"{% if page.url contains '/course-notes/' %} aria-current="page"{% endif %}>课程笔记</a>
-      <a href="{{ '/personal-summary/' | relative_url }}"{% if page.url == '/personal-summary/' %} aria-current="page"{% endif %}>个人总结</a>
-      <a href="{{ '/llm-interview/' | relative_url }}"{% if page.url contains '/llm-interview/' %} aria-current="page"{% endif %}>面试经验</a>
-      <a href="{{ '/games/' | relative_url }}"{% if page.section == 'games' %} aria-current="page"{% endif %}>小游戏</a>
-      <a href="{{ '/about/' | relative_url }}"{% if page.url == '/about/' %} aria-current="page"{% endif %}>关于</a>
-      <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+      <a data-nav-section="learn" href="{{ '/course-notes/' | relative_url }}"{% if page.url contains '/course-notes/' %} aria-current="page"{% endif %}>课程笔记</a>
+      <a data-nav-section="think" href="{{ '/personal-summary/' | relative_url }}"{% if page.url == '/personal-summary/' or page.path contains '_posts/' or page.layout == 'category' %} aria-current="page"{% endif %}>个人总结</a>
+      <a data-nav-section="practice" href="{{ '/llm-interview/' | relative_url }}"{% if page.url contains '/llm-interview/' %} aria-current="page"{% endif %}>面试经验</a>
+      <a data-nav-section="play" href="{{ '/games/' | relative_url }}"{% if page.section == 'games' %} aria-current="page"{% endif %}>小游戏</a>
+      <a class="site-nav-secondary" href="{{ '/about/' | relative_url }}"{% if page.url == '/about/' %} aria-current="page"{% endif %}>关于</a>
+      <a class="site-nav-secondary" href="{{ '/feed.xml' | relative_url }}">RSS</a>
+      <details class="site-nav-more">
+        <summary{% if page.url == '/about/' %} class="is-current"{% endif %}>更多 <span aria-hidden="true">⌄</span></summary>
+        <div class="site-more-links">
+          <a href="{{ '/about/' | relative_url }}"{% if page.url == '/about/' %} aria-current="page"{% endif %}>关于 Straight</a>
+          <a href="{{ '/feed.xml' | relative_url }}">RSS 订阅</a>
+        </div>
+      </details>
     </nav>
   </div>
 </header>
+<script src="{{ '/assets/js/navigation.js' | relative_url }}" defer></script>

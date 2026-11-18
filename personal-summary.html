@@ -11,6 +11,6 @@ permalink: /personal-summary/
 </section>
 <section class="post-list" aria-label="全部文章">
 {% for post in site.posts %}
-  <article class="post-card"><p class="post-meta">{{ post.date | date: "%Y-%m-%d" }}{% if post.categories %} · {{ post.categories | join: " / " }}{% endif %}</p><h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2><p>{{ post.excerpt | strip_html | truncate: 180 }}</p><a class="read-more" href="{{ post.url | relative_url }}">阅读全文 →</a></article>
+  {% include post-card.html %}
 {% endfor %}
 </section>

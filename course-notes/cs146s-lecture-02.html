@@ -1,0 +1,91 @@
+---
+layout: default
+title: "CS146S 第 2 讲 · 高效提示工程"
+permalink: /course-notes/cs146s-lecture-02/
+---
+<section class="note-page">
+<a class="back-link" href="{{ '/course-notes/cs146s/' | relative_url }}">← 返回 CS146S 课程目录</a>
+<div class="note-cover"><p class="kicker">CS146S 课程学习讲义</p><h1>CS146S 第 2 讲 · 高效提示工程</h1><p class="sub">LLM Power Prompting · 中文学习笔记</p></div>
+<div class="prose">
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody><tr><td>课程</td><td>CS146S The Modern Software Developer（现代软件开发者），Stanford University，Fall 2025</td></tr><tr class="alt"><td>讲题</td><td>LLM Power Prompting（大语言模型高效提示）</td></tr><tr><td>授课教师</td><td>Mihail Eric（斯坦福）</td></tr><tr class="alt"><td>课件来源</td><td>https://themodernsoftware.dev/ （课程主页；本讲为其 Google Slides，共 31 页）</td></tr><tr><td>笔记说明</td><td>按主题提炼整理，非逐页直译；每节标注原始课件页码，便于对照复核。</td></tr></tbody></table></div>
+<div class="callout"><span class="callout-label">本讲主线</span> 提示词既是让 LLM 做事的通用语言，也是给它编程的方式。本讲指出提示「既是艺术也是科学」——黑箱性质带来一些「魔法」，但存在一批被实证验证的技术：零样本 → K-shot（上下文学习）→ 思维链（多样本/零样本）→ 自洽性（多次采样投票，模型集成）→ 工具使用（最重要的降幻觉/赋能自主性手段之一）→ RAG（注入上下文、自带引用与可解释性）→ Reflexion（让模型反思并修正输出）。最后给出三条最佳实践：结构化格式、明确具体、大胆使用角色提示。</div>
+<h2 class="sec-h1"><span class="sec-num">1</span> 提示词背景</h2>
+<p class="">提示词（Prompts）是让 LLM 按我们意愿行动的通用语言（lingua franca），也是有效地「给它们编程」的方式。（图示致谢 Andrej Karpathy）</p>
+<div class="callout"><span class="callout-label">一个类比</span> 想一想我们是如何改变与搜索引擎交互方式的——从简单关键词到结构化的表达，提示词与模型的交互方式也在演进。</div>
+<ul class=""><li>提示既是艺术也是科学（both an art and a science）。</li><li>LLM 的黑箱性质，让「与 LLM 低语」（LLM-whispering）带有一些魔法色彩。</li><li>但确有一批被实证验证、能提升 LLM 表现的技术。</li></ul>
+<p class="src">【来源：原始课件 第 3–5 页】</p>
+<h2 class="sec-h1"><span class="sec-num">2</span> 基础提示技术</h2>
+<h3 class="sec-h2">2.1  零样本提示（Zero-shot）</h3>
+<ul class=""><li>直接让 LLM 做一件事：没有额外支撑、没有示例。</li><li>示例：「写一个 Rust 的 for 循环，遍历字符串列表，只打印偶数索引处的值。」</li></ul>
+<p class="src">【来源：原始课件 第 6 页】</p>
+<h3 class="sec-h2">2.2  K-shot 提示 / 上下文学习</h3>
+<ul class=""><li>让 LLM 做事，同时给它若干「怎么做」的示例；有时称为上下文学习（in-context learning）。</li><li>k 常取 1、3、5（有实证结果支持这些数字）。</li><li>最适合推理步骤不多的任务。</li></ul>
+<div class="table-wrap"><table><thead><tr><th>原始提示</th><th>K-shot 提示</th></tr></thead><tbody><tr><td>写一个遍历字符串列表的 for 循环，使用我们仓库里的命名约定。</td><td>写一个遍历字符串列表的 for 循环，使用我们仓库里的命名约定。以下是我们通常如何格式化变量名的示例：&lt;example&gt;var StRaRrAy = [&#x27;cat&#x27;,&#x27;dog&#x27;,&#x27;wombat&#x27;]&lt;/example&gt; &lt;example&gt;def func CaPiTaLiZeStR = () =&gt; {}&lt;/example&gt;</td></tr></tbody></table></div>
+<p class="src">【来源：原始课件 第 7–8 页】</p>
+<h2 class="sec-h1"><span class="sec-num">3</span> 思维链（Chain-of-Thought, CoT）</h2>
+<ul class=""><li>为给定任务展示推理步骤。</li><li><strong>多样本 CoT（Multi-shot）：</strong>写出推理轨迹作为示例。</li><li><strong>零样本 CoT（Zero-shot）：</strong>「Let&#x27;s think step-by-step（让我们一步步思考）」。</li><li>用显式的 &lt;reasoning&gt; 标签要求推理。</li><li>最适合有多个逻辑步骤的任务：编程、数学。</li></ul>
+<p class="src">【来源：原始课件 第 9 页】</p>
+<h3 class="sec-h2">3.1  多样本 CoT 示例</h3>
+<p class="">任务：「写一个函数判断一个数是否既是完全立方数又是完全平方数。」提示中加入「先提供你的推理」，并附上推理示例：&lt;example&gt;写函数找列表最大元素。步骤：用第一个元素初始化变量，遍历列表并比较……&lt;/example&gt;；&lt;example&gt;写函数判断回文数。步骤：取数字、反转各位、比较……&lt;/example&gt;</p>
+<p class="src">【来源：原始课件 第 10 页】</p>
+<h3 class="sec-h2">3.2  零样本 CoT 示例</h3>
+<p class="">任务：「写一个函数求数组的最长递增子序列。」提示进阶为：「写代码前先一步步思考子问题，并在回答中包含你所考虑的子数组的演算示例。」</p>
+<p class="src">【来源：原始课件 第 11 页】</p>
+<h2 class="sec-h1"><span class="sec-num">4</span> 自洽性（Self-consistency）</h2>
+<ul class=""><li>对输出多次采样（通常配合 CoT），聚合最常见的结果。</li><li>通过采样多样的推理路径形成一种「模型集成」（model ensembling），减少幻觉与错误答案。</li></ul>
+<p class="">示例：对「这个报错的根本原因是什么」（IndexError: list index out of range）把同一提示运行 5 次，然后取多数结果。</p>
+<p class="src">【来源：原始课件 第 12–13 页】</p>
+<h2 class="sec-h1"><span class="sec-num">5</span> 进阶技术</h2>
+<h3 class="sec-h2">5.1  工具使用（Tool Use）</h3>
+<ul class=""><li>让 LLM 得以「推迟」到它需要交互的外部系统。</li><li>是减少幻觉、让 LLM 具备自主性的最重要技术之一。</li></ul>
+<p class="">示例：修复 IndexError 后，要求「确保 CI 测试仍然通过」，并给出可用工具：&lt;tools&gt; pytest -s /path/to/unit_tests；pytest -v /path/to/integration_tests &lt;/tools&gt;。</p>
+<p class="src">【来源：原始课件 第 14–15 页】</p>
+<h3 class="sec-h2">5.2  检索增强生成（RAG）</h3>
+<ul class=""><li>为 LLM 注入上下文数据。</li><li>让 LLM 保持最新（无需重新训练）→ 迭代更快。</li><li>免费获得可解释性与引用（citations）。</li><li>减少幻觉。</li></ul>
+<p class="">示例：扩展 UserAuthService 以校验客户端是否提供有效 OAuth token——提示中附上当前 UserAuthService 的代码片段 &lt;code_snippet&gt;，以及 requests-oauthlib 文档路径 &lt;url&gt;。</p>
+<p class="src">【来源：原始课件 第 16–17 页】</p>
+<h3 class="sec-h2">5.3  Reflexion（反思）</h3>
+<ul class=""><li>让 LLM 反思自己的输出。</li><li>把来自环境信号的口头反馈（verbal feedback）通过增补上下文重新注入 LLM。</li><li>在环境中采取行动并得到观察后，追加一个提示后缀：「现在批判性地审视你的答案。它正确吗？如果不对，解释原因并重试。」</li><li><strong>多轮提示：</strong>第 1 轮模型给出初次尝试；第 2 轮你问「那样对吗？如有必要请反思并修改」。</li></ul>
+<p class="">示例（company_location 列需同时支持字符串与 JSON）：单测抛出 JSONDecodeError → 观察（observe）→ 反思「必须确保输入字符串时不抛错」→ 扩展提示（extend prompt）后再改。</p>
+<p class="src">【来源：原始课件 第 18–19 页】</p>
+<h2 class="sec-h1"><span class="sec-num">6</span> 补充术语：三类消息</h2>
+<div class="table-wrap"><table><thead><tr><th>消息类型</th><th>说明</th></tr></thead><tbody><tr><td>System prompt 系统提示</td><td>提供给 LLM 的第一条消息（终端用户通常看不到）；设定人设、关于 LLM 输出的规则、风格</td></tr><tr class="alt"><td>User prompt 用户提示</td><td>来自人的真实请求或指令；目前为止的例子基本都是这一类</td></tr><tr><td>Assistant 助手消息</td><td>LLM 实际生成的内容</td></tr></tbody></table></div>
+<p class="i">图示自上而下为三个色块：System prompt（橙）、User prompt（蓝）、Assistant prompt（粉）。</p>
+<p class="src">【来源：原始课件 第 20–24 页】</p>
+<h2 class="sec-h1"><span class="sec-num">7</span> 最佳实践</h2>
+<ul class=""><li><strong>提示改进工具：</strong>Anthropic 的 prompt improver（docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prompt-improver）。</li><li><strong>清晰表达：</strong>把提示给一个了解很少的人，如果他都困惑，LLM 也会困惑。</li><li><strong>大胆使用角色提示：</strong>让系统提示更强大。示例：「你是一个热爱编程的助手，具备高级软件开发者的水平，回答非常细致且讲究细节」；对比「你是个 Gen Z 数字闺蜜，说话像凌晨两点在 Snapchat 上发消息」——角色决定输出风格。</li><li><strong>提示要有结构化格式：</strong>用标签包裹数据，例如 &lt;log&gt;日志消息&lt;/log&gt; 与 &lt;error&gt;栈追踪&lt;/error&gt;。</li><li><strong>明确说明你要什么：</strong>语言、技术栈、库、约束。</li><li><strong>拆解任务：</strong>把大任务分解为小任务。</li></ul>
+<p class="src">【来源：原始课件 第 25–30 页】</p>
+<h2 class="sec-h1"><span class="sec-num">8</span> 附录：核心术语对照表</h2>
+<div class="table-wrap"><table><thead><tr><th>英文</th><th>中文</th><th>说明</th></tr></thead><tbody><tr><td>Prompting</td><td>提示</td><td>让 LLM 做事的通用语言，也是给它编程的方式</td></tr><tr class="alt"><td>Zero-shot prompting</td><td>零样本提示</td><td>只给指令，不给示例</td></tr><tr><td>K-shot / In-context learning</td><td>K 样本 / 上下文学习</td><td>给出若干示例，让模型从上下文中学习模式</td></tr><tr class="alt"><td>Chain-of-Thought (CoT)</td><td>思维链</td><td>显式展示推理步骤；分多样本与零样本</td></tr><tr><td>Self-consistency</td><td>自洽性</td><td>多次采样后取多数结果，模型集成降幻觉</td></tr><tr class="alt"><td>Tool use</td><td>工具使用</td><td>让 LLM 调用外部系统，减少幻觉并赋能自主性</td></tr><tr><td>RAG (Retrieval Augmented Generation)</td><td>检索增强生成</td><td>注入上下文数据，保持最新、自带引用、减少幻觉</td></tr><tr class="alt"><td>Reflexion</td><td>反思</td><td>把环境反馈重新注入上下文，让模型批判并修正输出</td></tr><tr><td>System / User / Assistant prompt</td><td>系统/用户/助手消息</td><td>三类消息角色：规则人设 / 真实请求 / 模型生成</td></tr><tr class="alt"><td>Role prompting</td><td>角色提示</td><td>通过设定人设显著改变输出风格与质量</td></tr></tbody></table></div>
+<p class="i">— 本讲义由原始课件（themodernsoftware.dev 课程主页所列的 Google Slides，共 31 页）翻译整理；页码标注对应课件 PDF 页码，供对照复核。—</p>
+</div>
+</section>
+<style>
+:root{--bg:#f7f8fa;--text:#17202a;--muted:#697586;--line:#e4e8ee;--accent:#1769aa;--code:#f1f4f7}
+.note-page{max-width:860px;margin:0 auto;padding:0 0 40px}
+.back-link{display:inline-block;margin:26px 0 8px;font-size:14px;color:var(--accent)}
+.note-cover{padding:28px 0 30px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.note-cover .kicker{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:2px}
+.note-cover h1{font-size:clamp(28px,5vw,40px);line-height:1.3;margin:10px 0 6px}
+.note-cover .sub{color:var(--muted);font-size:17px}
+.note-page p{margin:0 0 12px}
+.note-page .b{font-weight:700}
+.note-page .i{font-style:italic;color:var(--muted)}
+.note-page h2.sec-h1{font-size:23px;line-height:1.35;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);color:#1b2a4a}
+.note-page .sec-num{color:#b01e3c;margin-right:6px}
+.note-page h3.sec-h2{font-size:18px;margin:24px 0 10px;color:#2e5c8a}
+.note-page ul{margin:0 0 14px;padding-left:24px}
+.note-page li{margin:5px 0;line-height:1.75}
+.note-page ul.sub{padding-left:44px;list-style:circle}
+.note-page .src{font-size:12.5px;color:var(--muted);font-style:italic;margin:4px 0 12px}
+.note-page .callout{border-left:4px solid #c8a24a;background:#fbf3e4;color:#4a3f22;padding:12px 16px;margin:16px 0;border-radius:0 6px 6px 0;line-height:1.75}
+.note-page .callout-label{font-weight:700;color:#a8801f}
+.table-wrap{overflow-x:auto;margin:16px 0}
+.note-page table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}
+.note-page th,.note-page td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;line-height:1.6}
+.note-page thead th{background:#1b2a4a;color:#fff;font-weight:600;white-space:nowrap}
+.note-page tbody tr.alt{background:#f2f5f9}
+.note-page tbody tr.hl{background:#f7e9ec}
+.note-page tbody tr.hl td{font-weight:600;color:#b01e3c}
+@media(max-width:700px){.note-page h2.sec-h1{font-size:20px}.note-page p{font-size:15px}}
+</style>

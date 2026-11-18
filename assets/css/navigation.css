@@ -1,0 +1,12 @@
+/* Shared site navigation also works on standalone interactive pages. */
+.site-header{position:relative;background:rgba(255,255,255,.96);border-bottom:1px solid #e7eaf0;font:16px/1.8 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.site-nav-shell{box-sizing:border-box;width:min(1120px,calc(100% - 64px));margin-inline:auto;min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+.site-brand{display:inline-flex;align-items:center;font-size:21px;letter-spacing:-.9px;font-weight:800;color:#172033;text-decoration:none;white-space:nowrap}
+.site-brand span{color:#4859d6}
+.site-brand:hover{color:#172033}
+.site-main-nav{display:flex;align-items:center;gap:clamp(12px,2vw,27px);flex-wrap:wrap;justify-content:flex-end}
+.site-main-nav a{font-size:13px;font-weight:550;color:#626d7d;text-decoration:none;white-space:nowrap;transition:color .2s}
+.site-main-nav a:hover,.site-main-nav a[aria-current=page]{color:#4859d6}
+.site-header a:focus-visible{outline:3px solid #a5afff;outline-offset:4px;border-radius:3px}
+@media(max-width:760px){.site-nav-shell{width:calc(100% - 36px);padding:15px 0;align-items:flex-start;flex-direction:column;gap:10px}.site-main-nav{gap:8px 14px;justify-content:flex-start}.site-main-nav a{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.site-header a{transition:none}}

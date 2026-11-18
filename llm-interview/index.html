@@ -1,9 +1,17 @@
+---
+layout: null
+title: "面试经验"
+description: "大模型后训练面经：交互式闪卡、知识浏览与自测。"
+---
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>大模型后训练 · 面经速学卡</title>
+<title>面试经验 · Straight 的知识库</title>
+<meta name="description" content="{{ page.description }}">
+<link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="48x48">
+<link rel="stylesheet" href="{{ '/assets/css/navigation.css' | relative_url }}">
 <style>
 :root{
   --bg:#f4f5f8; --card:#ffffff; --text:#1b1f27; --muted:#6b7280; --faint:#9ca3af;
@@ -20,8 +28,9 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
-header{
-  position:sticky;top:0;z-index:20;background:rgba(244,245,248,.9);
+/* Keep site navigation and study modes visible as one sticky group. */
+.study-navigation{position:sticky;top:0;z-index:20}
+.study-header{background:rgba(244,245,248,.9);
   backdrop-filter:blur(12px);border-bottom:1px solid var(--border);
 }
 .head-inner{max-width:1080px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
@@ -139,7 +148,9 @@ header{
 </style>
 </head>
 <body>
-<header>
+<div class="study-navigation">
+{% include site-header.html %}
+<header class="study-header">
   <div class="head-inner">
     <div class="brand"><span class="dot"></span>面经速学卡 <small>大模型后训练</small></div>
     <div class="head-spacer"></div>
@@ -154,6 +165,7 @@ header{
     </div>
   </div>
 </header>
+</div>
 
 <div class="wrap">
   <div class="hero" id="hero">

@@ -40,3 +40,15 @@ node scripts/sync-fire-siege.mjs '/path/to/烽火破城.html'
 ```
 
 同步脚本只给构建产物添加网站返回链接和全屏按钮。游戏预览图为 `assets/images/games/fire-siege.webp`；栏目介绍与按键说明在 `games/index.html`。
+
+### 手机同款
+
+手机专用入口为 `/games/fire-siege/mobile/`。栏目提供电脑版与手机版两个按钮，游戏开场和操作说明也可切换版本。手机用双指摇杆与蓄力、大按钮召兵、小地图和触屏军令，横竖屏适配安全区域；同一浏览器中的最高分与电脑版共用。
+
+更新手机版构建后同步：
+
+```sh
+node scripts/sync-fire-siege.mjs '/path/to/烽火破城手机版.html' --mobile
+```
+
+手机版从 `../../` 返回小游戏栏目，从 `../` 切换电脑版，均为相对链接，可在站点子路径下工作。

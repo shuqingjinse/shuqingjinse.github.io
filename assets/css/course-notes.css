@@ -1,4 +1,17 @@
 .course-directory-header{padding-bottom:34px}
+.course-guide{margin-top:30px;padding:25px 28px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.course-guide h2{margin:0 0 10px;font-size:21px;line-height:1.4;letter-spacing:-.4px}
+.course-guide-intro{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.85}
+.course-guide-table{overflow-x:auto}
+.course-guide table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.7}
+.course-guide th,.course-guide td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left}
+.course-guide thead th{background:#f2f4f9;color:var(--muted);font-size:12px;font-weight:600;white-space:nowrap}
+.course-guide tbody th{font-weight:650;white-space:nowrap}
+.course-guide th:nth-last-child(-n+2),.course-guide td:nth-last-child(-n+2){text-align:center;white-space:nowrap}
+.course-guide-note{margin:12px 0 0;font-size:12px;line-height:1.8;color:var(--muted)}
+.course-guide-path{margin-top:17px;padding-top:15px;border-top:1px solid var(--line)}
+.course-guide-path p{margin:0;font-size:14px;line-height:1.9}
+.course-guide-path p+p{margin-top:8px}
 .course-directory{padding:38px 0 80px}
 .course-directory-count{margin:0;color:var(--muted);font-size:13px;white-space:nowrap}
 .course-directory-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
@@ -44,6 +57,10 @@
 .course-empty h3{margin:0 0 8px;font-size:19px}
 .course-empty p{margin:0;color:var(--muted);font-size:14px;line-height:1.9}
 @media(max-width:760px){
+  .course-guide{margin-top:24px;padding:21px 18px}
+  .course-guide h2{font-size:20px}
+  .course-guide th,.course-guide td{padding:9px 6px;font-size:12px}
+  .course-guide-intro,.course-guide-path p{font-size:13px}
   .course-directory{padding:28px 0 56px}
   .course-directory-grid{grid-template-columns:1fr;gap:17px}
   .course-catalog-card{padding:24px}

@@ -1,4 +1,25 @@
 # 课程目录与讲义索引；添加课程时，在此登记并创建对应的课程页面。
+- id: cs329z
+  code: "CS329Z"
+  school: "Stanford University · 斯坦福大学"
+  title: "AI 智能体工程"
+  english_title: "Engineering AI Agents"
+  note_label: "CS329Z · ENGINEERING AI AGENTS"
+  instructor: "Diyi Yang · Michael Ryan · John Yang"
+  notes_complete: false
+  description: "从 RAG、工具和智能体循环出发，学习系统设计、数据、优化与评估。现已整理前两讲中文笔记。"
+  url: "/course-notes/cs329z/"
+  source_url: "https://cs329z.stanford.edu/"
+  source_domain: "cs329z.stanford.edu"
+  lessons:
+    - number: 1
+      title: "智能体系统导论：从语言模型到可行动的系统"
+      url: "/course-notes/cs329z-lecture-01/"
+      description: "梳理智能体的历史、组成与环境，区分复合 AI 系统、工作流和自主智能体，理解可靠性、训练、安全与评估挑战。"
+    - number: 2
+      title: "构建者需要的 LLM 基础：生成、训练与上下文工程"
+      url: "/course-notes/cs329z-lecture-02/"
+      description: "从解码、注意力与上下文长度，串起预训练到后训练、推理时扩展、结构化输出与上下文工程的设计取舍。"
 - id: cs193t
   code: "CS193T"
   school: "Stanford University · 斯坦福大学"

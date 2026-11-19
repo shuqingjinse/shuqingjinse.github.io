@@ -15,7 +15,7 @@ layout: default
     <span aria-current="page">第 {{ page.lecture }} 讲</span>
   </nav>
   <header class="pt-cover">
-    <p class="pt-kicker">{{ course.note_label | default: course.english_title | upcase | escape }} · {{ page.lecture }} / {{ course.lessons | size }}</p>
+    <p class="pt-kicker">{{ course.note_label | default: course.english_title | upcase | escape }} · {% if course.notes_complete == false %}第 {{ page.lecture }} 讲 · 已整理 {{ course.lessons | size }} 讲{% else %}{{ page.lecture }} / {{ course.lessons | size }}{% endif %}</p>
     <h1>{{ page.title | escape }}</h1>
     <p class="pt-description">{{ page.description | escape }}</p>
     <p class="pt-meta">中文学习笔记{% assign note_instructor = page.instructor | default: course.instructor %}{% if note_instructor %} · 主讲 {{ note_instructor | escape }}{% endif %}</p>
@@ -32,6 +32,6 @@ layout: default
   <div class="prose pt-prose">{{ content }}</div>
   <nav class="pt-pagination" aria-label="讲义翻页">
     {% if previous_lesson %}<a href="{{ previous_lesson.url | relative_url }}"><span>← 上一讲</span>{{ previous_lesson.title }}</a>{% endif %}
-    {% if next_lesson %}<a href="{{ next_lesson.url | relative_url }}"><span>下一讲 →</span>{{ next_lesson.title }}</a>{% else %}<a href="{{ course.url | relative_url }}"><span>全课完成</span>返回课程目录 →</a>{% endif %}
+    {% if next_lesson %}<a href="{{ next_lesson.url | relative_url }}"><span>下一讲 →</span>{{ next_lesson.title }}</a>{% else %}<a href="{{ course.url | relative_url }}"><span>{% if course.notes_complete == false %}后续笔记待更新{% else %}全课完成{% endif %}</span>返回课程目录 →</a>{% endif %}
   </nav>
 </article>

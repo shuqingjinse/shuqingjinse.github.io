@@ -31,7 +31,7 @@ layout: default
         <p class="section-kicker">LECTURE NOTES</p>
         <h2 id="course-lessons-title">课程讲义</h2>
       </div>
-      {% if lesson_count > 0 %}<p class="course-directory-count">共 {{ lesson_count }} 讲</p>{% endif %}
+      {% if lesson_count > 0 %}<p class="course-directory-count">{% if course.notes_complete == false %}已整理{% else %}共{% endif %} {{ lesson_count }} 讲</p>{% endif %}
     </div>
     {% for lesson in course.lessons %}
     <article class="post-card course-lesson-card">

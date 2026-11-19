@@ -15,14 +15,15 @@ layout: default
     <span aria-current="page">第 {{ page.lecture }} 讲</span>
   </nav>
   <header class="pt-cover">
-    <p class="pt-kicker">POST-TRAINING OF LLMS · {{ page.lecture }} / {{ course.lessons | size }}</p>
+    <p class="pt-kicker">{{ course.note_label | default: course.english_title | upcase | escape }} · {{ page.lecture }} / {{ course.lessons | size }}</p>
     <h1>{{ page.title | escape }}</h1>
     <p class="pt-description">{{ page.description | escape }}</p>
-    <p class="pt-meta">中文学习笔记 · 主讲 Banghua Zhu（朱邦华）</p>
+    <p class="pt-meta">中文学习笔记{% assign note_instructor = page.instructor | default: course.instructor %}{% if note_instructor %} · 主讲 {{ note_instructor | escape }}{% endif %}</p>
   </header>
   <aside class="pt-context" aria-label="本讲范围">
     <p><strong>对应原课：</strong>{{ page.original_lessons | escape }}</p>
     <p><strong>阅读提示：</strong>{{ page.source_note | escape }}</p>
+    {% if page.lecture_source %}<p><a href="{{ page.lecture_source | escape }}" target="_blank" rel="noopener noreferrer">官方讲次页面 ↗</a>{% if page.slides_source %} · <a href="{{ page.slides_source | escape }}" target="_blank" rel="noopener noreferrer">原始课件 ↗</a>{% endif %}</p>{% endif %}
   </aside>
   <nav class="pt-toc" aria-label="本讲目录">
     <p>本讲目录</p>

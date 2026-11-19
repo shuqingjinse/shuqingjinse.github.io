@@ -5,6 +5,11 @@
   kind: learn
   label: 课程
   url: /course-notes/cs329z/
+- title: "烽火破城手机版：五种增援常驻，一点即出兵"
+  date: 2026-11-19 17:03:29 +0800
+  kind: play
+  label: 游戏
+  url: /games/fire-siege/mobile/
 - title: "烽火破城手机版：摇杆挥砍、蓄力与按目的增援"
   date: 2026-11-19 16:39:34 +0800
   kind: play

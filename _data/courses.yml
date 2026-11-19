@@ -1,9 +1,54 @@
 # 课程目录与讲义索引；添加课程时，在此登记并创建对应的课程页面。
+- id: cs193t
+  code: "CS193T"
+  school: "Stanford University · 斯坦福大学"
+  title: "与 AI 一起思考：高效且负责任的人机协作"
+  english_title: "Thinking with AI: Strategies for Effective and Ethical Human-AI Collaboration"
+  note_label: "CS193T · THINKING WITH AI"
+  instructor: "Cynthia Bailey"
+  description: "按官网 8 讲逐讲整理：从 AI 原理、提示词与资料管理，到智能体、评估治理、成本与保持独立思考。"
+  url: "/course-notes/cs193t/"
+  source_url: "https://web.stanford.edu/class/archive/cs/cs193t/cs193t.1272/lectures/"
+  source_domain: "web.stanford.edu"
+  lessons:
+    - number: 1
+      title: "AI 导论：模型、上下文与能力边界"
+      url: "/course-notes/cs193t-lecture-01/"
+      description: "理解 token、神经网络、权重、训练与推理，建立注意力和上下文窗口的直觉，辨析幻觉、迎合与拟人化。"
+    - number: 2
+      title: "核心提示技巧：把目标、证据与验收写清楚"
+      url: "/course-notes/cs193t-lecture-02/"
+      description: "任务说明书、访谈式提示、提示复盘；用证据提升可观察性，管理长对话、上下文腐化与资源消耗。"
+    - number: 3
+      title: "资料与记忆管理：RAG、可复用指令与提示注入"
+      url: "/course-notes/cs193t-lecture-03/"
+      description: "区分当前上下文、跨会话记忆和模型训练，理解检索增强生成、来源冲突、策略性保留信息与不可信材料。"
+    - number: 4
+      title: "跨学科嘉宾讨论：AI 如何进入真实研究"
+      url: "/course-notes/cs193t-lecture-04/"
+      description: "依据官方嘉宾介绍梳理文学、法律与生物工程三种研究视角，并用明确标注的补充案例练习证据、责任与专业能力分析。"
+    - number: 5
+      title: "让 AI 行动：连接器、智能体循环与权限"
+      url: "/course-notes/cs193t-lecture-05/"
+      description: "连接器和工具调用怎样工作；智能体七要素、分析—行动—观察循环、大象与金鱼工作流，以及最小权限和可逆性。"
+    - number: 6
+      title: "控制你的 AI：编程协作、持续监测与评估"
+      url: "/course-notes/cs193t-lecture-06/"
+      description: "准备—生成—审查三步法，部署后的分布变化与幸存者偏差，NIST 风险框架、数据责任和可信评估。"
+    - number: 7
+      title: "算清成本：token、缓存、模型选择与 API 密钥"
+      url: "/course-notes/cs193t-lecture-07/"
+      description: "读懂用量报告，区分输入、输出与缓存费用；结合串行延迟和通过率选模型，识别密钥泄漏与环境成本的估算边界。"
+    - number: 8
+      title: "保持敏锐：学习迁移、独立判断与 AI 使用披露"
+      url: "/course-notes/cs193t-lecture-08/"
+      description: "从布鲁姆分类与有效挣扎理解学习，用依赖日志和不委托区域防止技能退化，并写出具体、可负责的 AI 使用说明。"
 - id: post-training
   code: "LLM POST-TRAINING"
   school: "DeepLearning.AI · University of Washington · NexusFlow"
   title: "大语言模型的后训练"
   english_title: "Post-training of LLMs"
+  instructor: "Banghua Zhu（朱邦华）"
   description: "7 讲完整中文笔记：从监督微调 SFT、偏好优化 DPO 到 PPO / GRPO，串起原理、数据、训练代码与评估方法。"
   url: "/course-notes/post-training/"
   source_url: "https://learn.deeplearning.ai/courses/post-training-of-llms/lesson/n25bz/introduction"

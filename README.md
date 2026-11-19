@@ -32,10 +32,11 @@ tags: [实践]
 `/course-notes/` 按课程展示入口，每门课有独立的讲义目录与课程官网链接。课程信息及讲义索引统一维护在 `_data/courses.yml`，由 `_layouts/course.html` 渲染课程页。
 
 - CS2680：`/course-notes/cs2680/`，现有 6 篇笔记，讲义原地址保持可用。
-- CS146S：`/course-notes/cs146s/`，The Modern Software Developer，暂无笔记时显示「笔记待更新」。
+- CS146S：`/course-notes/cs146s/`，The Modern Software Developer，现有 2 篇笔记。
+- CS193T：`/course-notes/cs193t/`，Thinking with AI，对应官方归档中公开的 8 讲，一讲一篇；各篇附课件链接、页码、应用练习和自测。第 4 讲说明嘉宾课公开材料的范围。
 - Post-training of LLMs：`/course-notes/post-training/`，7 讲完整中文笔记，涵盖后训练全景、SFT、DPO、PPO / GRPO 的原理与实践，附来源、自测及全课选型表。
 
-后训练笔记采用 `_layouts/course-note.html`，通过 `course_id` 和 `lecture` 关联目录，自动生成上一讲 / 下一讲；`sections` 维护页内目录。Markdown 公式使用 Kramdown 的双美元分隔符（行内与独立公式均支持），代码中出现 Jinja / Liquid 模板时需要用 Liquid `raw` 块保护。新增笔记后应检查 Jekyll 构建、公式显示、页内锚点与手机排版。
+后训练笔记与 CS193T 共用 `_layouts/course-note.html`，通过 `course_id` 和 `lecture` 关联目录，自动生成上一讲 / 下一讲；`sections` 维护页内目录。课程数据的 `instructor`、`note_label` 提供讲师与页眉，单篇可覆盖 `instructor`；`lecture_source`、`slides_source` 提供来源链接。Markdown 公式使用 Kramdown 的双美元分隔符（行内与独立公式均支持），代码中出现 Jinja / Liquid 模板时需要用 Liquid `raw` 块保护。新增笔记后应检查 Jekyll 构建、公式显示、页内锚点与手机排版。
 
 新增课程时，先在 `_data/courses.yml` 添加课程信息（`id`、`code`、`school`、`title`、`english_title`、`description`、`url`、`source_url`、`source_domain`、`lessons`），再创建课程页面，例如：
 

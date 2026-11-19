@@ -5,6 +5,11 @@
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+- title: "CS193T：Thinking with AI 八讲中文课程笔记"
+  date: 2026-11-19 09:02:00 +0800
+  kind: learn
+  label: 课程
+  url: /course-notes/cs193t/
 - title: "烽火破城手机版：混编守军与有限兵员"
   date: 2026-11-18 16:46:20 +0800
   kind: play

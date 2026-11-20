@@ -1,0 +1,100 @@
+---
+layout: default
+title: "国家数据集团 AI算法专家 · 求职准备"
+description: "私密求职准备笔记，内容在浏览器输入密码后解密。"
+sitemap: false
+---
+<style>
+.ndg-container{max-width:960px;margin:0 auto;padding:42px 0 78px;color:#1b1f27}
+.ndg-crumb{display:flex;gap:9px;align-items:center;font-size:13px;color:#7b8190;margin-bottom:32px;flex-wrap:wrap}
+.ndg-crumb a{color:#80541b;text-decoration:none}.ndg-crumb a:hover{text-decoration:underline}
+.ndg-label{text-transform:uppercase;font-size:11px;letter-spacing:.14em;font-weight:700;color:#916323;margin-bottom:12px}
+.ndg-hero h1{font-size:clamp(28px,4vw,42px);line-height:1.27;letter-spacing:-.03em;margin:0 0 14px}
+.ndg-desc{font-size:15px;line-height:1.9;color:#737988;max-width:660px}
+.ndg-hero{border-bottom:1px solid #e6e8ed;padding-bottom:29px}
+.ndg-gate{margin:36px auto 0;max-width:580px;padding:36px;background:#fff;border:1px solid #e7e8ec;border-radius:18px;box-shadow:0 12px 36px rgba(20,24,40,.045)}
+.ndg-symbol{width:52px;height:52px;display:grid;place-items:center;border-radius:15px;background:#fcf4e4;color:#916323;font-size:24px;margin-bottom:18px}
+.ndg-gate h2{font-size:22px;letter-spacing:-.02em;margin:0 0 8px}.ndg-gate p{margin:0 0 24px;color:#6b7280;line-height:1.85;font-size:14px}
+.ndg-field{display:flex;gap:10px}.ndg-field input{flex:1;min-width:0;border:1px solid #d5d9e2;border-radius:10px;padding:12px 14px;font:inherit;font-size:16px;background:#fff;outline:none}
+.ndg-field input:focus{border-color:#916323;box-shadow:0 0 0 3px #fcf4e4}.ndg-field button{border:0;border-radius:10px;background:#916323;color:#fff;font:inherit;font-weight:650;padding:12px 22px;cursor:pointer;white-space:nowrap}
+.ndg-field button:hover{background:#80541b}.ndg-field button:disabled{opacity:.6;cursor:wait}.ndg-status{min-height:24px;margin-top:12px;font-size:13px;color:#9b3a2a}
+.ndg-explain{font-size:12px!important;color:#9296a3!important;margin-top:9px!important;margin-bottom:0!important}
+.ndg-open{display:none;margin-top:35px}.ndg-open.ndg-visible{display:block;animation:ndg-fade .25s ease}
+.ndg-toc{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px}
+.ndg-toc a{border:1px solid #e6e8ed;background:#fff;border-radius:9px;padding:7px 11px;color:#80541b;font-size:12px;text-decoration:none}
+.ndg-toc a:hover{background:#fcf4e4}.ndg-body{padding:12px 35px 38px;background:#fff;border:1px solid #e6e8ed;border-radius:18px;line-height:1.88}
+.ndg-body section{padding:22px 0 30px;border-bottom:1px solid #edf0f3;scroll-margin-top:100px}.ndg-body section:last-child{border:0}
+.ndg-body h2{font-size:23px;margin:0 0 15px;letter-spacing:-.02em}.ndg-body h3{font-size:16px;margin:23px 0 9px}
+.ndg-body p{margin:10px 0 16px;color:#424855;font-size:14px}.ndg-body strong,.ndg-body b{color:#252935}
+.ndg-body ul,.ndg-body ol{padding-left:22px;margin:10px 0 18px}.ndg-body li{font-size:14px;margin:7px 0;color:#424855}
+.ndg-body table{width:100%;border-collapse:collapse;margin:19px 0;font-size:12.5px;display:block;overflow-x:auto}
+.ndg-body th,.ndg-body td{border:1px solid #e6e8ed;padding:10px 12px;text-align:left;vertical-align:top;min-width:105px}
+.ndg-body th{background:#fcf4e4;font-weight:650;color:#80541b}.ndg-body .note{font-size:12px;background:#f5f6f8;border-radius:10px;padding:13px 15px;color:#6b7280}
+@keyframes ndg-fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(max-width:640px){.ndg-container{padding:22px 0 56px}.ndg-crumb{margin-bottom:22px}.ndg-gate{padding:22px;margin-top:23px}.ndg-field{flex-direction:column}.ndg-field button{width:100%}.ndg-body{padding:6px 17px 20px}.ndg-body h2{font-size:21px}}
+</style>
+<div class="ndg-container">
+  <nav class="ndg-crumb" aria-label="当前位置">
+    <a href="{{ '/' | relative_url }}">首页</a><span>›</span><a href="{{ '/llm-interview/' | relative_url }}">面试经验</a><span>›</span><span>国家数据集团</span>
+  </nav>
+  <header class="ndg-hero">
+    <p class="ndg-label">PRIVATE / INTERVIEW NOTES</p>
+    <h1>国家数据集团<br>AI算法专家求职准备</h1>
+    <p class="ndg-desc">简历要点、笔试知识体系、技术面试、单位研究与新央企案例。仅在输入正确密码后解密，不在网站源码中存储明文。</p>
+  </header>
+  <section class="ndg-gate" id="ndg-gate" aria-labelledby="ndg-login-title">
+    <div class="ndg-symbol" aria-hidden="true">✳</div>
+    <h2 id="ndg-login-title">受保护的学习笔记</h2>
+    <p>文章使用 AES-256-GCM 加密。密码只用于当前浏览器的本地解密，不会上传至服务器，也不会保存到本地存储。</p>
+    <form id="ndg-form">
+      <label for="ndg-password" style="display:block;font-size:13px;font-weight:650;margin-bottom:9px">阅读密码</label>
+      <div class="ndg-field"><input id="ndg-password" type="password" inputmode="numeric" autocomplete="off" required placeholder="输入阅读密码" aria-describedby="ndg-status"><button id="ndg-submit" type="submit">解锁文章 →</button></div>
+      <p id="ndg-status" class="ndg-status" role="status" aria-live="polite"></p>
+    </form>
+    <p class="ndg-explain">提示：站点为公开静态托管，短数字密码仍可能被离线穷举。请勿在这类文章中保存高度敏感信息。</p>
+  </section>
+  <div id="ndg-open" class="ndg-open">
+    <nav class="ndg-toc" aria-label="文章目录">
+      <a href="#overview">简历定位</a><a href="#written">笔试复习</a><a href="#technical">技术面试</a>
+      <a href="#behavior">综合面试</a><a href="#company">单位背景</a><a href="#comparison">新央企对比</a><a href="#checklist">临考清单</a>
+    </nav>
+    <article class="ndg-body" id="ndg-article"></article>
+    <p style="margin-top:24px;font-size:13px"><a href="{{ '/llm-interview/' | relative_url }}">← 返回面试经验</a></p>
+  </div>
+</div>
+<script>
+(function(){
+  'use strict';
+  const form=document.getElementById('ndg-form');
+  const pass=document.getElementById('ndg-password');
+  const status=document.getElementById('ndg-status');
+  const submit=document.getElementById('ndg-submit');
+  const gate=document.getElementById('ndg-gate');
+  const open=document.getElementById('ndg-open');
+  const article=document.getElementById('ndg-article');
+  const endpoint="{{ '/llm-interview/national-data-group/content.enc.json' | relative_url }}";
+  function decode64(s){const b=atob(s),out=new Uint8Array(b.length);for(let i=0;i<b.length;i++)out[i]=b.charCodeAt(i);return out;}
+  form.addEventListener('submit',async function(event){
+    event.preventDefault();
+    if(!pass.value)return;
+    submit.disabled=true;status.textContent='正在本地解密…';
+    try {
+      if(!window.crypto?.subtle || typeof DecompressionStream==='undefined')throw new Error('unsupported');
+      const res=await fetch(endpoint,{cache:'no-store'});
+      if(!res.ok)throw new Error('network');
+      const payload=await res.json();
+      if(payload.v!==1||payload.kdf!=='PBKDF2-SHA256'||payload.cipher!=='AES-256-GCM'||payload.compression!=='gzip')throw new Error('format');
+      const material=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass.value),'PBKDF2',false,['deriveKey']);
+      const key=await crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:decode64(payload.salt),iterations:payload.iterations},material,{name:'AES-GCM',length:256},false,['decrypt']);
+      const decrypted=await crypto.subtle.decrypt({name:'AES-GCM',iv:decode64(payload.iv)},key,decode64(payload.data));
+      const stream=new Blob([decrypted]).stream().pipeThrough(new DecompressionStream('gzip'));
+      const html=await new Response(stream).text();
+      article.innerHTML=html;pass.value='';gate.hidden=true;open.classList.add('ndg-visible');
+      open.scrollIntoView({behavior:'smooth',block:'start'});
+    }catch(error){
+      status.textContent=error.message==='network'?'加密内容暂时无法加载，请稍后重试。':error.message==='unsupported'?'请使用支持 Web Crypto 和 DecompressionStream 的现代浏览器。':'密码不正确，或加密内容无法解密。';
+      pass.select();
+    }finally{submit.disabled=false;}
+  });
+})();
+</script>

@@ -2,7 +2,8 @@
 layout: default
 ---
 {% assign course = site.data.courses | where: 'id', page.course_id | first %}
-{% assign lesson_count = course.lessons | size %}
+{% assign available_lessons = course.lessons | where_exp: "lesson", "lesson.note_available != false" %}
+{% assign lesson_count = available_lessons | size %}
 <link rel="stylesheet" href="{{ '/assets/css/course-notes.css' | relative_url }}">
 
 <div class="course-module course-theme-{{ course.id }}">
@@ -24,6 +25,7 @@ layout: default
     <a class="course-official-link" href="{{ course.source_url }}" target="_blank" rel="noopener noreferrer">课程官网 <span>{{ course.source_domain }}</span><span aria-hidden="true">↗</span></a>
   </header>
 
+  {% if course.coverage_summary %}<p class="course-description">{{ course.coverage_summary | escape }}</p>{% endif %}
   {% if content != empty %}<div class="course-overview prose">{{ content }}</div>{% endif %}
   <section class="course-lessons" aria-labelledby="course-lessons-title">
     <div class="section-head">
@@ -35,10 +37,10 @@ layout: default
     </div>
     {% for lesson in course.lessons %}
     <article class="post-card course-lesson-card">
-      <p class="post-meta">{{ course.code | escape }} · 第 {{ lesson.number }} 讲</p>
+      <p class="post-meta">{{ course.code | escape }} · 第 {{ lesson.number }} {% if lesson.note_available == false %}次课 · 公开材料缺失{% else %}讲{% endif %}</p>
       <h3><a href="{{ lesson.url | relative_url }}">{{ lesson.title | escape }}</a></h3>
       <p>{{ lesson.description | escape }}</p>
-      <a class="read-more" href="{{ lesson.url | relative_url }}">阅读讲义 →</a>
+      <a class="read-more" href="{{ lesson.url | relative_url }}">{% if lesson.note_available == false %}查看材料说明{% else %}阅读讲义{% endif %} →</a>
     </article>
     {% else %}
     <div class="course-empty">

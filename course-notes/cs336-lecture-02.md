@@ -395,4 +395,4 @@ $$
 <p>梯度累积减少一次前向反向同时处理的数据量；激活检查点减少长时间保留的中间结果。两者主要针对激活，都不会直接消除参数和优化器状态。</p>
 </details>
 
-原始材料：[Lecture 2 常规可运行讲义](https://cs336.stanford.edu/lectures/?trace=lecture_02)、[官网另附的 recording version](https://cs336.stanford.edu/lectures/?trace=lecture_02_recording)、[2026 版课程目录](https://cs336.stanford.edu/#schedule)。本站目前已整理到第 2 讲，后续讲次待更新。
+原始材料：[Lecture 2 常规可运行讲义](https://cs336.stanford.edu/lectures/?trace=lecture_02)、[官网另附的 recording version](https://cs336.stanford.edu/lectures/?trace=lecture_02_recording)、[2026 版课程目录](https://cs336.stanford.edu/#schedule)。继续阅读第 3 讲，了解现代 Transformer 的架构与超参数取舍。

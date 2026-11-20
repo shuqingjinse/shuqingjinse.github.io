@@ -35,7 +35,7 @@ tags: [实践]
 - CS146S：`/course-notes/cs146s/`，The Modern Software Developer，现有 2 篇笔记。
 - CS193T：`/course-notes/cs193t/`，Thinking with AI，对应官方归档中公开的 8 讲，一讲一篇；各篇附课件链接、页码、应用练习和自测。第 4 讲说明嘉宾课公开材料的范围。
 - CS329Z：`/course-notes/cs329z/`，Engineering AI Agents，目前整理前两讲，分别介绍智能体系统与构建者需要的 LLM 基础；课程总目录上方提供侧重点、难度与学习路径。
-- CS336：`/course-notes/cs336/`，Language Modeling from Scratch，依据 2026 春季版整理前两讲：课程导论与分词、PyTorch 与资源核算；按官方代码讲义函数名标注来源，附补充算例与自测。
+- CS336：`/course-notes/cs336/`，Language Modeling from Scratch，依据 2026 春季版整理 17 讲正课，附 Dan Fu 嘉宾课笔记；按官网保留 19 次课顺序，第 18 次 Daniel Selsam 因未公开材料仅作说明且不计入篇数。按代码函数名或 PDF 页码标注来源，附公式、算例、实验与自测。
 - Post-training of LLMs：`/course-notes/post-training/`，7 讲完整中文笔记，涵盖后训练全景、SFT、DPO、PPO / GRPO 的原理与实践，附来源、自测及全课选型表。
 
 后训练笔记、CS193T、CS329Z 与 CS336 共用 `_layouts/course-note.html`，通过 `course_id` 和 `lecture` 关联目录，自动生成上一讲 / 下一讲；`sections` 维护页内目录。课程数据的 `instructor`、`note_label` 提供讲师与页眉，单篇可覆盖 `instructor`；`lecture_source`、`slides_source` 提供来源链接。只整理部分讲次的课程设置 `notes_complete: false`，页眉展示已整理数量，末篇提示后续待更新。Markdown 公式使用 Kramdown 的双美元分隔符（行内与独立公式均支持），代码中出现 Jinja / Liquid 模板时需要用 Liquid `raw` 块保护。新增笔记后应检查 Jekyll 构建、公式显示、页内锚点与手机排版。
@@ -124,3 +124,14 @@ node scripts/sync-fire-siege.mjs '/path/to/烽火破城手机版.html' --mobile
 网站搜索与桌面阅读：共享导航新增全站搜索，点击“搜索”或按 Mac 的 `⌘K`（其他系统 `Ctrl+K`）打开，可按课程、文章、面试、游戏筛选，支持中英文关键词、正文搜索与键盘选择。索引由 Jekyll 在构建时生成 `/search.json`，首次打开搜索时才下载；面经题库迁至 `_data/interview.json`，闪卡与搜索共用同一份数据，搜索结果可直接展开对应答案。核心规则检查运行 `node --test scripts/search.test.mjs`。
 
 首页动态按 `group`（缺省按目标 URL）合并，同一作品只展示最新消息；`/updates/` 保存完整记录。桌面端在 1024px 以上使用更小字号、较宽栏目间距与更舒展的阅读行距，样式集中在 `assets/css/desktop.css`；手机搜索保留 16px 输入字号与独立的弹窗布局。
+
+
+### 访问统计
+
+所有使用默认布局的栏目、课程、讲义、文章、面试页与首页，在内容上方显示「本页访问次数」与「全站访客人数」，页脚保留全站访问量。数据由既有不蒜子服务累计，每页每次加载只请求一次；不使用本地存储伪造线上计数，也不把全站 UV 称作某页 UV。旧版不蒜子接口不提供 page_uv，已移除原文章模板中无法工作的该字段。
+
+页面访问按当前 URL 累计，栏目入口的访问次数只表示该入口页，不汇总子页面。全站访客是服务口径的累计 UV，不能解释为真实注册用户数。新增显示不会回填此前未接入页面的历史访问。
+
+`assets/js/visit-stats.js` 同步多个显示位置，处理加载、错误和超时；网络或服务不可用时显示「统计暂不可用」，不显示虚假的 0。localhost / 127.0.0.1 / 本地文件不发送统计。三个独立游戏页在开始界面显示计数，战斗中不占用 HUD；两个游戏同步脚本通过 `scripts/game-visit-stats.mjs` 保留接入，支持站点子路径。
+
+统计规则与游戏同步回归：`node --test scripts/search.test.mjs scripts/visit-stats.test.mjs`。

@@ -1,3 +1,9 @@
+- title: "CS336：17 讲正课笔记、嘉宾课笔记与全课学习地图"
+  date: 2026-11-20 20:41:54 +0800
+  kind: learn
+  label: 课程
+  url: /course-notes/cs336/
+  group: cs336
 # 课程、工具和作品的发布记录。博客文章会自动合并到首页动态中。
 # 日期使用完整时间及 +0800，方便与文章的发布日期一起排序。
 # 同一作品使用相同 group，首页仅展示最新一条；完整历史保留在 /updates/。
@@ -24,6 +30,7 @@
   kind: learn
   label: 课程
   url: /course-notes/cs336/
+  group: cs336
 - title: "烽火破城手机版：全军冲锋与全屏精简战场"
   date: 2026-11-20 08:43:20 +0800
   kind: play

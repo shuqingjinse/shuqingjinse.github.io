@@ -1,0 +1,5 @@
+.visit-stats{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px 16px;padding:13px 0 0;margin:0;color:var(--muted,#747b88);font-size:12px;line-height:1.6;font-variant-numeric:tabular-nums}
+.visit-stats strong,[data-visit-stat]{font-weight:500;font-variant-numeric:tabular-nums}
+.visit-stats-status{font-size:11px;opacity:.75}.visit-stats-status:empty{display:none}
+@media(max-width:640px){.visit-stats{justify-content:flex-start;font-size:11px;gap:4px 12px;padding-top:10px}}
+.visit-stats-game{justify-content:center!important;padding:7px 0 0!important;margin:0!important;font:10px/1.6 system-ui,sans-serif!important;color:inherit!important;opacity:.75;letter-spacing:0!important}

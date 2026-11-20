@@ -1,0 +1,7 @@
+{%- assign searchable = include.doc.content | default: '' -%}
+{%- assign script_parts = searchable | split: '<script' -%}
+{%- capture without_scripts -%}{{ script_parts | first }}{%- for part in script_parts offset:1 -%}{%- if part contains '</script>' -%}{{ part | split: '</script>' | last }}{%- endif -%}{%- endfor -%}{%- endcapture -%}
+{%- assign style_parts = without_scripts | split: '<style' -%}
+{%- capture without_styles -%}{{ style_parts | first }}{%- for part in style_parts offset:1 -%}{%- if part contains '</style>' -%}{{ part | split: '</style>' | last }}{%- endif -%}{%- endfor -%}{%- endcapture -%}
+{%- assign clean_text = without_styles | markdownify | strip_html | normalize_whitespace -%}
+{"title":{{ include.doc.title | jsonify }},"url":{{ include.doc.url | relative_url | jsonify }},"kind":{{ include.kind | jsonify }},"description":{{ include.doc.description | default: '' | jsonify }},"tags":{{ include.doc.tags | join: ' ' | append: ' ' | append: include.doc.course_id | jsonify }},"text":{{ clean_text | jsonify }}},

@@ -17,6 +17,9 @@
         </div>
       </details>
     </nav>
+    <button class="site-search-trigger" type="button" data-site-search data-index-url="{{ '/search.json' | relative_url }}" aria-haspopup="dialog" aria-controls="site-search-dialog" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span>搜索</span><kbd>⌘ K</kbd></button>
   </div>
 </header>
 <script src="{{ '/assets/js/navigation.js' | relative_url }}" defer></script>
+
+<script type="module" src="{{ '/assets/js/search.js' | relative_url }}"></script>

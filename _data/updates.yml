@@ -1,20 +1,24 @@
 # 课程、工具和作品的发布记录。博客文章会自动合并到首页动态中。
 # 日期使用完整时间及 +0800，方便与文章的发布日期一起排序。
+# 同一作品使用相同 group，首页仅展示最新一条；完整历史保留在 /updates/。
 - title: "新游戏：散兵成军，从一人到一军"
   date: 2026-11-20 10:59:45 +0800
   kind: play
   label: 游戏
   url: /games/rally-army/
+  group: rally-army
 - title: "烽火破城手机版：跟随让行、明确集火与防误缩放"
   date: 2026-11-20 10:13:47 +0800
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "烽火破城手机版：优化过桥通行，火枪边走边射"
   date: 2026-11-20 09:51:30 +0800
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "CS336：从零构建语言模型前两讲中文笔记"
   date: 2026-11-20 09:15:00 +0800
   kind: learn
@@ -25,11 +29,13 @@
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "烽火破城手机版：左右集火与脱战后撤"
   date: 2026-11-19 17:46:54 +0800
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "CS329Z：AI 智能体工程前两讲中文笔记"
   date: 2026-11-19 17:05:00 +0800
   kind: learn
@@ -40,31 +46,37 @@
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "烽火破城手机版：摇杆挥砍、蓄力与按目的增援"
   date: 2026-11-19 16:39:34 +0800
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "烽火破城手机版：单将军操控与五军自主选敌"
   date: 2026-11-19 16:09:48 +0800
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "烽火破城手机版：大按钮军令与自由缩放视野"
   date: 2026-11-19 13:47:55 +0800
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "烽火破城手机版：五卡轻指挥与手机全屏"
   date: 2026-11-19 10:57:28 +0800
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "烽火破城手机版：主帅指挥与独立分队"
   date: 2026-11-19 09:04:24 +0800
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "CS193T：Thinking with AI 八讲中文课程笔记"
   date: 2026-11-19 09:02:00 +0800
   kind: learn
@@ -75,16 +87,19 @@
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "烽火破城手机版：五军与将军三关战役"
   date: 2026-11-18 16:11:00 +0800
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "烽火破城手机版：竖屏向上攻城"
   date: 2026-11-18 13:27:00 +0800
   kind: play
   label: 游戏
   url: /games/fire-siege/mobile/
+  group: fire-siege
 - title: "CS146S 第 2 讲：高效提示工程"
   date: 2026-11-18 12:00:00 +0800
   kind: learn

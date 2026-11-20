@@ -56,16 +56,26 @@ layout: default
     </div>
     <ol class="recent-posts">
       {% assign updates = site.posts | concat: site.data.updates | sort: 'date' | reverse %}
-      {% for update in updates limit:6 %}
+      {% assign seen_updates = '' %}
+      {% assign update_count = 0 %}
+      {% for update in updates %}
+      {% assign update_group = update.group | default: update.url %}
+      {% assign group_token = update_group | prepend: '|' | append: '|' %}
+      {% unless seen_updates contains group_token %}
+      {% assign seen_updates = seen_updates | append: group_token %}
+      {% assign update_count = update_count | plus: 1 %}
       <li>
         <article>
           <div class="update-meta"><span class="update-label update-{{ update.kind | default: 'think' }}">{{ update.label | default: '文章' }}</span><time datetime="{{ update.date | date: '%Y-%m-%d' }}">{{ update.date | date: "%Y-%m-%d" }}</time></div>
           <h3><a href="{{ update.url | relative_url }}">{{ update.title }}</a></h3>
+          {% if update.group %}{% assign group_updates = site.data.updates | where: 'group', update.group %}{% if group_updates.size > 1 %}<a class="update-history" href="{{ '/updates/' | relative_url }}#{{ update.group }}">已合并 {{ group_updates.size }} 次更新 →</a>{% endif %}{% endif %}
         </article>
       </li>
+      {% if update_count == 6 %}{% break %}{% endif %}
+      {% endunless %}
       {% endfor %}
     </ol>
-    <a class="recent-more" href="{{ '/personal-summary/' | relative_url }}">浏览文章归档 <span aria-hidden="true">→</span></a>
+    <a class="recent-more" href="{{ '/updates/' | relative_url }}">查看全部更新 <span aria-hidden="true">→</span></a>
   </aside>
 
   {% assign featured = site.posts | where: 'featured', true | first %}

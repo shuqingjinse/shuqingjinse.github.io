@@ -1,0 +1,15 @@
+---
+layout: null
+permalink: /search.json
+sitemap: false
+---
+[
+{% for doc in site.posts %}{% include search-record.json doc=doc kind='think' %}{% endfor %}
+{% for doc in site.pages %}{% if doc.path contains 'course-notes/' and doc.title %}{% include search-record.json doc=doc kind='learn' %}{% endif %}{% endfor %}
+{% for question in site.data.interview %}
+{"title":{{ question.q | jsonify }},"url":{{ '/llm-interview/' | relative_url | append: '#q-' | append: question.id | jsonify }},"kind":"practice","description":{{ question.topic | prepend: '后训练面试 · ' | jsonify }},"tags":{{ question.company | join: ' ' | append: ' ' | append: question.topic | jsonify }},"text":{{ question.answer | markdownify | strip_html | normalize_whitespace | jsonify }}},
+{% endfor %}
+{"title":"烽火破城","url":{{ '/games/fire-siege/' | relative_url | jsonify }},"kind":"play","description":"键盘指挥攻城，召唤投弹、投石、骑兵和火枪组。","tags":"电脑 键盘 攻城 游戏","text":"电脑游戏 WASD 移动主将，J 蓄力，L 大招。"},
+{"title":"烽火破城手机版","url":{{ '/games/fire-siege/mobile/' | relative_url | jsonify }},"kind":"play","description":"竖屏摇杆、蓄力挥砍、六道军令，连破三关。","tags":"手机 触屏 攻城 游戏","text":"玄武关 虎牢关 云内州 将军 佛朗机炮 护城河 瓮城 全军冲锋。"},
+{"title":"散兵成军","url":{{ '/games/rally-army/' | relative_url | jsonify }},"kind":"play","description":"从一人到一军：救援散兵、三选一强化、三地征途。","tags":"手机 触屏 救援 强化 游戏","text":"刀盾兵 弓手 骑兵 火枪手 芦苇渡 风铃岭 黑石营 蓄力刀气 山河啸 集结 冲锋。"}
+]

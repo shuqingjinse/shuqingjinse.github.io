@@ -1,0 +1,32 @@
+---
+layout: default
+title: "全部更新"
+description: "文章、课程与作品的更新记录。首页按作品合并，这里保留完整历史。"
+permalink: /updates/
+---
+<section class="category-header">
+  <p class="eyebrow">CHANGELOG</p><h1>全部更新</h1>
+  <p class="intro">文章、课程和作品的进展。首页每个作品只展示最新动态，完整记录留在这里。</p>
+</section>
+<section class="update-archive" aria-label="内容更新记录">
+  <div class="update-archive-main">
+    <h2>文章与课程</h2>
+    <ol class="archive-updates">
+      {% assign all_updates = site.posts | concat: site.data.updates | sort: 'date' | reverse %}
+      {% for update in all_updates %}{% unless update.group %}
+      <li><div class="update-meta"><span class="update-label update-{{ update.kind | default: 'think' }}">{{ update.label | default: '文章' }}</span><time datetime="{{ update.date | date_to_xmlschema }}">{{ update.date | date: '%Y-%m-%d' }}</time></div><h3><a href="{{ update.url | relative_url }}">{{ update.title }}</a></h3></li>
+      {% endunless %}{% endfor %}
+    </ol>
+  </div>
+  <div class="update-archive-projects">
+    {% assign projects = site.data.updates | where_exp: 'update', 'update.group != nil' | group_by: 'group' %}
+    {% for project in projects %}
+    <section class="project-updates" id="{{ project.name }}" aria-labelledby="project-{{ project.name }}">
+      <h2 id="project-{{ project.name }}">{% if project.name == 'fire-siege' %}烽火破城{% elsif project.name == 'rally-army' %}散兵成军{% else %}{{ project.name }}{% endif %}<small>{{ project.items.size }} 次更新</small></h2>
+      <ol class="archive-updates">{% assign entries = project.items | sort: 'date' | reverse %}{% for update in entries %}
+        <li><time datetime="{{ update.date | date_to_xmlschema }}">{{ update.date | date: '%Y-%m-%d %H:%M' }}</time><h3><a href="{{ update.url | relative_url }}">{{ update.title }}</a></h3></li>
+      {% endfor %}</ol>
+    </section>
+    {% endfor %}
+  </div>
+</section>

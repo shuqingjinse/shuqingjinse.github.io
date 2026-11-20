@@ -12,19 +12,20 @@
   <link rel="stylesheet" href="{{ '/assets/css/navigation.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/search.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/assets/css/desktop.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/css/visit-stats.css' | relative_url }}">
   <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']]},svg:{fontCache:'global'}};</script>
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
 {% capture site_section %}{% include page-section.html %}{% endcapture %}
 <body data-section="{{ site_section | strip }}">
   {% include site-header.html %}
-  <main class="shell" id="main-content">{{ content }}</main>
+  <main class="shell" id="main-content">{% include visit-stats.html %}{{ content }}</main>
   <footer class="site-footer">
     <div class="shell footer-inner">
       <p>© {{ 'now' | date: '%Y' }} Straight · 用文字整理思考。</p>
-      <p><a href="{{ '/feed.xml' | relative_url }}">RSS</a> · Powered by GitHub Pages · <span class="site-count">浏览 <span id="busuanzi_value_site_pv">–</span> · 访客 <span id="busuanzi_value_site_uv">–</span></span></p>
+      <p><a href="{{ '/feed.xml' | relative_url }}">RSS</a> · Powered by GitHub Pages · <span class="site-count">浏览 <span data-visit-stat="site_pv">—</span> · 访客 <span data-visit-stat="site_uv">—</span></span></p>
     </div>
   </footer>
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <script defer src="{{ '/assets/js/visit-stats.js' | relative_url }}"></script>
 </body>
 </html>

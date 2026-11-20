@@ -1,25 +1,96 @@
 # 课程目录与讲义索引；添加课程时，在此登记并创建对应的课程页面。
 - id: cs336
-  code: "CS336"
-  school: "Stanford University · 斯坦福大学"
-  title: "从零构建语言模型"
-  english_title: "Language Modeling from Scratch"
-  note_label: "CS336 · LANGUAGE MODELING FROM SCRATCH"
-  instructor: "Percy Liang · Tatsunori Hashimoto"
-  notes_complete: false
-  description: "从分词、模型与训练出发，理解数据、算力和系统效率。按 2026 春季版整理前两讲中文笔记，附手算示例与自测。"
-  url: "/course-notes/cs336/"
-  source_url: "https://cs336.stanford.edu/"
-  source_domain: "cs336.stanford.edu"
+  code: CS336
+  school: Stanford University · 斯坦福大学
+  title: 从零构建语言模型
+  english_title: Language Modeling from Scratch
+  note_label: CS336 · LANGUAGE MODELING FROM SCRATCH
+  instructor: Percy Liang · Tatsunori Hashimoto
+  notes_complete: true
+  description: 2026 春季版中文学习笔记：17 讲正课覆盖模型、训练、系统、扩展规律、评估、数据、后训练与多模态；另附 Dan Fu 嘉宾笔记及未公开课次说明。
+  url: /course-notes/cs336/
+  source_url: https://cs336.stanford.edu/
+  source_domain: cs336.stanford.edu
   lessons:
-    - number: 1
-      title: "课程导论与分词：从文本到 token"
-      url: "/course-notes/cs336-lecture-01/"
-      description: "建立以资源效率为中心的课程地图，比较字符、字节、词级分词，手算 BPE 的训练、编码与解码，理解词表和序列长度的取舍。"
-    - number: 2
-      title: "PyTorch 与资源核算：算力、显存和带宽"
-      url: "/course-notes/cs336-lecture-02/"
-      description: "用 einops 理解张量操作，推导矩阵乘法和训练 FLOPs，核算优化器与激活显存，并用算术强度、Roofline、梯度累积和重计算分析训练效率。"
+  - number: 1
+    title: 课程导论与分词：从文本到 token
+    url: /course-notes/cs336-lecture-01/
+    description: 建立以资源效率为中心的课程地图，比较字符、字节、词级分词，手算 BPE 的训练、编码与解码，理解词表和序列长度的取舍。
+  - number: 2
+    title: PyTorch 与资源核算：算力、显存和带宽
+    url: /course-notes/cs336-lecture-02/
+    description: 用 einops 理解张量操作，推导矩阵乘法和训练 FLOPs，核算优化器与激活显存，并用算术强度、Roofline、梯度累积和重计算分析训练效率。
+  - number: 3
+    title: 架构与超参数：现代 Transformer 的设计取舍
+    url: /course-notes/cs336-lecture-03/
+    description: 从 Pre-Norm、RMSNorm、SwiGLU、RoPE 到 GQA，理解模型结构、参数预算与数值稳定性。
+  - number: 4
+    title: 注意力替代方案与 MoE：减少计算，扩大容量
+    url: /course-notes/cs336-lecture-04/
+    description: 理解线性注意力、状态递推、混合架构、专家路由、负载均衡及 MoE 的通信成本。
+  - number: 5
+    title: GPU 与 TPU：用硬件视角理解训练效率
+    url: /course-notes/cs336-lecture-05/
+    description: 从线程、内存层级与 Tensor Core 出发，分析低精度、融合、访存合并、分块和 FlashAttention。
+  - number: 6
+    title: Kernel 与 Triton：从正确算子到高效实现
+    url: /course-notes/cs336-lecture-06/
+    description: 学习基准测试、性能分析、Triton 的分块思维，以及融合 GELU、softmax、行归约和矩阵乘法。
+  - number: 7
+    title: 并行训练基础：从集合通信到模型切分
+    url: /course-notes/cs336-lecture-07/
+    description: 通过 all-reduce、数据并行、张量并行与流水线并行，理解多卡怎样协同计算同一个训练目标。
+  - number: 8
+    title: 大规模并行：ZeRO、FSDP 与多维组合
+    url: /course-notes/cs336-lecture-08/
+    description: 核算分片收益，理解通信拓扑、流水线气泡、序列与专家并行，并选择适合模型和集群的组合。
+  - number: 9
+    title: 扩展规律：用小实验决定模型与数据预算
+    url: /course-notes/cs336-lecture-09/
+    description: 推导参数量、token 数与计算预算的关系，理解 IsoFLOP、Chinchilla、临界 batch 和外推边界。
+  - number: 10
+    title: 推理系统：KV Cache、批处理与推测解码
+    url: /course-notes/cs336-lecture-10/
+    description: 分清 prefill 与 decode，估算 KV cache，理解量化、连续批处理、PagedAttention 与精确推测采样。
+  - number: 11
+    title: 扩展规律实践：训练配方、WSD 与 μP
+    url: /course-notes/cs336-lecture-11/
+    description: 结合 MiniCPM、DeepSeek 等公开案例，学习复用实验、迁移超参数，并识别优化器比较中的混杂。
+  - number: 12
+    title: 模型评估：从困惑度到真实任务
+    url: /course-notes/cs336-lecture-12/
+    description: 区分概率建模、考试、聊天、智能体和安全评估，理解有效性、真实性、污染与实验口径。
+  - number: 13
+    title: 预训练数据：从原始来源到可用语料
+    url: /course-notes/cs336-lecture-13/
+    description: 梳理网页、百科、代码、论文与公开语料，区分实时服务、数据快照和处理后数据，并维护来源记录。
+  - number: 14
+    title: 数据处理：过滤、去重、混合与合成
+    url: /course-notes/cs336-lecture-14/
+    description: 掌握正文抽取、质量分类、Jaccard、MinHash 与 LSH，并用可验证实验选择混合比例和合成数据。
+  - number: 15
+    title: 中期训练与对齐：SFT、RLHF 和 DPO
+    url: /course-notes/cs336-lecture-15/
+    description: 从指令数据与偏好标注出发，理解监督微调、奖励模型、KL 约束及直接偏好优化的关系。
+  - number: 16
+    title: 可验证奖励强化学习：PPO、GRPO 与推理模型
+    url: /course-notes/cs336-lecture-16/
+    description: 推导策略比率和组内优势，分析 RLVR、长度偏差、验证器漏洞、蒸馏与训练基础设施。
+  - number: 17
+    title: 多模态模型：从图文对齐到视觉语言与生成
+    url: /course-notes/cs336-lecture-17/
+    description: 梳理 CLIP、SigLIP、LLaVA、Qwen-VL 与离散图像 token，理解分辨率、位置、数据和训练阶段。
+  - number: 18
+    title: Daniel Selsam 嘉宾课：公开材料说明
+    url: /course-notes/cs336-lecture-18/
+    description: 官网排定 2026-06-01；截至整理时，课程官网、官方讲义仓库和官方播放列表未提供可核验材料。此页只记录来源缺口。
+    note_available: false
+  - number: 19
+    title: Dan Fu 嘉宾课：推理系统与模型协同设计
+    url: /course-notes/cs336-lecture-19/
+    description: 覆盖官方录像主讲与问答，梳理流量、缓存、分离式推理、Megakernel、Parcae 与硬件协同设计。
+  coverage_summary: 17 讲正课 + Dan Fu 嘉宾笔记；另列 1 次未公开材料说明
+  completion_label: 公开材料目录已整理
 - id: cs329z
   code: "CS329Z"
   school: "Stanford University · 斯坦福大学"

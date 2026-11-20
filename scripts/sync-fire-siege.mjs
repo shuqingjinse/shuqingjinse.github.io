@@ -1,3 +1,4 @@
+import {withGameVisitStats} from './game-visit-stats.mjs';
 import {readFile,writeFile,mkdir,copyFile} from 'node:fs/promises';
 import {dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -56,6 +57,6 @@ html[data-mode=mobile] .topbar nav{gap:0}
 </script>
 `;
 await mkdir(dirname(target),{recursive:true});
-await writeFile(target,source.replace('</body>',integration+'</body>'));
+await writeFile(target,withGameVisitStats(source.replace('</body>',integration+'</body>'),mobile?'../../../':'../../'));
 if(mobile)for(const asset of ['manifest.webmanifest','siege-icon-192.png','siege-icon-512.png'])await copyFile(resolve(dirname(resolve(input)),asset),resolve(dirname(target),asset));
 console.log('Updated '+target+' with site navigation and device entry.');

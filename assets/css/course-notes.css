@@ -20,6 +20,7 @@
 .course-theme-cs146s{--course-accent:#267769;--course-soft:#eaf6f1;--course-border:#bdded0}
 .course-theme-cs193t{--course-accent:#8c3b4b;--course-soft:#fcf0f2;--course-border:#e6c1ca}
 .course-theme-cs329z{--course-accent:#526a27;--course-soft:#f2f6e9;--course-border:#cfdbb0}
+.course-theme-cs336{--course-accent:#35617d;--course-soft:#edf5fa;--course-border:#bdd2e2}
 .course-theme-post-training{--course-accent:#986125;--course-soft:#fcf4e8;--course-border:#e8cda6}
 .course-overview{padding:12px 0 0;font-size:15px}
 .course-catalog-card{display:flex;flex-direction:column;min-width:0;padding:30px;border:1px solid var(--line);border-top:3px solid var(--course-border);border-radius:14px;background:var(--surface);box-shadow:0 3px 16px rgba(28,38,70,.025)}

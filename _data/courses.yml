@@ -1,4 +1,25 @@
 # 课程目录与讲义索引；添加课程时，在此登记并创建对应的课程页面。
+- id: cs336
+  code: "CS336"
+  school: "Stanford University · 斯坦福大学"
+  title: "从零构建语言模型"
+  english_title: "Language Modeling from Scratch"
+  note_label: "CS336 · LANGUAGE MODELING FROM SCRATCH"
+  instructor: "Percy Liang · Tatsunori Hashimoto"
+  notes_complete: false
+  description: "从分词、模型与训练出发，理解数据、算力和系统效率。按 2026 春季版整理前两讲中文笔记，附手算示例与自测。"
+  url: "/course-notes/cs336/"
+  source_url: "https://cs336.stanford.edu/"
+  source_domain: "cs336.stanford.edu"
+  lessons:
+    - number: 1
+      title: "课程导论与分词：从文本到 token"
+      url: "/course-notes/cs336-lecture-01/"
+      description: "建立以资源效率为中心的课程地图，比较字符、字节、词级分词，手算 BPE 的训练、编码与解码，理解词表和序列长度的取舍。"
+    - number: 2
+      title: "PyTorch 与资源核算：算力、显存和带宽"
+      url: "/course-notes/cs336-lecture-02/"
+      description: "用 einops 理解张量操作，推导矩阵乘法和训练 FLOPs，核算优化器与激活显存，并用算术强度、Roofline、梯度累积和重计算分析训练效率。"
 - id: cs329z
   code: "CS329Z"
   school: "Stanford University · 斯坦福大学"

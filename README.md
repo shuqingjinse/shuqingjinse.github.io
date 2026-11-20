@@ -4,7 +4,7 @@
 
 ## 发布
 
-首次使用时，在 GitHub 创建公开仓库 `shuqingjinse.github.io`，然后执行：
+首次使用时，在 GitHub 创建公开仓库 `bieji-ai.github.io`，然后执行：
 
 ```bash
 git push -u origin main
